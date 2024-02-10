@@ -31,8 +31,11 @@ def load_page_of_request(request_data):
     HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=UTF8\r\nConnection: close\r\n'
     content = ''
     try:
-        with open('views' + path, 'rb') as file:
-            content = file.read()
+        if path == '/':
+            content = ('It is the MAIN page now!').encode('UTF8')
+        else:
+            with open('views' + path, 'rb') as file:
+                content = file.read()
         HDRS += 'Content-Length: ' + str(len(content)) + '\r\n\r\n'
         HDRS = HDRS.encode('UTF8')
         return HDRS + content

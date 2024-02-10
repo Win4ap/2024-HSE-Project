@@ -32,10 +32,9 @@ def load_page_of_request(request_data):
     content = ''
     try:
         if path == '/':
-            content = ('It is the MAIN page now!').encode('UTF8')
-        else:
-            with open('views' + path, 'rb') as file:
-                content = file.read()
+            path = '/WelcomePage'
+        with open('views' + path, 'rb') as file:
+            content = file.read()
         HDRS += 'Content-Length: ' + str(len(content)) + '\r\n\r\n'
         HDRS = HDRS.encode('UTF8')
         return HDRS + content

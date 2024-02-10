@@ -2,7 +2,7 @@
 <html>
  <head>
   <meta charset="utf-8">
-  <title>Изображения</title>
+  <title>Home</title>
  </head>
  <body>
   <p><img src="pictures/WelcomeHome.jpg" alt="Дом, милый дом"></p>

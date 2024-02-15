@@ -1,5 +1,40 @@
 <Container>:
-    size_hint: 0.8, 0.8
+    orientation: 'vertical'
+    spacing: '10dp'
+    size_hint: 0.7, 0.6
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    Button:
-        text: 'mezhbak'
+
+    client_state: client
+    delivery_state: delivery
+
+    Label:
+        text: 'Delivery: Fast&Smart'
+
+    BoxLayout:
+        ToggleButton:
+            id: client
+            text: 'Клиент'
+            state: 'down'
+            on_release:
+                root.change_delivery()
+
+        ToggleButton:
+            id: delivery
+            text: 'Курьер'
+            state: 'normal'
+            on_release:
+                root.change_client()
+
+    TextInput:
+        id: login
+        text: 'Логин'
+
+    TextInput:
+        id: password
+        text: 'Логин'
+
+    FloatLayout:
+        Button:
+            size_hint: 0.6, 0.9
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            text: 'Войти'

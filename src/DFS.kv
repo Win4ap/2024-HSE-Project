@@ -1,25 +1,64 @@
-<Container>:
+<RoundedButton_auth>:
+    background_color: 0, 0 ,0 ,0  
+    canvas.before:
+        Color:
+            rgba: (100/255, 100/255, 100/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [40,]
+
+<LeftRoundedToggleButton_auth>:
+    background_color: 0, 0 ,0 ,0  
+    canvas.before:
+        Color:
+            rgba: (80/255, 80/255, 80/255, 1) if self.state == 'normal' else (120/255, 120/255, 120/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [40, 0, 0, 40]
+
+<RightRoundedToggleButton_auth>:
+    background_color: 0, 0 ,0 ,0  
+    canvas.before:
+        Color:
+            rgba: (80/255, 80/255, 80/255, 1) if self.state == 'normal' else (120/255, 120/255, 120/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [0, 40, 40, 0]
+
+<AuthWindow>:
     orientation: 'vertical'
-    spacing: '10dp'
-    size_hint: 0.7, 0.6
+    spacing: '8dp'
+    size_hint: 0.7, 0.45
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-    client_state: client
-    delivery_state: delivery
+    client_switch: client
+    delivery_switch: delivery
+    login_input: login
+    password_input: password
+    password_hide_button: hide_password
 
     Label:
-        text: 'Delivery: Fast&Smart'
+        markup: 1
+        font_size: self.width/8
+        color: 1, 1, 1, 1
+        text: '[b]Delivery: Fast&Smart[/b]'
 
     BoxLayout:
-        ToggleButton:
+        size_hint: 1, 0.8
+        LeftRoundedToggleButton_auth:
             id: client
+            font_size: self.height/2
             text: 'Клиент'
             state: 'down'
             on_release:
                 root.change_delivery()
 
-        ToggleButton:
+        RightRoundedToggleButton_auth:
             id: delivery
+            font_size: self.height/2
             text: 'Курьер'
             state: 'normal'
             on_release:
@@ -27,14 +66,39 @@
 
     TextInput:
         id: login
-        text: 'Логин'
+        multiline: 0
+        background_color: 80/255, 80/255, 80/255, 1
+        foreground_color: 1, 1, 1, 1
+        font_size: self.height/1.7
+        hint_text: 'Логин'
+        cursor_color: 1, 1, 1, 1
 
     TextInput:
         id: password
-        text: 'Логин'
+        password: 1
+        multiline: 0
+        background_color: 80/255, 80/255, 80/255, 1
+        foreground_color: 1, 1, 1, 1
+        font_size: self.height/1.7
+        hint_text: 'Пароль'
+        cursor_color: 1, 1, 1, 1
+
+    ToggleButton:
+        id: hide_password
+        background_color: 1, 1, 1, 0
+        size_hint: 0.4, 0.2
+        text_size: self.size
+        font_size: self.height
+        halign: 'left'
+        text: 'Показать пароль'
+        on_release:
+            root.show_password()
 
     FloatLayout:
-        Button:
-            size_hint: 0.6, 0.9
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        RoundedButton_auth:
             text: 'Войти'
+            font_size: self.height/2.5
+            size_hint: 0.4, 0.9
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_release:
+                root.send_login_request()

@@ -1,32 +1,12 @@
-<RoundedButton_auth>:
-    background_color: 0, 0 ,0 ,0  
+<RoundedButton>:
+    background_color: 0, 0 ,0 ,0
     canvas.before:
         Color:
             rgba: (100/255, 100/255, 100/255, 1)
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [40,]
-
-<LeftRoundedToggleButton_auth>:
-    background_color: 0, 0 ,0 ,0  
-    canvas.before:
-        Color:
-            rgba: (80/255, 80/255, 80/255, 1) if self.state == 'normal' else (120/255, 120/255, 120/255, 1)
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [40, 0, 0, 40]
-
-<RightRoundedToggleButton_auth>:
-    background_color: 0, 0 ,0 ,0  
-    canvas.before:
-        Color:
-            rgba: (80/255, 80/255, 80/255, 1) if self.state == 'normal' else (120/255, 120/255, 120/255, 1)
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [0, 40, 40, 0]
+            radius: [40,] 
 
 <AuthWindow>:
     orientation: 'vertical'
@@ -48,21 +28,39 @@
 
     BoxLayout:
         size_hint: 1, 0.8
-        LeftRoundedToggleButton_auth:
+        ToggleButton:
             id: client
             font_size: self.height/2
             text: 'Клиент'
             state: 'down'
+            background_color: 0, 0 ,0 ,0  
+            animated_color: (120/255, 120/255, 120/255, 1)
+            canvas.before:
+                Color:
+                    rgba: self.animated_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [40, 0, 0, 40]
             on_release:
-                root.change_delivery()
+                root.change_client_state()
 
-        RightRoundedToggleButton_auth:
+        ToggleButton:
             id: delivery
             font_size: self.height/2
             text: 'Курьер'
             state: 'normal'
+            background_color: 0, 0 ,0 ,0  
+            animated_color: (80/255, 80/255, 80/255, 1)
+            canvas.before:
+                Color:
+                    rgba: self.animated_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [0, 40, 40, 0]
             on_release:
-                root.change_client()
+                root.change_delivery_state()
 
     TextInput:
         id: login
@@ -95,7 +93,7 @@
             root.show_password()
 
     FloatLayout:
-        RoundedButton_auth:
+        RoundedButton:
             text: 'Войти'
             font_size: self.height/2.5
             size_hint: 0.4, 0.9

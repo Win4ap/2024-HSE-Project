@@ -8,95 +8,106 @@
             size: self.size
             radius: [40,] 
 
-<AuthWindow>:
-    orientation: 'vertical'
-    spacing: '8dp'
-    size_hint: 0.7, 0.45
-    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+<EmptyWindow>:
+    Button:
+        size_hint: 0.5, 0.2
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        text:'уходи. тут ничего нет.'
+        on_release:
+            root.manager.transition.direction = 'down'
+            root.manager.current = 'auth'
 
+<AuthWindow>:
     client_switch: client
     delivery_switch: delivery
     login_input: login
     password_input: password
     password_hide_button: hide_password
-
-    Label:
-        markup: 1
-        font_size: self.width/8
-        color: 1, 1, 1, 1
-        text: '[b]Delivery: Fast&Smart[/b]'
-
     BoxLayout:
-        size_hint: 1, 0.8
-        ToggleButton:
-            id: client
-            font_size: self.height/2
-            text: 'Клиент'
-            state: 'down'
-            background_color: 0, 0 ,0 ,0  
-            animated_color: (120/255, 120/255, 120/255, 1)
-            canvas.before:
-                Color:
-                    rgba: self.animated_color
-                RoundedRectangle:
-                    pos: self.pos
-                    size: self.size
-                    radius: [40, 0, 0, 40]
-            on_release:
-                root.change_client_state()
+        orientation: 'vertical'
+        spacing: '8dp'
+        size_hint: 0.7, 0.45
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            markup: 1
+            font_size: self.width/8
+            color: 1, 1, 1, 1
+            text: '[b]Delivery: Fast&Smart[/b]'
+
+        BoxLayout:
+            size_hint: 1, 0.8
+            ToggleButton:
+                id: client
+                font_size: self.height/2
+                text: 'Клиент'
+                state: 'down'
+                background_color: 0, 0 ,0 ,0  
+                animated_color: (120/255, 120/255, 120/255, 1)
+                canvas.before:
+                    Color:
+                        rgba: self.animated_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [40, 0, 0, 40]
+                on_release:
+                    root.change_client_state()
+
+            ToggleButton:
+                id: delivery
+                font_size: self.height/2
+                text: 'Курьер'
+                state: 'normal'
+                background_color: 0, 0 ,0 ,0  
+                animated_color: (80/255, 80/255, 80/255, 1)
+                canvas.before:
+                    Color:
+                        rgba: self.animated_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [0, 40, 40, 0]
+                on_release:
+                    root.change_delivery_state()
+
+        TextInput:
+            id: login
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.7
+            hint_text: 'Логин'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: password
+            password: 1
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.7
+            hint_text: 'Пароль'
+            cursor_color: 1, 1, 1, 1
 
         ToggleButton:
-            id: delivery
-            font_size: self.height/2
-            text: 'Курьер'
-            state: 'normal'
-            background_color: 0, 0 ,0 ,0  
-            animated_color: (80/255, 80/255, 80/255, 1)
-            canvas.before:
-                Color:
-                    rgba: self.animated_color
-                RoundedRectangle:
-                    pos: self.pos
-                    size: self.size
-                    radius: [0, 40, 40, 0]
+            id: hide_password
+            background_color: 1, 1, 1, 0
+            size_hint: 0.4, 0.2
+            text_size: self.size
+            font_size: self.height
+            halign: 'left'
+            text: 'Показать пароль'
             on_release:
-                root.change_delivery_state()
+                root.show_password()
 
-    TextInput:
-        id: login
-        multiline: 0
-        background_color: 80/255, 80/255, 80/255, 1
-        foreground_color: 1, 1, 1, 1
-        font_size: self.height/1.7
-        hint_text: 'Логин'
-        cursor_color: 1, 1, 1, 1
-
-    TextInput:
-        id: password
-        password: 1
-        multiline: 0
-        background_color: 80/255, 80/255, 80/255, 1
-        foreground_color: 1, 1, 1, 1
-        font_size: self.height/1.7
-        hint_text: 'Пароль'
-        cursor_color: 1, 1, 1, 1
-
-    ToggleButton:
-        id: hide_password
-        background_color: 1, 1, 1, 0
-        size_hint: 0.4, 0.2
-        text_size: self.size
-        font_size: self.height
-        halign: 'left'
-        text: 'Показать пароль'
-        on_release:
-            root.show_password()
-
-    FloatLayout:
-        RoundedButton:
-            text: 'Войти'
-            font_size: self.height/2.5
-            size_hint: 0.4, 0.9
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-            on_release:
-                root.send_login_request()
+        FloatLayout:
+            RoundedButton:
+                text: 'Войти'
+                font_size: self.height/2.5
+                size_hint: 0.4, 0.9
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release:
+                    root.send_login_request()
+                    root.manager.transition.direction = 'up'
+                    root.manager.current = 'empty'

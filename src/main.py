@@ -2,8 +2,8 @@ import kivy
 kivy.require('2.3.0')
 
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.animation import Animation
 from kivy.core.window import Window
 from kivy.properties import ObjectProperty
@@ -12,10 +12,16 @@ Window.size = (360, 640)
 Window.clearcolor = (60/255, 60/255, 60/255, 1)
 Window.title = "Delivery: Fast&Smart"
 
+
 class RoundedButton(Button):
     pass
 
-class AuthWindow(BoxLayout):
+
+class EmptyWindow(Screen):
+    pass
+
+
+class AuthWindow(Screen):
     client_switch = ObjectProperty()
     delivery_switch = ObjectProperty()
     login_input = ObjectProperty()
@@ -49,11 +55,17 @@ class AuthWindow(BoxLayout):
             if self.client_switch.state == 'down':
                 status = 'клиент'
             print(f'Попытка входа: {status}, логин: {self.login_input.text}, пароль: {self.password_input.text}')
+            self.login_input.text = ''
+            self.password_input.text = ''
 
-# TODO: auth window is not only thing that we need to show in our app
+
 class DFSApp(App):
     def build(self):
-        return AuthWindow()
+        sm = ScreenManager()
+        sm.add_widget(AuthWindow(name='auth'))
+        sm.add_widget(EmptyWindow(name='empty'))
+        return sm
+
 
 
 if __name__ == '__main__':

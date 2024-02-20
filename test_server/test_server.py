@@ -1,4 +1,5 @@
 import socket
+import os
 
 
 def start_the_server():
@@ -33,7 +34,8 @@ def load_page_of_request(request_data):
     try:
         if path == '/':
             path = '/WelcomePage'
-        with open('views' + path, 'rb') as file:
+        full_path = os.path.join(os.getcwd(), 'views', path.strip('/'))
+        with open(full_path, 'rb') as file:
             content = file.read()
         HDRS += 'Content-Length: ' + str(len(content)) + '\r\n\r\n'
         HDRS = HDRS.encode('UTF8')

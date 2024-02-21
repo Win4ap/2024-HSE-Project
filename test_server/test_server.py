@@ -2,6 +2,9 @@ import socket
 import os
 
 
+HDRS_404 = 'HTTP/1.0 404 Not Found\r\n\r\n'
+
+
 def start_the_server():
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #семья и тип сервера в скобках
@@ -20,6 +23,9 @@ def start_the_server():
             print(data, "\n\n\n\n")
             
             content = load_page_of_request(data)
+            if content.decode('utf8') == 'SHUTDOWN':
+                client.send((HDRS_404 + 'Shutdown...').encode('UTF8'))
+                return
             client.send(content)
             client.shutdown(socket.SHUT_WR)
     except KeyboardInterrupt:
@@ -32,8 +38,10 @@ def load_page_of_request(request_data):
     HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=UTF8\r\nConnection: close\r\n'
     content = ''
     try:
-        if path == '/':
+        if path == '/' or path == 'main':
             path = '/WelcomePage'
+        if path == '/shutdown':
+            return ("SHUTDOWN").encode('utf8')
         full_path = os.path.join(os.getcwd(), 'views', path.strip('/'))
         with open(full_path, 'rb') as file:
             content = file.read()
@@ -41,7 +49,6 @@ def load_page_of_request(request_data):
         HDRS = HDRS.encode('UTF8')
         return HDRS + content
     except FileNotFoundError:
-        HDRS_404 = 'HTTP/1.0 404 Not Found\r\n\r\n'
         return (HDRS_404 + 'Sorry, we have not page like that yet...').encode('UTF8')
     
 

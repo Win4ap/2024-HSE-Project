@@ -25,6 +25,8 @@ def start_the_server():
             content = load_page_of_request(data)
             if content.decode('utf8') == 'SHUTDOWN':
                 client.send((HDRS_404 + 'Shutdown...').encode('UTF8'))
+                server.shutdown(socket.SHUT_RDWR)
+                server.close()
                 return
             client.send(content)
             client.shutdown(socket.SHUT_WR)

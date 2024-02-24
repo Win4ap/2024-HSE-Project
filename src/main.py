@@ -1,6 +1,7 @@
 import kivy
 kivy.require('2.3.0')
 
+import socket
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -12,13 +13,53 @@ Window.size = (360, 640)
 Window.clearcolor = (60/255, 60/255, 60/255, 1)
 Window.title = "Delivery: Fast&Smart"
 
+IP = '127.0.0.1'
+PORT = 1233
 
-class RoundedButton(Button):
-    pass
+class RegisterWindow(Screen):
+    client_switch = ObjectProperty()
+    delivery_switch = ObjectProperty()
+    login_input = ObjectProperty()
+    password_input = ObjectProperty()
+    password_confirm_input = ObjectProperty()
+    password_hide_button = ObjectProperty()
 
+    def change_color(self, widget, color):
+        animation = Animation(animated_color=color, duration=0.2)
+        animation.start(widget)
 
-class EmptyWindow(Screen):
-    pass
+    def change_client_state(self):
+        self.client_switch.state, self.delivery_switch.state = 'down', 'normal'
+        self.change_color(self.client_switch, (120/255, 120/255, 120/255, 1))
+        self.change_color(self.delivery_switch, (80/255, 80/255, 80/255, 1))
+    
+    def change_delivery_state(self):
+        self.client_switch.state, self.delivery_switch.state = 'normal', 'down'
+        self.change_color(self.client_switch, (80/255, 80/255, 80/255, 1))
+        self.change_color(self.delivery_switch, (120/255, 120/255, 120/255, 1))
+
+    def show_password(self):
+        self.password_input.password = False if self.password_hide_button.state == 'down' else True
+        self.password_confirm_input.password = False if self.password_hide_button.state == 'down' else True
+
+    def send_register_request(self):
+        if (self.password_input.text == self.password_confirm_input.text):
+            state = 'client' if self.client_switch.state == 'down' else 'delivery'
+            request = 'login {state} {self.login_input.text} {self.password_input.text}'
+            self.login_input.text = ''
+            self.password_input.text = ''
+            self.password_confirm_input.text = ''
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((IP, PORT))
+            client.send(request.encode('utf8'))
+            answer = client.recv(1024).decode('utf8')
+            client.close()
+            if (answer == 'client_exists'):
+                # код который говорит что такое уже есть
+            else:
+                # говорим что регистрация успешна и кидаем на окно входа
+        else:
+            # пароли не совпадают
 
 
 class AuthWindow(Screen):
@@ -45,25 +86,27 @@ class AuthWindow(Screen):
     def show_password(self):
         self.password_input.password = False if self.password_hide_button.state == 'down' else True
 
-    # placeholder yet, just say thx to god 'cause it is working
-    # TODO: connect with server instead of print
     def send_login_request(self):
-        if (self.login_input.text == '' or self.password_input.text == ''):
-            print('Логин / пароль не может быть пустым!')
+        state = 'client' if self.client_switch.state == 'down' else 'delivery'
+        request = 'login {state} {self.login_input.text} {self.password_input.text}'
+        self.login_input.text = ''
+        self.password_input.text = ''
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((IP, PORT))
+        client.send(request.encode('utf8'))
+        answer = client.recv(1024).decode('utf8')
+        client.close()
+        if (answer == 'incorrect'):
+            # неверный логин или пароль + проверьте кто вы курьер или клиент
         else:
-            status = 'курьер'
-            if self.client_switch.state == 'down':
-                status = 'клиент'
-            print(f'Попытка входа: {status}, логин: {self.login_input.text}, пароль: {self.password_input.text}')
-            self.login_input.text = ''
-            self.password_input.text = ''
+            # входим в основное приложение и делаем запросы далее через логин
 
 
 class DFSApp(App):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(AuthWindow(name='auth'))
-        sm.add_widget(EmptyWindow(name='empty'))
+        sm.add_widget(RegisterWindow(name='register'))
         return sm
 
 

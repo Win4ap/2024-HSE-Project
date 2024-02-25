@@ -29,6 +29,7 @@ class AuthWindow(Screen):
 
     def show_password(self):
         self.password_input.password = False if self.password_hide_button.state == 'down' else True
+        self.password_hide_button.text = 'Скрыть пароль' if self.password_hide_button.state == 'down' else 'Показать пароль'
 
     def send_login_request(self):
         state = 'client' if self.client_switch.state == 'down' else 'delivery'

@@ -31,6 +31,7 @@ class RegisterWindow(Screen):
     def show_password(self):
         self.password_input.password = False if self.password_hide_button.state == 'down' else True
         self.password_confirm_input.password = False if self.password_hide_button.state == 'down' else True
+        self.password_hide_button.text = 'Скрыть пароль' if self.password_hide_button.state == 'down' else 'Показать пароль'
 
     def send_register_request(self):
         if (self.password_input.text == self.password_confirm_input.text):

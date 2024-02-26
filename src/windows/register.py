@@ -50,7 +50,6 @@ class RegisterWindow(Screen):
                 self.login_input.text = ''
                 self.password_input.text = ''
                 self.password_confirm_input.text = ''
-                Popup(title='Placeholder', content=Label(text='УРА РАБОТАЕТ ЧЕГО??'), size_hint=(0.7, 0.2)).open()
                 self.manager.transition.direction = 'right'
                 self.manager.current = 'auth'
         else:

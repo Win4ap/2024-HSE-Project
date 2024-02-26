@@ -1,5 +1,7 @@
 import socket
 from kivy.uix.screenmanager import Screen
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 from kivy.animation import Animation
 
@@ -37,17 +39,19 @@ class RegisterWindow(Screen):
         if (self.password_input.text == self.password_confirm_input.text):
             state = 'client' if self.client_switch.state == 'down' else 'delivery'
             request = 'register ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
-            self.login_input.text = ''
-            self.password_input.text = ''
-            self.password_confirm_input.text = ''
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((IP, PORT))
             client.send(request.encode('utf8'))
             answer = client.recv(1024).decode('utf8')
             client.close()
             if (answer == 'login_exists'):
-                print('login_exists')
+                Popup(title='Ошибка', content=Label(text='Логин существует'), size_hint=(0.7, 0.2)).open()
             else:
-                print('done register')
+                self.login_input.text = ''
+                self.password_input.text = ''
+                self.password_confirm_input.text = ''
+                Popup(title='Placeholder', content=Label(text='УРА РАБОТАЕТ ЧЕГО??'), size_hint=(0.7, 0.2)).open()
+                self.manager.transition.direction = 'right'
+                self.manager.current = 'auth'
         else:
-            print('passwords error')
+            Popup(title='Ошибка', content=Label(text='Разные пароли'), size_hint=(0.7, 0.2)).open()

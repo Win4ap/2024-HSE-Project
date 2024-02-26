@@ -6,12 +6,11 @@ delivery_logins_passwords = {}
 
 def start_the_server():
     try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #семья и тип сервера в скобках
-        IP = '127.0.0.1' #socket.gethostbyname(socket.gethostname())
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        IP = '127.0.0.1' 
         PORT = 1233
         server.bind((IP, PORT)) 
-        #server = socket.create_server((IP, PORT)) то же, что и выше - создание самого сервера
-        server.listen(4) #кол-во принимаемых запросов для режима ожидания
+        server.listen(4) 
 
         print('Start working...')
         
@@ -28,7 +27,6 @@ def start_the_server():
                 server.close()
                 return
             client.send(content.encode('utf8'))
-            #сlient.shutdown(socket.SHUT_WR)
     except KeyboardInterrupt:
         server.close()
         print('\nShutdown...')

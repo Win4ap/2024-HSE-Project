@@ -47,7 +47,7 @@ def process_the_request(request_data):
                 client_logins_passwords[login_input] = password_input
                 return 'done_successfully'
             if state == 'delivery':
-                 if delivery_logins_passwords.get(login_input) != None:
+                if delivery_logins_passwords.get(login_input) != None:
                     return 'login_exists'
                 delivery_logins_passwords[login_input] = password_input
                 return 'done_successfully'

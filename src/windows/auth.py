@@ -33,15 +33,17 @@ class AuthWindow(Screen):
 
     def send_login_request(self):
         state = 'client' if self.client_switch.state == 'down' else 'delivery'
-        request = 'login {state} {self.login_input.text} {self.password_input.text}'
+        request = 'login ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
         self.login_input.text = ''
         self.password_input.text = ''
-        #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #client.connect((IP, PORT))
-        #client.send(request.encode('utf8'))
-        #answer = client.recv(1024).decode('utf8')
-        #client.close()
-        #if (answer == 'incorrect'):
-        #    # неверный логин или пароль + проверьте кто вы курьер или клиент
-        #else:
-        #    # входим в основное приложение и делаем запросы далее через логин
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((IP, PORT))
+        client.send(request.encode('utf8'))
+        answer = client.recv(1024).decode('utf8')
+        client.close()
+        if (answer == 'incorrect'):
+            print('incorrect')
+        elif (answer == 'login_doesnt_exists'):
+            print('login_doesnt_exists')
+        else:
+            print('login ok')

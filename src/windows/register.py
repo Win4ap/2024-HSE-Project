@@ -36,18 +36,18 @@ class RegisterWindow(Screen):
     def send_register_request(self):
         if (self.password_input.text == self.password_confirm_input.text):
             state = 'client' if self.client_switch.state == 'down' else 'delivery'
-            request = 'register {state} {self.login_input.text} {self.password_input.text}'
+            request = 'register ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
             self.login_input.text = ''
             self.password_input.text = ''
             self.password_confirm_input.text = ''
-            #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #client.connect((IP, PORT))
-            #client.send(request.encode('utf8'))
-            #answer = client.recv(1024).decode('utf8')
-            #client.close()
-            #if (answer == 'login_exists'):
-            #    # код который говорит что такое уже есть
-            #else:
-            #    # говорим что регистрация успешна и кидаем на окно входа
-        #else:
-        #    # пароли не совпадают
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((IP, PORT))
+            client.send(request.encode('utf8'))
+            answer = client.recv(1024).decode('utf8')
+            client.close()
+            if (answer == 'login_exists'):
+                print('login_exists')
+            else:
+                print('done register')
+        else:
+            print('passwords error')

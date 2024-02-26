@@ -36,7 +36,7 @@ class RegisterWindow(Screen):
     def send_register_request(self):
         if (self.password_input.text == self.password_confirm_input.text):
             state = 'client' if self.client_switch.state == 'down' else 'delivery'
-            request = 'login {state} {self.login_input.text} {self.password_input.text}'
+            request = 'register {state} {self.login_input.text} {self.password_input.text}'
             self.login_input.text = ''
             self.password_input.text = ''
             self.password_confirm_input.text = ''
@@ -45,7 +45,7 @@ class RegisterWindow(Screen):
             #client.send(request.encode('utf8'))
             #answer = client.recv(1024).decode('utf8')
             #client.close()
-            #if (answer == 'client_exists'):
+            #if (answer == 'login_exists'):
             #    # код который говорит что такое уже есть
             #else:
             #    # говорим что регистрация успешна и кидаем на окно входа

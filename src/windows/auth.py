@@ -48,4 +48,5 @@ class AuthWindow(Screen):
         else:
             self.login_input.text = ''
             self.password_input.text = ''
-            Popup(title='Placeholder', content=Label(text='УРА РАБОТАЕТ ЧЕГО??'), size_hint=(0.7, 0.2)).open()
+            self.manager.transition.direction = 'up'
+            self.manager.current = 'client'

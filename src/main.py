@@ -7,6 +7,7 @@ from kivy.core.window import Window
 
 from windows.auth import AuthWindow
 from windows.register import RegisterWindow
+from windows.client import ClientSide
 
 Window.size = (360, 640)
 Window.clearcolor = (60/255, 60/255, 60/255, 1)
@@ -17,6 +18,7 @@ class DFSApp(App):
         sm = ScreenManager()
         sm.add_widget(AuthWindow(name='auth'))
         sm.add_widget(RegisterWindow(name='register'))
+        sm.add_widget(ClientSide(name='client'))
         return sm
 
 

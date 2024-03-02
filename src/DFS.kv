@@ -6,7 +6,65 @@
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [40,] 
+            radius: [40,]
+
+<ClientSide>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        ScreenManager:
+            id: client_main_frame
+            size_hint: 1, 0.93
+            Screen:
+                id: client_orders_screen
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.1
+                        text:'[b]Заказы[/b]'
+                        markup: 1
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+
+                    BoxLayout:
+                        size_hint: 1, 0.05
+                        ToggleButton:
+                            text: '1'
+
+                        ToggleButton:
+                            text: '2'
+
+                        ToggleButton:
+                            text: '3'
+
+                    ScreenManager:
+                        id: client_orders_manager
+                        size_hint: 1, 0.7
+
+        BoxLayout:
+            size_hint: 1, 0.07
+            canvas:
+                Color:
+                    rgba: 217/255, 217/255, 217/255, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            ToggleButton:
+                text: '1'
+
+            ToggleButton:
+                text: '2'
+
+            ToggleButton:
+                text: '3'
 
 <RegisterWindow>:
     client_switch: client
@@ -133,6 +191,7 @@
     login_input: login
     password_input: password
     password_hide_button: hide_password
+
     BoxLayout:
         orientation: 'vertical'
         spacing: '8dp'
@@ -224,7 +283,7 @@
         size_hint: 0.7, 0.2
         pos_hint: {'center_x': 0.5}
         background_color: 0, 0, 0, 0
-        text: 'Вы здесь впервые?\n[b]Зарегистрирустесь[/b]'
+        text: 'Вы здесь впервые?\n[b]Зарегистрируйтесь[/b]'
         font_size: self.height/10
         halign: 'center'
         markup: True

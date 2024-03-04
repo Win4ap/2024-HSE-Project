@@ -1,44 +1,50 @@
 import socket
 import os
+import logging
+import sqlite3
 
 client_logins_passwords = {}
 delivery_logins_passwords = {}
 
+
 def start_the_server():
+    logging.basicConfig(level=logging.DEBUG, filename="loggings.log",
+                        filemode="w", format="%(asctime)s %(levelname)s %(message)s")
+    path_to_database = os.path.join(os.getcwd(), 'database/database.db', path.split('/'))
+    #database = sqlite3.connect(path_to_database)
     try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        IP = '127.0.0.1' 
-        PORT = 1233
-        server.bind((IP, PORT)) 
+        path_to_constants = os.path.join(os.getcwd(), 'constants')
+        with open(path_to_constants, 'r') as f:
+            constants = (f.read()).split(' ')
+    except FileNotFoundError:
+        logging.error('Cannot found file with constants!')
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        IP = constants[0]
+        PORT = int(constants[1])
+        server.bind((IP, PORT))
         server.listen(10)
-
-        print('Start working...')
-        
+        logging.debug('Server has started!')
         while True:
-            client, address = server.accept() #принятие запроса с разделением на клиента и его адрес, ждем сигнала.
+            # принятие запроса с разделением на клиента и его адрес, ждем сигнала.
+            client, address = server.accept()
             data = client.recv(1024).decode('utf8')
-
-            print(data, "\n\n\n\n")
-            
+            logging.info('Some data have received:\n\n' + data)
             content = process_the_request(data)
-            if content == 'SHUTDOWN':
-                client.send(('Shutdown...').encode('utf'))
-                server.shutdown(socket.SHUT_RDWR)
-                server.close()
-                return
             client.send(content.encode('utf8'))
             client.shutdown(socket.SHUT_WR)
+            client.close()
     except KeyboardInterrupt:
+        logging.info('Server has shutdowned with KeybordInterrupt...')
+    finally:
         server.close()
-        print('\nShutdown...')
+        return
 
 
 def process_the_request(request_data):
     request = request_data.split(' ')
     state = request[0]
     match state:
-        case 'shutdown':
-            return 'SHUTDOWN'
         case 'client':
             match request[1]:
                 case 'register':

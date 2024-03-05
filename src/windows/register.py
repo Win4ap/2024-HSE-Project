@@ -38,7 +38,7 @@ class RegisterWindow(Screen):
     def send_register_request(self):
         if (self.password_input.text == self.password_confirm_input.text):
             state = 'client' if self.client_switch.state == 'down' else 'delivery'
-            request = 'register ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
+            request = f'{state} register {self.login_input.text} {self.password_input.text}'
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((IP, PORT))
             client.send(request.encode('utf8'))

@@ -35,7 +35,7 @@ class AuthWindow(Screen):
 
     def send_login_request(self):
         state = 'client' if self.client_switch.state == 'down' else 'delivery'
-        request = 'login ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
+        request = f'{state} login {self.login_input.text} {self.password_input.text}'
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((IP, PORT))
         client.send(request.encode('utf8'))

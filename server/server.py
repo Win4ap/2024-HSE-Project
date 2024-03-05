@@ -10,8 +10,14 @@ delivery_logins_passwords = {}
 def start_the_server():
     logging.basicConfig(level=logging.DEBUG, filename="loggings.log",
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
-    path_to_database = os.path.join(os.getcwd(), 'database/database.db', path.split('/'))
-    #database = sqlite3.connect(path_to_database)
+    path_to_database = os.path.join(
+        os.getcwd(), 'database', 'database.db')
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT ) """
+        cursor.execute(query)
+        query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT ) """
+        cursor.execute(query)
     try:
         path_to_constants = os.path.join(os.getcwd(), 'constants')
         with open(path_to_constants, 'r') as f:
@@ -60,7 +66,7 @@ def process_the_request(request_data):
                     if client_logins_passwords.get(login_input) == None:
                         return 'login_doesnt_exists'
                     if client_logins_passwords[login_input] == password_input:
-                        return 'correct ' + state + ' ' + login
+                        return 'correct ' + state + ' ' + login_input
                     else:
                         return 'incorrect'
                 case _:
@@ -80,7 +86,7 @@ def process_the_request(request_data):
                     if delivery_logins_passwords.get(login_input) == None:
                         return 'login_doesnt_exists'
                     if delivery_logins_passwords[login_input] == password_input:
-                        return 'correct ' + state + ' ' + login
+                        return 'correct ' + state + ' ' + login_input
                     else:
                         return 'incorrect'
                 case _:

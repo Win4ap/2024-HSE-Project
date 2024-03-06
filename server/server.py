@@ -18,6 +18,7 @@ def start_the_server():
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT ) """
         cursor.execute(query)
+        database.commit()
     try:
         path_to_constants = os.path.join(os.getcwd(), 'constants')
         with open(path_to_constants, 'r') as f:
@@ -56,19 +57,11 @@ def process_the_request(request_data):
                 case 'register':
                     login_input = request[2]
                     password_input = request[3]
-                    if client_logins_passwords.get(login_input) != None:
-                        return 'login_exists'
-                    client_logins_passwords[login_input] = password_input
-                    return 'done_successfully'
+                    return try_to_register(login_input, password_input, state)
                 case 'login':
                     login_input = request[2]
                     password_input = request[3]
-                    if client_logins_passwords.get(login_input) == None:
-                        return 'login_doesnt_exists'
-                    if client_logins_passwords[login_input] == password_input:
-                        return 'correct ' + state + ' ' + login_input
-                    else:
-                        return 'incorrect'
+                    return try_to_login(login_input, password_input, state)
                 case _:
                     return 'error_of_request'
         case 'delivery':
@@ -76,23 +69,47 @@ def process_the_request(request_data):
                 case 'register':
                     login_input = request[2]
                     password_input = request[3]
-                    if delivery_logins_passwords.get(login_input) != None:
-                        return 'login_exists'
-                    delivery_logins_passwords[login_input] = password_input
-                    return 'done_successfully'
+                    return try_to_register(login_input, password_input, state)
                 case 'login':
                     login_input = request[2]
                     password_input = request[3]
-                    if delivery_logins_passwords.get(login_input) == None:
-                        return 'login_doesnt_exists'
-                    if delivery_logins_passwords[login_input] == password_input:
-                        return 'correct ' + state + ' ' + login_input
-                    else:
-                        return 'incorrect'
+                    return try_to_login(login_input, password_input, state)
                 case _:
                     return 'error_of_request'
         case _:
             return 'error_of_state'
+
+
+def try_to_register(login, password, state) -> str:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT login FROM {state}
+            _logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        user = cursor.fetchone()
+        if user == None:
+            query = f""" INSERT INTO {
+                state}_logins_passwords (login, password) VALUES (?, ?) """
+            cursor.execute(query, (login, password))
+            database.commit()
+            return 'done_successfully'
+        else:
+            return 'login_exists'
+
+
+def try_to_login(login, password, state) -> str:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT * FROM {state}_logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        user_password = cursor.fetchone()[1]
+        if user == None:
+            return 'login_doesnt_exists'
+        else:
+            if password == user_password:
+                return 'correct ' + state + ' ' + login
+            else:
+                return 'incorrect'
 
 
 start_the_server()

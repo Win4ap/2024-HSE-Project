@@ -3,9 +3,6 @@ import os
 import logging
 import sqlite3
 
-client_logins_passwords = {}
-delivery_logins_passwords = {}
-
 
 def start_the_server():
     logging.basicConfig(level=logging.DEBUG, filename="loggings.log",

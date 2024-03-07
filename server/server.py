@@ -109,11 +109,11 @@ def try_to_login(login, password, state) -> str:
         cursor = database.cursor()
         query = f""" SELECT * FROM {state}_logins_passwords WHERE login = ? """
         cursor.execute(query, (login,))
-        user_password = cursor.fetchone()[1]
-        if user_password == None:
+        user = cursor.fetchone()
+        if user == None:
             return 'login_doesnt_exists'
         else:
-            if password == user_password:
+            if password == user[1]:
                 return 'correct ' + state + ' ' + login
             else:
                 return 'incorrect'

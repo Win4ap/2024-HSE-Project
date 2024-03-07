@@ -36,7 +36,7 @@ def start_the_server():
             data = client.recv(1024).decode('utf8')
             logging.info('Some data have received:\n\n' + data + '\n')
             content = process_the_request(data)
-            login.info('Answer for the request is\n\n' + content + '\n')
+            logings.info('Answer for the request is\n\n' + content + '\n')
             client.send(content.encode('utf8'))
             client.shutdown(socket.SHUT_WR)
             client.close()

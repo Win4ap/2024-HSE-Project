@@ -54,12 +54,12 @@ def process_the_request(request_data):
         case 'client':
             match request[1]:
                 case 'register':
-                    loggings.debug('client register case')
+                    logging.debug('client register case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_register(login_input, password_input, state)
                 case 'login':
-                    loggings.debug('client login case')
+                    logging.debug('client login case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_login(login_input, password_input, state)
@@ -68,12 +68,12 @@ def process_the_request(request_data):
         case 'delivery':
             match request[1]:
                 case 'register':
-                    loggings.debug('delivery register case')
+                    logging.debug('delivery register case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_register(login_input, password_input, state)
                 case 'login':
-                    loggings.debug('delivery login case')
+                    logging.debug('delivery login case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_login(login_input, password_input, state)

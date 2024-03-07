@@ -9,6 +9,9 @@
             radius: [40,]
 
 <ClientSide>:
+    active_orders: active_orders
+    template_orders: template_orders
+
     canvas:
         Color:
             rgba: 1, 1, 1, 1
@@ -28,28 +31,55 @@
                     padding: ('20dp', '0dp', '20dp', '0dp')
                     Label:
                         size_hint: 1, 0.1
-                        text:'[b]Заказы[/b]'
+                        text: 'Заказы'
                         markup: 1
                         color: 0, 0, 0, 1
                         font_size: self.height/2
 
                     BoxLayout:
                         size_hint: 1, 0.05
+                        spacing: 30
                         ToggleButton:
-                            text: '1'
+                            id: active_orders
+                            text: 'Активные'
+                            color: 0, 0, 0, 1
+                            state: 'down'
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 1)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.template_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
 
                         ToggleButton:
-                            text: '2'
+                            id: template_orders
+                            text: 'Шаблоны'
+                            color: 0, 0, 0, 1
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 0)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.template_orders, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
 
-                        ToggleButton:
-                            text: '3'
-
+                    #TODO: scroll thing instead of sm
                     ScreenManager:
                         id: client_orders_manager
                         size_hint: 1, 0.7
 
         BoxLayout:
             size_hint: 1, 0.07
+            spacing: 50
             canvas:
                 Color:
                     rgba: 217/255, 217/255, 217/255, 1
@@ -58,13 +88,10 @@
                     size: self.size
 
             ToggleButton:
-                text: '1'
 
             ToggleButton:
-                text: '2'
 
             ToggleButton:
-                text: '3'
 
 <RegisterWindow>:
     client_switch: client
@@ -117,7 +144,7 @@
                         size: self.size
                         radius: [40, 0, 0, 40]
                 on_release:
-                    root.change_client_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'down', 'normal', (120/255, 120/255, 120/255, 1), (80/255, 80/255, 80/255, 1))
 
             ToggleButton:
                 id: delivery
@@ -134,7 +161,7 @@
                         size: self.size
                         radius: [0, 40, 40, 0]
                 on_release:
-                    root.change_delivery_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'normal', 'down', (80/255, 80/255, 80/255, 1), (120/255, 120/255, 120/255, 1))
 
         TextInput:
             id: login
@@ -221,7 +248,7 @@
                         size: self.size
                         radius: [40, 0, 0, 40]
                 on_release:
-                    root.change_client_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'down', 'normal', (120/255, 120/255, 120/255, 1), (80/255, 80/255, 80/255, 1))
 
             ToggleButton:
                 id: delivery
@@ -238,7 +265,7 @@
                         size: self.size
                         radius: [0, 40, 40, 0]
                 on_release:
-                    root.change_delivery_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'normal', 'down', (80/255, 80/255, 80/255, 1), (120/255, 120/255, 120/255, 1))
 
         TextInput:
             id: login

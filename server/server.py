@@ -34,8 +34,9 @@ def start_the_server():
             # принятие запроса с разделением на клиента и его адрес, ждем сигнала.
             client, address = server.accept()
             data = client.recv(1024).decode('utf8')
-            logging.info('Some data have received:\n\n' + data)
+            logging.info('Some data have received:\n\n' + data + '\n')
             content = process_the_request(data)
+            login.info('Answer for the request is\n\n' + content + '\n')
             client.send(content.encode('utf8'))
             client.shutdown(socket.SHUT_WR)
             client.close()
@@ -53,10 +54,12 @@ def process_the_request(request_data):
         case 'client':
             match request[1]:
                 case 'register':
+                    loggings.debug('client register case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_register(login_input, password_input, state)
                 case 'login':
+                    loggings.debug('client login case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_login(login_input, password_input, state)
@@ -65,10 +68,12 @@ def process_the_request(request_data):
         case 'delivery':
             match request[1]:
                 case 'register':
+                    loggings.debug('delivery register case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_register(login_input, password_input, state)
                 case 'login':
+                    loggings.debug('delivery login case')
                     login_input = request[2]
                     password_input = request[3]
                     return try_to_login(login_input, password_input, state)

@@ -88,13 +88,11 @@ def try_to_register(login, password, state) -> str:
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()
-        query = f""" SELECT login FROM {state}
-            _logins_passwords WHERE login = ? """
+        query = f""" SELECT login FROM {state}_logins_passwords WHERE login = ? """
         cursor.execute(query, (login,))
         user = cursor.fetchone()
         if user == None:
-            query = f""" INSERT INTO {
-                state}_logins_passwords (login, password) VALUES (?, ?) """
+            query = f""" INSERT INTO {state}_logins_passwords (login, password) VALUES (?, ?) """
             cursor.execute(query, (login, password))
             database.commit()
             return 'done_successfully'

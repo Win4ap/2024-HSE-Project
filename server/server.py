@@ -3,12 +3,13 @@ import os
 import logging
 import sqlite3
 
+path_to_database = os.path.join(
+    os.getcwd(), 'database', 'database.db')
+
 
 def start_the_server():
     logging.basicConfig(level=logging.DEBUG, filename="loggings.log",
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
-    path_to_database = os.path.join(
-        os.getcwd(), 'database', 'database.db')
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT ) """
@@ -100,7 +101,7 @@ def try_to_login(login, password, state) -> str:
         query = f""" SELECT * FROM {state}_logins_passwords WHERE login = ? """
         cursor.execute(query, (login,))
         user_password = cursor.fetchone()[1]
-        if user == None:
+        if user_password == None:
             return 'login_doesnt_exists'
         else:
             if password == user_password:

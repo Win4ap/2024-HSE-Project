@@ -84,7 +84,9 @@ def process_the_request(request_data):
 
 
 def try_to_register(login, password, state) -> str:
+    logging.debug('try to register')
     with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT login FROM {state}
             _logins_passwords WHERE login = ? """
@@ -101,7 +103,9 @@ def try_to_register(login, password, state) -> str:
 
 
 def try_to_login(login, password, state) -> str:
+    logging.debig('try to login')
     with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT * FROM {state}_logins_passwords WHERE login = ? """
         cursor.execute(query, (login,))

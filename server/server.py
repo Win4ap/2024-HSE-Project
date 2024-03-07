@@ -103,7 +103,7 @@ def try_to_register(login, password, state) -> str:
 
 
 def try_to_login(login, password, state) -> str:
-    logging.debig('try to login')
+    logging.debug('try to login')
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()

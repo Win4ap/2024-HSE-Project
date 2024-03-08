@@ -16,7 +16,9 @@ def start_the_server():
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS order_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT ) """
+        query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT ) """
+        cursor.execute(query)
+        query = """ CREATE TABLE IF NOT EXISTS templates_list ( login TEXT, name TEXT, cost INTEGER, description TEXT ) """
         cursor.execute(query)
         database.commit()
     try:
@@ -72,6 +74,21 @@ def process_the_request(request_data):
                     cost = int(request[4])
                     description = request[5]
                     return make_new_order(login, name_of_order, cost, description)
+                case 'new_template':
+                    logging.debug('client new_template case')
+                    login = request[2]
+                    name_of_template = request[3]
+                    cost = int(request[4])
+                    description = request[5]
+                    return make_new_template(login, name_of_template, cost, description)
+                case 'get_user_orders':
+                    logging.debug('client get_user_orders case')
+                    login = request[2]
+                    return get_user_data(login, 'orders')
+                case 'get_user_templates':
+                    logging.debug('client get_user_templates case')
+                    login = request[2]
+                    return get_user_data(login, 'templates')
                 case _:
                     return 'error error_of_request'
         case 'delivery':
@@ -136,25 +153,62 @@ def make_new_order(login, name, cost, description) -> str:
         cursor.execute(query, (login,))
         if cursor.fetchone() == None:
             return 'error login_doesnt_exists'
-        query = """ SELECT id FROM order_list ORDER BY id """
+        query = """ SELECT id FROM orders_list ORDER BY id """
         cursor.execute(query)
         order_id = cursor.fetchall()
         left = 0
         right = len(order_id)
-        if right == 0 or right == order_id[right - 1][0]:
+        if right == 0 or right == order_id[-1][0] + 1:
             cur_id = right
         else:
             while right - left > 1:
-                mid = (right - left) // 2
+                mid = (right + left) // 2
                 if order_id[mid][0] == mid:
                     left = mid 
                 else:
                     right = mid 
             cur_id = right 
-        query = """ INSERT INTO order_list (id, login, name, cost, description) VALUES (?, ?, ?, ?, ?) """
+        query = """ INSERT INTO orders_list (id, login, name, cost, description) VALUES (?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id, login, name, cost, description))
         database.commit()
     return f"done {cur_id}"
+
+
+def make_new_template(login, name, cost, description) -> str:
+    logging.debug('make new template')
+    with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
+        cursor = database.cursor()
+        query = """ SELECT login FROM client_logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        if cursor.fetchone() == None:
+            return 'error login_doesnt_exists'
+        query = """ INSERT INTO templates_list (login, name, cost, description) VALUES (?, ?, ?, ?) """
+        cursor.execute(query, (login, name, cost, description))
+        database.commit()
+    return 'done'
+
+
+def get_user_data(login, data) -> str:
+    logging.debug(f"get user's {data}")
+    result = 'done '
+    with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
+        cursor = database.cursor()
+        query = """ SELECT login FROM client_logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        if cursor.fetchone() == None:
+            return 'error login_doesnt_exists'
+        query = f""" SELECT * FROM {data}_list WHERE login = ? """
+        cursor.execute(query, (login,))
+        data = cursor.fetchall()
+        if data == None:
+            return 'done not_found'
+        for item in data:
+            result += '~ '
+            for elem in item:
+                result += str(elem) + ' '
+    return result
 
 
 start_the_server()

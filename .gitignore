@@ -2,3 +2,4 @@
 __pycache__
 server/loggings.log
 server/database/database.db
+src/windows/server_logic/state_login

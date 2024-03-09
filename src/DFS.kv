@@ -8,9 +8,92 @@
             size: self.size
             radius: [40,]
 
+<ClientOrderPreview>:
+    order_id: None
+    description: ''
+    order_name: ''
+    price: ''
+    courier: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 2
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.order_name}[/b]'
+            font_size: self.height/2
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: 'Подробнее'
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'bottom'
+        Label:
+            text_size: self.size
+            text: root.courier
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'bottom'
+
+<ClientTemplatePreview>:
+    description: ''
+    template_name: ''
+    price: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 1
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.template_name}[/b]'
+            font_size: self.height/3
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'middle'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/4
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'middle'
+
 <ClientSide>:
     active_orders: active_orders
     template_orders: template_orders
+    client_orders_scrollview: client_orders_scrollview
 
     canvas:
         Color:
@@ -36,16 +119,18 @@
                         color: 0, 0, 0, 1
                         font_size: self.height/2
 
+
                     BoxLayout:
                         size_hint: 1, 0.05
                         spacing: 30
                         ToggleButton:
                             id: active_orders
                             text: 'Активные'
+                            font_size: self.height/2
                             color: 0, 0, 0, 1
                             state: 'down'
                             background_color: 0, 0 ,0 ,0  
-                            animated_color: (217/255, 217/255, 217/255, 1)
+                            animated_color: (217/255, 217/255, 217/255, 0)
                             canvas.before:
                                 Color:
                                     rgba: self.animated_color
@@ -55,10 +140,12 @@
                                     radius: [20, 20, 20, 20]
                             on_release:
                                 root.change_color_state(root.active_orders, root.template_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+                                root.show_client_data('orders')
 
                         ToggleButton:
                             id: template_orders
                             text: 'Шаблоны'
+                            font_size: self.height/2
                             color: 0, 0, 0, 1
                             background_color: 0, 0 ,0 ,0  
                             animated_color: (217/255, 217/255, 217/255, 0)
@@ -71,11 +158,21 @@
                                     radius: [20, 20, 20, 20]
                             on_release:
                                 root.change_color_state(root.active_orders, root.template_orders, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+                                root.show_client_data('templates')
 
-                    #TODO: scroll thing instead of sm
-                    ScreenManager:
-                        id: client_orders_manager
+                    Widget:
+                        size_hint: None, 0.01 # spacing thing
+
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
                         size_hint: 1, 0.7
+                        BoxLayout:
+                            id: client_orders_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
 
         BoxLayout:
             size_hint: 1, 0.07
@@ -87,11 +184,11 @@
                     pos: self.pos
                     size: self.size
 
-            ToggleButton:
+            Button:
 
-            ToggleButton:
+            Button:
 
-            ToggleButton:
+            Button:
 
 <RegisterWindow>:
     client_switch: client
@@ -126,6 +223,7 @@
             font_size: self.width/8
             color: 1, 1, 1, 1
             text: '[b]Регистрация[/b]'
+
 
         BoxLayout:
             size_hint: 1, 0.8
@@ -231,6 +329,7 @@
             color: 1, 1, 1, 1
             text: '[b]Delivery: Fast&Smart[/b]'
 
+
         BoxLayout:
             size_hint: 1, 0.8
             ToggleButton:
@@ -319,3 +418,4 @@
             root.password_input.text = ''
             root.manager.transition.direction = 'left'
             root.manager.current = 'register'
+

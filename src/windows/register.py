@@ -16,9 +16,9 @@ class RegisterWindow(Screen, ColorAnimBase, ServerLogic):
             if self.password_input.text == self.password_confirm_input.text:
                 state = 'client' if self.client_switch.state == 'down' else 'delivery'
                 answer = super().auth_reg_request(state, 'register', self.login_input.text, self.password_input.text)
-                if answer == 'login_exists':
+                if answer == 'error login_exists':
                     Popup(title='Ошибка', content=Label(text='Логин существует'), size_hint=(0.8, 0.2)).open()
-                elif answer == 'done_successfully':
+                elif answer == 'done':
                     self.login_input.text = ''
                     self.password_input.text = ''
                     self.password_confirm_input.text = ''

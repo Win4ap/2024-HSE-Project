@@ -24,6 +24,20 @@ class ClientTemplatePreview(ButtonBehavior, BoxLayout):
         self.description = description
 
 class ClientSide(Screen, ColorAnimBase, ServerLogic):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.client_main_frame.current = 'client_orders'
+
+    def switch_main_to(self, screen):
+        if self.client_main_frame.current != screen:
+            self.client_main_frame.current = screen
+        if screen == 'client_chat':
+            self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/bold_chat.png', 'img/list.png', 'img/user.png'
+        elif screen == 'client_orders':
+            self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/bold_list.png', 'img/user.png'
+        elif screen == 'client_profile':
+            self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/list.png', 'img/bold_user.png'
+
     def show_client_data(self, info):
         if (info != 'orders' and info != 'templates'):
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

@@ -11,6 +11,13 @@
             size: self.size
             radius: [40,]
 
+<ProfileButton@Button>:
+    background_color: 0, 0, 0, 0
+    text_size: self.size
+    font_size: self.height/2
+    halign: 'left'
+    color: 0, 0, 0, 1
+
 <ClientOrderPreview>:
     order_id: None
     description: ''
@@ -212,16 +219,74 @@
                     BoxLayout:
                         size_hint: 1, 0.87
                         orientation: 'vertical'
-                        #spacing: 30
                         BoxLayout:
                             size_hint: 1, 0.93
+                            orientation: 'vertical'
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                Widget:
+                                    size_hint: 0.3, 1
+                                    canvas.before:
+                                        Color:
+                                            rgba: (180/255, 180/255, 180/255, 1)
+                                        Ellipse:
+                                            size: self.height/1.3, self.height/1.3
+                                            pos: self.center_x - self.height/2.3, self.center_y - (self.height/1.3)/2
+                                
+                                BoxLayout:
+                                    size_hint: 0.7, 1
+                                    orientation: 'vertical'
+                                    Label:
+                                        text_size: self.size
+                                        text: '[b]Имя Фамилия[/b]'
+                                        halign: 'left'
+                                        valign: 'bottom'
+                                        markup: 1
+                                        font_size: self.height/2.5
+                                        color: 0, 0, 0, 1
+                                    
+                                    Label:
+                                        text_size: self.size
+                                        text:'Рейтинг: 5'
+                                        halign: 'left'
+                                        valign: 'top'
+                                        font_size: self.height/4
+                                        color: 0, 0, 0, 1
+                            
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Архив заказов'
+                                ProfileButton:
+                                    text: 'Отзывы'
+                                ProfileButton:
+                                    text: 'Сменить регион'
+
+                            # shit
+                            Widget:
+                                size_hint: 1, 0.3
+
+                            BoxLayout:
+                                size_hint: 1, 0.3
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Способ оплаты'
+                                ProfileButton:
+                                    text: 'FAQ'
+                                ProfileButton:
+                                    text: 'Редактировать данные'
+                                ProfileButton:
+                                    text: 'Промокоды'
+                                ProfileButton:
+                                    text: 'Поддержка'
 
                         FloatLayout:
                             size_hint: 1, 0.07
                             RoundedButton:
                                 text: 'Выйти'
                                 font_size: self.height/2
-                                size_hint: 0.5, 0.9
+                                size_hint: 0.4, 0.9
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (178/255, 34/255, 34/255, 1)
                                 on_release:

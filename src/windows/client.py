@@ -39,6 +39,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
         self.client_orders_scrollview.clear_widgets()
         self.client_main_frame.current = 'client_orders'
         self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/bold_list.png', 'img/user.png'
+        self.active_orders.animated_color , self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 0)
 
     def switch_main_to(self, screen):
         if self.client_main_frame.current != screen:

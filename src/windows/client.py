@@ -1,3 +1,5 @@
+import os
+
 from kivy.uix.screenmanager import Screen
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
@@ -27,6 +29,16 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.client_main_frame.current = 'client_orders'
+
+    def quit(self):
+        path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+        with open(path_to_login, 'wb'):
+            pass
+        self.manager.transition.direction = 'down'
+        self.manager.current = 'auth'
+        self.client_orders_scrollview.clear_widgets()
+        self.client_main_frame.current = 'client_orders'
+        self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/bold_list.png', 'img/user.png'
 
     def switch_main_to(self, screen):
         if self.client_main_frame.current != screen:

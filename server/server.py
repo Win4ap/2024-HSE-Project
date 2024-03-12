@@ -2,6 +2,7 @@ import socket
 import os
 import logging
 import sqlite3
+import constants
 
 path_to_database = os.path.join(
     os.getcwd(), 'database', 'database.db')
@@ -22,15 +23,9 @@ def start_the_server():
         cursor.execute(query)
         database.commit()
     try:
-        path_to_constants = os.path.join(os.getcwd(), 'constants')
-        with open(path_to_constants, 'r') as f:
-            constants = (f.read()).split(' ')
-    except FileNotFoundError:
-        logging.error('Cannot found file with constants!')
-    try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        IP = constants[0]
-        PORT = int(constants[1])
+        IP = constants.IP
+        PORT = constants.PORT
         server.bind((IP, PORT))
         server.listen(10)
         logging.debug('Server has started!')

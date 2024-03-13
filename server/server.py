@@ -13,9 +13,9 @@ def start_the_server():
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT, fullness BLOB ) """
+        query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT, fullness INTEGER ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT, fullness BLOB ) """
+        query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT, fullness INTEGER ) """
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT ) """
         cursor.execute(query)
@@ -84,6 +84,10 @@ def process_the_request(request_data):
                     logging.debug('client get_user_templates case')
                     login = request[2]
                     return get_user_data(login, 'templates')
+                case 'get_profile_fullness':
+                    logging.debug('client get_profile_fullness case')
+                    login = request[2]
+                    return get_profile_fullness(login, state)
                 case _:
                     return 'error error_of_request'
         case 'delivery':
@@ -203,6 +207,25 @@ def get_user_data(login, data) -> str:
             result += '~ '
             for elem in item:
                 result += str(elem) + ' '
+    return result
+
+
+def get_profile_fullness(login, state) -> str:
+    result = 'done '
+    with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
+        cursor = database.cursor()
+        query = """ SELECT login FROM client_logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        if cursor.fetchone() == None:
+            return 'error login_doesnt_exists'
+        query = f""" SELECT fullness FROM {state}_logins_passwords WHERE login = ? """
+        cursor.execute(query, (login,))
+        fullness = cursor.fetchone()[0]
+        if fullness:
+            result += 'True'
+        else:
+            result += 'False'
     return result
 
 

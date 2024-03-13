@@ -13,9 +13,9 @@ def start_the_server():
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT ) """
+        query = """ CREATE TABLE IF NOT EXISTS client_logins_passwords ( login TEXT, password TEXT, fullness BLOB ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT ) """
+        query = """ CREATE TABLE IF NOT EXISTS delivery_logins_passwords ( login TEXT, password TEXT, fullness BLOB ) """
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT ) """
         cursor.execute(query)
@@ -113,8 +113,8 @@ def try_to_register(login, password, state) -> str:
         cursor.execute(query, (login,))
         user = cursor.fetchone()
         if user == None:
-            query = f""" INSERT INTO {state}_logins_passwords (login, password) VALUES (?, ?) """
-            cursor.execute(query, (login, password))
+            query = f""" INSERT INTO {state}_logins_passwords (login, password, fullness) VALUES (?, ?, ?) """
+            cursor.execute(query, (login, password, 0))
             database.commit()
             return 'done'
         else:

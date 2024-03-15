@@ -3,6 +3,8 @@ import os
 import logging
 import sqlite3
 import constants
+from AdditionalClasses import Order 
+
 
 path_to_database = os.path.join(
     os.getcwd(), 'database', 'database.db')
@@ -17,9 +19,9 @@ def start_the_server():
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone_number TEXT, fullness INTEGER ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT ) """
+        query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS templates_list ( login TEXT, name TEXT, cost INTEGER, description TEXT ) """
+        query = """ CREATE TABLE IF NOT EXISTS templates_list ( login TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
         cursor.execute(query)
         database.commit()
     try:
@@ -66,18 +68,12 @@ def process_the_request(request_data):
                     return try_to_login(login, password_input, state)
                 case 'new_order':
                     logging.debug('client new_order case')
-                    login = request[2]
-                    name_of_order = request[3]
-                    cost = int(request[4])
-                    description = request[5]
-                    return make_new_order(login, name_of_order, cost, description)
+                    order = Order(request[2], request[3], int(request[4]), request[5], request[6], request[7])
+                    return make_new_order(order)
                 case 'new_template':
                     logging.debug('client new_template case')
-                    login = request[2]
-                    name_of_template = request[3]
-                    cost = int(request[4])
-                    description = request[5]
-                    return make_new_template(login, name_of_template, cost, description)
+                    order = Order(request[2], request[3], int(request[4]), request[5], request[6], request[7])
+                    return make_new_template(order)
                 case 'get_user_orders':
                     logging.debug('client get_user_orders case')
                     login = request[2]
@@ -154,14 +150,14 @@ def try_to_login(login, password, state) -> str:
                 return 'done incorrect'
 
 
-def make_new_order(login, name, cost, description) -> str:
+def make_new_order(order) -> str:
     logging.info('make new order')
     cur_id = -1
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
-        cursor.execute(query, (login,))
+        cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
             return 'error login_doesnt_exists'
         query = """ SELECT id FROM orders_list ORDER BY id """
@@ -179,13 +175,13 @@ def make_new_order(login, name, cost, description) -> str:
                 else:
                     right = mid 
             cur_id = right 
-        query = """ INSERT INTO orders_list (id, login, name, cost, description) VALUES (?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id, login, name, cost, description))
+        query = """ INSERT INTO orders_list (id, login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order.get_tuple())
         database.commit()
     return f"done {cur_id}"
 
 
-def make_new_template(login, name, cost, description) -> str:
+def make_new_template(order) -> str:
     logging.info('make new template')
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
@@ -194,8 +190,8 @@ def make_new_template(login, name, cost, description) -> str:
         cursor.execute(query, (login,))
         if cursor.fetchone() == None:
             return 'error login_doesnt_exists'
-        query = """ INSERT INTO templates_list (login, name, cost, description) VALUES (?, ?, ?, ?) """
-        cursor.execute(query, (login, name, cost, description))
+        query = """ INSERT INTO templates_list (login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, order.get_tuple())
         database.commit()
     return 'done'
 
@@ -250,7 +246,7 @@ def edit_profile(state, login, name, surname, phone) -> str:
     path_to_profile_picture = os.path.join(
         os.getcwd(), 'images', f'{state}_{login}_profile_picture.jpg')
     size = int(client.recv(1024))
-    client.send((f'done debug size_is_{size}').encode('utf8'))
+    client.send((f'debug size_is_{size}').encode('utf8'))
     logging.debug(f'Got size of picture: {size}')
     processed_size = 0
     with open(path_to_profile_picture, mode = 'wb') as profile_picture:
@@ -260,12 +256,12 @@ def edit_profile(state, login, name, surname, phone) -> str:
             processed_size += len(data)
             logging.debug(f'processed size if {processed_size} of {size}')
     logging.debug('Done with profile picture')
-    client.send(('done debug').encode('utf8'))
+    client.send(('debug Done_with_profile_picture').encode('utf8'))
     path_to_passport = os.path.join(
         os.getcwd(), 'images', f'{state}_{login}_passport.jpg')
     logging.debug('Try to get size of passport image')
     size = int(client.recv(1024))
-    client.send((f'done debug size_is_{size}').encode('utf8'))
+    client.send((f'debug size_is_{size}').encode('utf8'))
     logging.debug(f'Got size of passport: {size}')
     processed_size = 0
     with open(path_to_passport, mode = 'wb') as passport:

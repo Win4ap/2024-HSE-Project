@@ -85,7 +85,7 @@ def process_the_request(request_data):
                 case 'get_profile_fullness':
                     logging.debug('client get_profile_fullness case')
                     login = request[2]
-                    return get_profile_fullness(login, state)
+                    return get_profile_fullness(state, login)
                 case 'edit_profile':
                     login = request[2]
                     name = request[3]
@@ -218,7 +218,7 @@ def get_user_data(login, data) -> str:
     return result
 
 
-def get_profile_fullness(login, state) -> str:
+def get_profile_fullness(state, login) -> str:
     logging.info(f'getting profile fullness: {state} {login}')
     result = 'done '
     with sqlite3.connect(path_to_database) as database:

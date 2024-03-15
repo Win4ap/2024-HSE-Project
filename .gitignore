@@ -4,3 +4,4 @@ server/loggings.log
 server/images
 server/database/database.db
 src/windows/server_logic/state_login
+.vscode

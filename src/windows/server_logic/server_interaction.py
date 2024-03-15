@@ -57,7 +57,6 @@ class ServerLogic():
         return answer
     
     def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
-        print(firstname, lastname, phone, path_to_avatar, path_to_passport)
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         with open(path_to_login, 'r') as file:
             data = (file.read()).split(' ')
@@ -69,20 +68,16 @@ class ServerLogic():
                 request = f'{state} edit_profile {login} {firstname} {lastname} {phone}'
                 client.send(request.encode('utf8'))
                 size = str(os.path.getsize(path_to_avatar))
-                print(size)
                 client.send(size.encode('utf8'))
-                print(size)
+                logging.info(client.recv(1024).decode('utf8'))
                 with open(path_to_avatar, mode = 'rb') as file:
                     data = file.read(2048)
                     while data:
                         client.send(data)
                         data = file.read(2048)
                 answer = client.recv(1024).decode('utf8')
-                print(answer)
                 size = str(os.path.getsize(path_to_passport))
-                print(size)
                 client.send(size.encode('utf8'))
-                print(123)
                 with open(path_to_passport, mode = 'rb') as file:
                     data = file.read(2048)
                     while data:
@@ -90,6 +85,7 @@ class ServerLogic():
                         data = file.read(2048)
                 answer = client.recv(1024).decode('utf8')
                 client.close()
+                logging.info(answer)
             except ConnectionRefusedError:
                 logging.info('Server is down')
                 answer = 'server_error'

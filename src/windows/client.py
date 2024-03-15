@@ -10,20 +10,24 @@ from windows.baseclass import ColorAnimBase
 from windows.server_logic.server_interaction import ServerLogic
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, courier):
+    def __init__(self, order_id, description, name, price, start, finish, courier):
         super().__init__()
         self.order_id = order_id
         self.description = description
         self.order_name = name
         self.price = price
+        self.start = start
+        self.finish = finish
         self.courier = courier
 
 class ClientTemplatePreview(ButtonBehavior, BoxLayout):
-    def __init__(self, name, price, description):
+    def __init__(self, name, price, description, start, finish):
         super().__init__()
         self.template_name = name
         self.price = price
         self.description = description
+        self.start = start
+        self.finish = finish
 
 class ClientSide(Screen, ColorAnimBase, ServerLogic):
     def __init__(self, **kw):
@@ -72,17 +76,21 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                     for i in range(1, len(answer)):
                         order = answer[i].split(' ')
                         order_id = int(order[0])
-                        courier = order[1] # пока вместо курьера — логин пользователя
                         name = order[2]
                         price = order[3]+'₽'
                         description = order[4]
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, courier))
+                        start = order[5]
+                        finish = order[6]
+                        courier = order[7]
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier))
                 elif info == 'templates':
                     for i in range(1, len(answer)):
                         template = answer[i].split(' ')
                         name = template[1]
                         price = template[2]
                         description = template[3]
-                        self.client_orders_scrollview.add_widget(ClientTemplatePreview(name, price, description))
+                        start = template[4]
+                        finish = template[5]
+                        self.client_orders_scrollview.add_widget(ClientTemplatePreview(name, price, description, start, finish))
             else:
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

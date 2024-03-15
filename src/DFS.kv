@@ -276,6 +276,9 @@
                                     text: 'FAQ'
                                 ProfileButton:
                                     text: 'Редактировать данные'
+                                    on_release:
+                                        root.manager.transition.direction = 'left'
+                                        root.manager.current = 'edit_profile'
                                 ProfileButton:
                                     text: 'Промокоды'
                                 ProfileButton:
@@ -345,6 +348,83 @@
                     Image:
                         id: icon_user
                         source: 'img/user.png'
+
+<EditProfile>:
+    firstname: firstname
+    lastname: lastname
+    phone: phone
+
+    Button:
+        background_color: 0, 0, 0, 0
+        text: '<'
+        size_hint_x: 0.1
+        size_y: self.width
+        pos_hint: {'center_x': 0.07, 'center_y': 0.95}
+        font_size: self.height/12
+        on_release:
+            root.firstname.text = ''
+            root.lastname.text = ''
+            root.phone.text = ''
+            root.manager.transition.direction = 'right'
+            root.manager.current = root.check_state()
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '8dp'
+        size_hint: 0.7, 0.6
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            markup: 1
+            font_size: self.width/12
+            color: 1, 1, 1, 1
+            text: '[b]Редактировать профиль[/b]'
+
+        TextInput:
+            id: firstname
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Имя'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: lastname
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Фамилия'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: phone
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Телефон'
+            cursor_color: 1, 1, 1, 1
+
+        RoundedButton:
+            text: 'Фото профиля'
+            on_release:
+                root.open_native_filechooser('avatar')
+
+        RoundedButton:
+            text: 'Фото паспорта'
+            on_release:
+                root.open_native_filechooser('passport')
+
+        FloatLayout:
+            RoundedButton:
+                text: 'Готово'
+                font_size: self.height/2.5
+                size_hint: 0.7, 0.9
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release:
+                    root.send_edit_request()
 
 <RegisterWindow>:
     client_switch: client

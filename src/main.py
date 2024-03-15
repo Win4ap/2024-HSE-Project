@@ -9,6 +9,7 @@ from kivy.core.window import Window
 from windows.auth import AuthWindow
 from windows.register import RegisterWindow
 from windows.client import ClientSide
+from windows.edit_profile import EditProfile
 
 Window.size = (360, 640)
 Window.clearcolor = (60/255, 60/255, 60/255, 1)
@@ -20,6 +21,7 @@ class DFSApp(App):
         sm.add_widget(AuthWindow(name='auth'))
         sm.add_widget(RegisterWindow(name='register'))
         sm.add_widget(ClientSide(name='client'))
+        sm.add_widget(EditProfile(name='edit_profile'))
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         try:
             with open(path_to_login, 'r') as file:

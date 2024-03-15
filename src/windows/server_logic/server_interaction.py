@@ -36,3 +36,61 @@ class ServerLogic():
                 logging.info('Server is down')
                 answer = 'server_error'
         return answer
+    
+    def get_profile_fullness(self) -> str:
+        path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+        with open(path_to_login, 'r') as file:
+            data = (file.read()).split(' ')
+        state = data[0]
+        login = data[1]
+        request = f'{state} get_profile_fullness {login}'
+        logging.info(f'get_profile_fullness: {state} {login}')
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+            try:
+                client.connect((IP, PORT))
+                client.send(request.encode('utf8'))
+                answer = client.recv(1024).decode('utf8')
+                logging.info(f'Server answer: {answer}')
+            except ConnectionRefusedError:
+                logging.info('Server is down')
+                answer = 'server_error'
+        return answer
+    
+    def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
+        print(firstname, lastname, phone, path_to_avatar, path_to_passport)
+        path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+        with open(path_to_login, 'r') as file:
+            data = (file.read()).split(' ')
+        state = data[0]
+        login = data[1]
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+            try:
+                client.connect((IP, PORT))
+                request = f'{state} edit_profile {login} {firstname} {lastname} {phone}'
+                client.send(request.encode('utf8'))
+                size = str(os.path.getsize(path_to_avatar))
+                print(size)
+                client.send(size.encode('utf8'))
+                print(size)
+                with open(path_to_avatar, mode = 'rb') as file:
+                    data = file.read(2048)
+                    while data:
+                        client.send(data)
+                        data = file.read(2048)
+                answer = client.recv(1024).decode('utf8')
+                print(answer)
+                size = str(os.path.getsize(path_to_passport))
+                print(size)
+                client.send(size.encode('utf8'))
+                print(123)
+                with open(path_to_passport, mode = 'rb') as file:
+                    data = file.read(2048)
+                    while data:
+                        client.send(data)
+                        data = file.read(2048)
+                answer = client.recv(1024).decode('utf8')
+                client.close()
+            except ConnectionRefusedError:
+                logging.info('Server is down')
+                answer = 'server_error'
+        return answer

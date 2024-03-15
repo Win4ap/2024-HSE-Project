@@ -187,7 +187,7 @@ def make_new_template(order) -> str:
         logging.debug('connected to database')
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
-        cursor.execute(query, (login,))
+        cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
             return 'error login_doesnt_exists'
         query = """ INSERT INTO templates_list (login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """

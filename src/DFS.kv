@@ -267,9 +267,28 @@
                                 ProfileButton:
                                     text: 'Сменить регион'
 
-                            # shit
-                            Widget:
+                            BoxLayout:
                                 size_hint: 1, 0.3
+                                spacing: '20dp'
+                                padding: ('5dp', '20dp', '5dp', '20dp')
+                                RoundedButton:
+                                    cur_color: (210/255, 210/255, 210/255, 1)
+                                    text_size: self.size
+                                    text: '[b]Создать[/b]\n[b]заказ[/b]'
+                                    font_size: self.height/5
+                                    color: 0, 0, 0, 1
+                                    markup: 1
+                                    halign: 'center'
+                                    valign: 'center'
+                                RoundedButton:
+                                    cur_color: (210/255, 210/255, 210/255, 1)
+                                    text_size: self.size
+                                    text: '[b]Создать[/b]\n[b]шаблон[/b]'
+                                    font_size: self.height/5
+                                    color: 0, 0, 0, 1
+                                    markup: 1
+                                    halign: 'center'
+                                    valign: 'center'
 
                             BoxLayout:
                                 size_hint: 1, 0.3
@@ -413,11 +432,13 @@
 
         RoundedButton:
             text: 'Фото профиля'
+            font_size: self.height/2.5
             on_release:
                 root.open_native_filechooser('avatar')
 
         RoundedButton:
             text: 'Фото паспорта'
+            font_size: self.height/2.5
             on_release:
                 root.open_native_filechooser('passport')
 

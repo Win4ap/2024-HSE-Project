@@ -250,6 +250,7 @@ def edit_profile(state, login, name, surname, phone) -> str:
     path_to_profile_picture = os.path.join(
         os.getcwd(), 'images', f'{state}_{login}_profile_picture.jpg')
     size = int(client.recv(1024))
+    client.send((f'done debug size_is_{size}').encode('utf8'))
     logging.debug(f'Got size of picture: {size}')
     processed_size = 0
     with open(path_to_profile_picture, mode = 'wb') as profile_picture:
@@ -259,11 +260,12 @@ def edit_profile(state, login, name, surname, phone) -> str:
             processed_size += len(data)
             logging.debug(f'processed size if {processed_size} of {size}')
     logging.debug('Done with profile picture')
-    client.send(('done').encode('utf8'))
+    client.send(('done debug').encode('utf8'))
     path_to_passport = os.path.join(
         os.getcwd(), 'images', f'{state}_{login}_passport.jpg')
     logging.debug('Try to get size of passport image')
     size = int(client.recv(1024))
+    client.send((f'done debug size_is_{size}').encode('utf8'))
     logging.debug(f'Got size of passport: {size}')
     processed_size = 0
     with open(path_to_passport, mode = 'wb') as passport:

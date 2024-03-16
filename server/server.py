@@ -15,9 +15,9 @@ def start_the_server():
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone_number TEXT, fullness INTEGER ) """
+        query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
         cursor.execute(query)
-        query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone_number TEXT, fullness INTEGER ) """
+        query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
         cursor.execute(query)
         query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
         cursor.execute(query)
@@ -87,11 +87,16 @@ def process_the_request(request_data):
                     login = request[2]
                     return get_profile_fullness(state, login)
                 case 'edit_profile':
+                    logging.debug('client edit_profie case')
                     login = request[2]
                     name = request[3]
                     surname = request[4]
                     phone = request[5]
                     return edit_profile(state, login, name, surname, phone)
+                case 'get_profile_info':
+                    logging.debug('client get_profile_info case')
+                    login = request[2]
+                    return get_profile_info(state, login)
                 case _:
                     return 'error error_of_request'
         case 'delivery':
@@ -258,7 +263,7 @@ def edit_profile(state, login, name, surname, phone) -> str:
             processed_size += len(data)
             logging.debug(f'processed size if {processed_size} of {size}')
     logging.debug('Done with profile picture')
-    client.send(('debug Done_with_profile_picture').encode('utf8'))
+    client.send(('debug done').encode('utf8'))
     path_to_passport = os.path.join(
         os.getcwd(), 'images', f'{state}_{login}_passport.jpg')
     logging.debug('Try to get size of passport image')
@@ -276,9 +281,45 @@ def edit_profile(state, login, name, surname, phone) -> str:
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()
-        query = f""" UPDATE {state}_data SET name = ?, surname = ?, phone_number = ?, fullness = ? WHERE login = ?"""
+        query = f""" UPDATE {state}_data SET name = ?, surname = ?, phone = ?, fullness = ? WHERE login = ?"""
         cursor.execute(query, (name, surname, phone, 1, login))
         database.commit()
+    return result
+
+
+def get_profile_info(state, login) -> str:
+    logging.info(f'Get profile info of {state} {login}')
+    result = 'done '
+    with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
+        cursor = database.cursor()
+        query = f""" SELECT name, surname, phone, fullness FROM {state}_data WHERE login = ? """
+        cursor.execute(query, (login,))
+        user = cursor.fetchone()
+        if user == None:
+            return 'error login_doesnt_exists'
+        if user[3] == 0:
+            return 'error fullness_false'
+        result += user[0] + ' ' + user[1] + ' ' + user[2]
+    path_to_profile_picture = os.path.join(
+        os.getcwd(), 'images', f'{state}_{login}_profile_picture.jpg')
+    logging.debug(f'path to profile picture is {path_to_profile_picture}')
+    size = str(os.path.getsize(path_to_profile_picture))
+    logging.debug(f'size of picture is {size}')
+    client.send(size.encode('utf8'))
+    debug_answer = client.recv(1024).decode('utf8').split(' ')
+    if debug_answer[1] != f'size_is_{size}':
+        logging.critical('error client_didnt_get_size_correctly')
+        return 'error client_didnt_get_size_correctly'
+    with open(path_to_profile_picture, mode='rb') as profile_picture:
+        data = profile_picture.read(2048)
+        while data:
+            client.send(data)
+            data = profile_picture.read(2048)
+    debug_answer = client.recv(1024).decode('utf8').split(' ')
+    if debug_answer[1] != 'done':
+        logging.critical('error client_didnt_picture_size_correctly')
+        return 'error client_didnt_get_picture_correctly'
     return result
 
 

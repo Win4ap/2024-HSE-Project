@@ -50,6 +50,7 @@ class EditProfile(Screen, ServerLogic):
                         self.passport = ''
                         self.manager.transition.direction = 'right'
                         self.manager.current = self.check_state()
+                        Popup(title='Указание', content=Label(text='Перезайдите в аккаунт и приложение,\nчтобы данные обновились'), size_hint=(0.8, 0.2)).open()
                     elif answer == 'server_error':
                         Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
                     else:

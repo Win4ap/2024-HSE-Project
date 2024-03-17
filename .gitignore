@@ -5,3 +5,5 @@ server/images
 server/database/database.db
 src/windows/server_logic/state_login
 .vscode
+src/windows/profile/avatar.jpg
+src/windows/profile/fullname

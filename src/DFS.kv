@@ -115,6 +115,8 @@
     icon_chat: icon_chat
     icon_list: icon_list
     icon_user: icon_user
+    user_fullname: user_fullname
+    user_avatar: user_avatar
 
     canvas:
         Color:
@@ -229,11 +231,14 @@
                             BoxLayout:
                                 size_hint: 1, 0.2
                                 Widget:
+                                    id: user_avatar
+                                    path: 'windows/profile/no_avatar.png'
                                     size_hint: 0.3, 1
                                     canvas.before:
                                         Color:
-                                            rgba: (180/255, 180/255, 180/255, 1)
+                                            rgba: 1, 1, 1, 1
                                         Ellipse:
+                                            source: self.path
                                             size: self.height/1.3, self.height/1.3
                                             pos: self.center_x - self.height/2.3, self.center_y - (self.height/1.3)/2
                                 
@@ -241,8 +246,9 @@
                                     size_hint: 0.7, 1
                                     orientation: 'vertical'
                                     Label:
+                                        id: user_fullname
                                         text_size: self.size
-                                        text: '[b]Имя Фамилия[/b]'
+                                        text: '[b]Неизвестно[/b]'
                                         halign: 'left'
                                         valign: 'bottom'
                                         markup: 1
@@ -362,6 +368,7 @@
                 id: bar_profile_button
                 background_color: 0, 0, 0, 0
                 on_release:
+                    root.show_profile()
                     root.switch_main_to('client_profile')
                 AnchorLayout:
                     pos: self.parent.pos

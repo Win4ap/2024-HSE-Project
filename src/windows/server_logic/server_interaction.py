@@ -5,6 +5,7 @@ from windows.server_logic.constants import IP, PORT
 
 class ServerLogic():
     def auth_reg_request(self, state, command, login, password) -> str:
+        # rsa here
         request = f'{state} {command} {login} {password}'
         logging.info(f'{command}: {state} {login}')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:

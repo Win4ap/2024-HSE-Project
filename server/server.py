@@ -2,6 +2,7 @@ import socket
 import os
 import logging
 import sqlite3
+import rsa
 import constants
 from AdditionalClasses import Order 
 

@@ -2,7 +2,7 @@ import socket
 import os
 import logging
 import rsa
-from windows.server_logic.constants import IP, PORT, public_key
+from windows.server_logic.constants import IP, PORT, public_key, private_key
 
 class ServerLogic():
     def auth_reg_request(self, state, command, login, password) -> str:

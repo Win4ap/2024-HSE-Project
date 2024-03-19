@@ -1,13 +1,10 @@
 import socket
 import os
 import logging
-import rsa
-from windows.server_logic.constants import IP, PORT, public_key
+from windows.server_logic.constants import IP, PORT
 
 class ServerLogic():
     def auth_reg_request(self, state, command, login, password) -> str:
-        password = bytes(password, encoding = 'utf-8')
-        password = rsa.encrypt(password, public_key)
         request = f'{state} {command} {login} {password}'
         logging.info(f'{command}: {state} {login}')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:

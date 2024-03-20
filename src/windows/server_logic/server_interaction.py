@@ -1,11 +1,14 @@
 import socket
 import os
 import logging
+import sys 
+sys.set_int_max_str_digits(1000000000)
 from windows.server_logic.constants import IP, PORT
+from windows.server_logic.raw_rsa import RSA
 
 class ServerLogic():
     def auth_reg_request(self, state, command, login, password) -> str:
-        # rsa here
+        password = RSA().encrypt(password)
         request = f'{state} {command} {login} {password}'
         logging.info(f'{command}: {state} {login}')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:

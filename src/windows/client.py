@@ -10,7 +10,7 @@ from windows.baseclass import ColorAnimBase
 from windows.server_logic.server_interaction import ServerLogic
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier):
+    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -19,15 +19,52 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.start = start
         self.finish = finish
         self.courier = courier
+        self.root_sm = root_sm
+        self.link_name = link_name
+        self.link_desc = link_desc
+        self.link_price = link_price
+        self.link_courier = link_courier
+        self.link_from = link_from
+        self.link_to = link_to
+
+    def on_release(self):
+        self.root_sm.current = 'client_order_details'
+        self.link_name.text = self.order_name
+        self.link_desc.text = self.description
+        self.link_price.text = self.price
+        self.link_from.text = f'Забрать отсюда: {self.start}'
+        self.link_to.text = f'Доставить сюда: {self.finish}'
+        if self.courier == 'None':
+            self.link_courier.text = 'Нет активного курьера'
+        else:
+            self.link_courier.text = self.courier
+        return super().on_release()
 
 class ClientTemplatePreview(ButtonBehavior, BoxLayout):
-    def __init__(self, name, price, description, start, finish):
+    def __init__(self, name, price, description, start, finish, root_sm, link_label, link_name, link_desc, link_price, link_from, link_to):
         super().__init__()
         self.template_name = name
         self.price = price
         self.description = description
         self.start = start
         self.finish = finish
+        self.root_sm = root_sm
+        self.link_label = link_label
+        self.link_name = link_name
+        self.link_desc = link_desc
+        self.link_price = link_price
+        self.link_from = link_from
+        self.link_to = link_to
+
+    def on_release(self):
+        self.root_sm.current = 'client_make_new_object'
+        self.link_label.text = 'Создать заказ'
+        self.link_name.text = self.template_name
+        self.link_desc.text = self.description
+        self.link_price.text = self.price
+        self.link_from.text = self.start
+        self.link_to.text = self.finish
+        return super().on_release()
 
 class ClientSide(Screen, ColorAnimBase, ServerLogic):
     def __init__(self, **kw):
@@ -92,7 +129,10 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         finish = order[6]
                         courier = order[7]
                         name = name.replace('_', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier))
+                        description = description.replace('_', ' ')
+                        start = start.replace('_', ' ')
+                        finish = finish.replace('_', ' ')
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to))
                 elif info == 'templates':
                     for i in range(1, len(answer)):
                         template = answer[i].split(' ')
@@ -102,7 +142,10 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         start = template[4]
                         finish = template[5]
                         name = name.replace('_', ' ')
-                        self.client_orders_scrollview.add_widget(ClientTemplatePreview(name, price, description, start, finish))
+                        description = description.replace('_', ' ')
+                        start = start.replace('_', ' ')
+                        finish = finish.replace('_', ' ')
+                        self.client_orders_scrollview.add_widget(ClientTemplatePreview(name, price, description, start, finish, self.client_main_frame, self.make_screen_label, self.new_order_name, self.new_order_description, self.new_order_price, self.new_order_from, self.new_order_to))
             else:
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
@@ -170,7 +213,8 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         self.new_order_price.text = ''
                         self.new_order_from.text = ''
                         self.new_order_to.text = ''
-                        self.client_main_frame.current = 'client_profile'
+                        self.show_profile()
+                        self.switch_main_to('client_profile')
                         Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
                     else:
                         Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

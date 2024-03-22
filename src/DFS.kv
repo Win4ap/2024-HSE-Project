@@ -70,8 +70,8 @@
             valign: 'bottom'
 
 <ClientTemplatePreview>:
-    description: ''
     template_name: ''
+    description: ''
     price: ''
     start: ''
     finish: ''
@@ -124,6 +124,12 @@
     new_order_to: new_order_to
     make_screen_label: make_screen_label
     new_object: 'order'
+    details_name: details_name
+    details_description: details_description
+    details_price: details_price
+    details_courier: details_courier
+    details_from: details_from
+    details_to: details_to
 
     canvas:
         Color:
@@ -357,7 +363,9 @@
                                 root.new_order_price.text = ''
                                 root.new_order_from.text = ''
                                 root.new_order_to.text = ''
-                                root.client_main_frame.current = 'client_profile'
+                                root.new_object = 'order'
+                                root.show_profile()
+                                root.switch_main_to('client_profile')
                         
                         Label:
                             id: make_screen_label
@@ -449,6 +457,91 @@
                                     on_release:
                                         root.send_new_object_request(root.new_object)
 
+            Screen:
+                name: 'client_order_details'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_orders')
+                        
+                        Label:
+                            id: make_screen_label
+                            text:'Детали заказа'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.8, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                id: details_name
+                                text: ''
+                                font_size: self.height/2
+                                color: 0, 0, 0, 1
+                                markup: 1
+                                text_size: self.size
+                                halign: 'center'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_description
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_price
+                                text: ''
+                                font_size: self.height/3
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+
+                            Label:
+                                id: details_courier
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_from
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
         BoxLayout:
             size_hint: 1, 0.07
             spacing: 50
@@ -464,6 +557,12 @@
                 icon: 'chat'
                 background_color: 0, 0, 0, 0
                 on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
                     root.switch_main_to('client_chat')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -479,6 +578,12 @@
                 state: 'down'
                 background_color: 0, 0, 0, 0
                 on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
                     root.switch_main_to('client_orders')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -493,6 +598,12 @@
                 id: bar_profile_button
                 background_color: 0, 0, 0, 0
                 on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
                     root.show_profile()
                     root.switch_main_to('client_profile')
                 AnchorLayout:

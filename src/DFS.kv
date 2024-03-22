@@ -117,6 +117,11 @@
     icon_user: icon_user
     user_fullname: user_fullname
     user_avatar: user_avatar
+    new_order_name: new_order_name
+    new_order_description: new_order_description
+    new_order_price: new_order_price
+    new_order_from: new_order_from
+    new_order_to: new_order_to
 
     canvas:
         Color:
@@ -286,6 +291,9 @@
                                     markup: 1
                                     halign: 'center'
                                     valign: 'center'
+                                    on_release:
+                                        root.client_main_frame.current = 'client_make_order'
+
                                 RoundedButton:
                                     cur_color: (210/255, 210/255, 210/255, 1)
                                     text_size: self.size
@@ -323,6 +331,114 @@
                                 cur_color: (178/255, 34/255, 34/255, 1)
                                 on_release:
                                     root.quit()
+            Screen:
+                name: 'client_make_order'
+                BoxLayout:
+                    orientation:'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.new_order_name.text = ''
+                                root.new_order_description.text = ''
+                                root.new_order_price.text = ''
+                                root.new_order_from.text = ''
+                                root.new_order_to.text = ''
+                                root.client_main_frame.current = 'client_profile'
+                        
+                        Label:
+                            text:'Создать заказ'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.7, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                text: 'Название заказа'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_name
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Описание заказа'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_description
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Цена (в рублях)'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_price
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Откуда'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_from
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Куда'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_to
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            FloatLayout:
+                                RoundedButton:
+                                    size_hint: 0.5, 0.8
+                                    cur_color: (200/255, 200/255, 200/255, 1)
+                                    pos_hint: {'center_x': 0.5 , 'center_y': 0.5}
+                                    text: 'Создать заказ'
+                                    color: 0, 0, 0, 1
+                                    on_release:
+                                        root.send_new_object_request('order')
 
         BoxLayout:
             size_hint: 1, 0.07

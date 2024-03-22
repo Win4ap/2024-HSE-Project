@@ -123,3 +123,20 @@ class ServerLogic():
                 logging.info('Server is down')
                 answer = 'server_error'
         return answer
+    
+    def new_object(self, object, name, price, description, adress_from, adress_to):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        request = f'{state} new_{object} {login} {name} {price} {description} {adress_from} {adress_to}'
+        logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+            try:
+                client.connect((IP, PORT))
+                client.send(request.encode('utf8'))
+                answer = client.recv(1024).decode('utf8')
+                logging.info(f'Server answer: {answer}')
+            except ConnectionRefusedError:
+                logging.info('Server is down')
+                answer = 'server_error'
+        return answer

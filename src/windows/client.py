@@ -91,6 +91,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         start = order[5]
                         finish = order[6]
                         courier = order[7]
+                        name = name.replace('_', ' ')
                         self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier))
                 elif info == 'templates':
                     for i in range(1, len(answer)):
@@ -100,6 +101,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         description = template[3]
                         start = template[4]
                         finish = template[5]
+                        name = name.replace('_', ' ')
                         self.client_orders_scrollview.add_widget(ClientTemplatePreview(name, price, description, start, finish))
             else:
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
@@ -135,3 +137,47 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
             data = data.split(' ')
             self.user_fullname.text = f'[b]{data[0]} {data[1]}[/b]'
             self.user_avatar.path = path_to_avatar
+
+    def send_new_object_request(self, object):
+        fullness = super().get_profile_fullness()
+        if fullness == 'done True':
+            if (object != 'order' and object != 'template'):
+                Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+            name = self.new_order_name.text
+            price = self.new_order_price.text
+            description = self.new_order_description.text
+            adress_from = self.new_order_from.text
+            adress_to = self.new_order_to.text
+            for i in price:
+                if i not in '0123456789':
+                    Popup(title='Ошибка', content=Label(text='Цена должна состоять только из цифр'), size_hint=(0.8, 0.2)).open()
+                    return
+            if (name != '' and description != '' and price != '' and adress_from != '' and adress_to != ''):
+                name = name.replace(' ', '_')
+                description = description.replace(' ', '_')
+                adress_from = adress_from.replace(' ', '_')
+                adress_to = adress_to.replace(' ', '_')
+                answer = super().new_object(object, name, price, description, adress_from, adress_to)
+                if answer == 'server_error':
+                    Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+                else:
+                    answer = answer.split(' ')
+                    if answer[0] == 'error':
+                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+                    elif answer[0] == 'done':
+                        self.new_order_name.text = ''
+                        self.new_order_descriprion.text = ''
+                        self.new_order_price.text = ''
+                        self.new_order_from.text = ''
+                        self.new_order_to.text = ''
+                        self.client_main_frame.current = 'client_profile'
+                    else:
+                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+            else:
+                Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
+        elif fullness == 'done False':
+            Popup(title='Ошибка', content=Label(text='Сначала заполните профиль'), size_hint=(0.8, 0.2)).open()
+        elif fullness == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

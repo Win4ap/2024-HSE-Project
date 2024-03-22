@@ -166,11 +166,12 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
                         Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
                     elif answer[0] == 'done':
                         self.new_order_name.text = ''
-                        self.new_order_descriprion.text = ''
+                        self.new_order_description.text = ''
                         self.new_order_price.text = ''
                         self.new_order_from.text = ''
                         self.new_order_to.text = ''
                         self.client_main_frame.current = 'client_profile'
+                        Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
                     else:
                         Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             else:

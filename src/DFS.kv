@@ -122,6 +122,8 @@
     new_order_price: new_order_price
     new_order_from: new_order_from
     new_order_to: new_order_to
+    make_screen_label: make_screen_label
+    new_object: 'order'
 
     canvas:
         Color:
@@ -292,7 +294,9 @@
                                     halign: 'center'
                                     valign: 'center'
                                     on_release:
-                                        root.client_main_frame.current = 'client_make_order'
+                                        root.client_main_frame.current = 'client_make_new_object'
+                                        root.new_object = 'order'
+                                        root.make_screen_label.text = 'Создать заказ'
 
                                 RoundedButton:
                                     cur_color: (210/255, 210/255, 210/255, 1)
@@ -303,6 +307,10 @@
                                     markup: 1
                                     halign: 'center'
                                     valign: 'center'
+                                    on_release:
+                                        root.client_main_frame.current = 'client_make_new_object'
+                                        root.new_object = 'template'
+                                        root.make_screen_label.text = 'Создать шаблон'
 
                             BoxLayout:
                                 size_hint: 1, 0.3
@@ -332,7 +340,7 @@
                                 on_release:
                                     root.quit()
             Screen:
-                name: 'client_make_order'
+                name: 'client_make_new_object'
                 BoxLayout:
                     orientation:'vertical'
                     BoxLayout:
@@ -352,6 +360,7 @@
                                 root.client_main_frame.current = 'client_profile'
                         
                         Label:
+                            id: make_screen_label
                             text:'Создать заказ'
                             font_size: self.height/2
                             color: 0, 0, 0, 1
@@ -366,7 +375,7 @@
                             size_hint: 0.7, 0.8
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                             Label:
-                                text: 'Название заказа'
+                                text: 'Название'
                                 color: 0, 0, 0, 1
                                 text_size: self.size
                                 font_size: self.height/2
@@ -379,7 +388,7 @@
                                 font_size: self.height/1.8
 
                             Label:
-                                text: 'Описание заказа'
+                                text: 'Описание'
                                 color: 0, 0, 0, 1
                                 text_size: self.size
                                 font_size: self.height/2
@@ -435,10 +444,10 @@
                                     size_hint: 0.5, 0.8
                                     cur_color: (200/255, 200/255, 200/255, 1)
                                     pos_hint: {'center_x': 0.5 , 'center_y': 0.5}
-                                    text: 'Создать заказ'
+                                    text: 'Создать'
                                     color: 0, 0, 0, 1
                                     on_release:
-                                        root.send_new_object_request('order')
+                                        root.send_new_object_request(root.new_object)
 
         BoxLayout:
             size_hint: 1, 0.07

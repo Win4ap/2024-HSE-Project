@@ -170,7 +170,7 @@ def make_new_order(order) -> str:
         order_id = cursor.fetchall()
         left = 0
         right = len(order_id)
-        if order_id[0][0] != 0:
+        if right == 0 or order_id[0][0] != 0:
             cur_id = 0
         elif right == 0 or right == order_id[-1][0] + 1:
             cur_id = right

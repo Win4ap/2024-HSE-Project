@@ -1,12 +1,698 @@
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
 <RoundedButton@Button>:
     background_color: 0, 0 ,0 ,0
+    cur_color: (100/255, 100/255, 100/255, 1)
     canvas.before:
         Color:
-            rgba: (100/255, 100/255, 100/255, 1)
+            rgba: self.cur_color
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [40,] 
+            radius: [40,]
+
+<ProfileButton@Button>:
+    background_color: 0, 0, 0, 0
+    text_size: self.size
+    font_size: self.height/2
+    halign: 'left'
+    color: 0, 0, 0, 1
+
+<ClientOrderPreview>:
+    order_id: None
+    description: ''
+    order_name: ''
+    price: ''
+    start: ''
+    finish: ''
+    courier: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 2
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.order_name}[/b]'
+            font_size: self.height/2
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: 'Подробнее'
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'bottom'
+        Label:
+            text_size: self.size
+            text: root.courier
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'bottom'
+
+<ClientTemplatePreview>:
+    template_name: ''
+    description: ''
+    price: ''
+    start: ''
+    finish: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 1
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.template_name}[/b]'
+            font_size: self.height/3
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'middle'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/4
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'middle'
+
+<ClientSide>:
+    active_orders: active_orders
+    template_orders: template_orders
+    client_orders_scrollview: client_orders_scrollview
+    client_main_frame: client_main_frame
+    bar_chat_button: bar_chat_button
+    bar_orders_button: bar_orders_button
+    bar_profile_button: bar_profile_button
+    icon_chat: icon_chat
+    icon_list: icon_list
+    icon_user: icon_user
+    user_fullname: user_fullname
+    user_avatar: user_avatar
+    new_order_name: new_order_name
+    new_order_description: new_order_description
+    new_order_price: new_order_price
+    new_order_from: new_order_from
+    new_order_to: new_order_to
+    make_screen_label: make_screen_label
+    new_object: 'order'
+    details_name: details_name
+    details_description: details_description
+    details_price: details_price
+    details_courier: details_courier
+    details_from: details_from
+    details_to: details_to
+
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        ScreenManager:
+            id: client_main_frame
+            transition: NoTransition()
+            size_hint: 1, 0.93
+            Screen:
+                name: 'client_chat'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Чаты'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+                    
+                    BoxLayout:
+                        size_hint: 1, 0.87
+                        spacing: 30
+
+            Screen:
+                name: 'client_orders'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Заказы'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+
+                    BoxLayout:
+                        size_hint: 1, 0.06
+                        spacing: 30
+                        ToggleButton:
+                            id: active_orders
+                            text: 'Активные'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            state: 'down'
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 0)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.template_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+                                root.show_client_data('orders')
+
+                        ToggleButton:
+                            id: template_orders
+                            text: 'Шаблоны'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 0)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.template_orders, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+                                root.show_client_data('templates')
+
+                    Widget:
+                        size_hint: None, 0.01 # spacing thing
+
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        size_hint: 1, 0.8
+                        BoxLayout:
+                            id: client_orders_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
+            
+            Screen:
+                name: 'client_profile'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Профиль'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+
+                    BoxLayout:
+                        size_hint: 1, 0.87
+                        orientation: 'vertical'
+                        BoxLayout:
+                            size_hint: 1, 0.93
+                            orientation: 'vertical'
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                Widget:
+                                    id: user_avatar
+                                    path: 'windows/profile/no_avatar.png'
+                                    size_hint: 0.3, 1
+                                    canvas.before:
+                                        Color:
+                                            rgba: 1, 1, 1, 1
+                                        Ellipse:
+                                            source: self.path
+                                            size: self.height/1.3, self.height/1.3
+                                            pos: self.center_x - self.height/2.3, self.center_y - (self.height/1.3)/2
+                                
+                                BoxLayout:
+                                    size_hint: 0.7, 1
+                                    orientation: 'vertical'
+                                    Label:
+                                        id: user_fullname
+                                        text_size: self.size
+                                        text: '[b]Неизвестно[/b]'
+                                        halign: 'left'
+                                        valign: 'bottom'
+                                        markup: 1
+                                        font_size: self.height/2.5
+                                        color: 0, 0, 0, 1
+                                    
+                                    Label:
+                                        text_size: self.size
+                                        text:'Рейтинг: 5'
+                                        halign: 'left'
+                                        valign: 'top'
+                                        font_size: self.height/4
+                                        color: 0, 0, 0, 1
+                            
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Архив заказов'
+                                ProfileButton:
+                                    text: 'Отзывы'
+                                ProfileButton:
+                                    text: 'Сменить регион'
+
+                            BoxLayout:
+                                size_hint: 1, 0.3
+                                spacing: '20dp'
+                                padding: ('5dp', '20dp', '5dp', '20dp')
+                                RoundedButton:
+                                    cur_color: (210/255, 210/255, 210/255, 1)
+                                    text_size: self.size
+                                    text: '[b]Создать[/b]\n[b]заказ[/b]'
+                                    font_size: self.height/5
+                                    color: 0, 0, 0, 1
+                                    markup: 1
+                                    halign: 'center'
+                                    valign: 'center'
+                                    on_release:
+                                        root.client_main_frame.current = 'client_make_new_object'
+                                        root.new_object = 'order'
+                                        root.make_screen_label.text = 'Создать заказ'
+
+                                RoundedButton:
+                                    cur_color: (210/255, 210/255, 210/255, 1)
+                                    text_size: self.size
+                                    text: '[b]Создать[/b]\n[b]шаблон[/b]'
+                                    font_size: self.height/5
+                                    color: 0, 0, 0, 1
+                                    markup: 1
+                                    halign: 'center'
+                                    valign: 'center'
+                                    on_release:
+                                        root.client_main_frame.current = 'client_make_new_object'
+                                        root.new_object = 'template'
+                                        root.make_screen_label.text = 'Создать шаблон'
+
+                            BoxLayout:
+                                size_hint: 1, 0.3
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Способ оплаты'
+                                ProfileButton:
+                                    text: 'FAQ'
+                                ProfileButton:
+                                    text: 'Редактировать данные'
+                                    on_release:
+                                        root.manager.transition.direction = 'left'
+                                        root.manager.current = 'edit_profile'
+                                ProfileButton:
+                                    text: 'Промокоды'
+                                ProfileButton:
+                                    text: 'Поддержка'
+
+                        FloatLayout:
+                            size_hint: 1, 0.07
+                            RoundedButton:
+                                text: 'Выйти'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.9
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (178/255, 34/255, 34/255, 1)
+                                on_release:
+                                    root.quit()
+            Screen:
+                name: 'client_make_new_object'
+                BoxLayout:
+                    orientation:'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.new_order_name.text = ''
+                                root.new_order_description.text = ''
+                                root.new_order_price.text = ''
+                                root.new_order_from.text = ''
+                                root.new_order_to.text = ''
+                                root.new_object = 'order'
+                                root.show_profile()
+                                root.switch_main_to('client_profile')
+                        
+                        Label:
+                            id: make_screen_label
+                            text:'Создать заказ'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.7, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                text: 'Название'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_name
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Описание'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_description
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Цена (в рублях)'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_price
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Откуда'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_from
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            Label:
+                                text: 'Куда'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_order_to
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+
+                            FloatLayout:
+                                RoundedButton:
+                                    size_hint: 0.5, 0.8
+                                    cur_color: (200/255, 200/255, 200/255, 1)
+                                    pos_hint: {'center_x': 0.5 , 'center_y': 0.5}
+                                    text: 'Создать'
+                                    color: 0, 0, 0, 1
+                                    on_release:
+                                        root.send_new_object_request(root.new_object)
+
+            Screen:
+                name: 'client_order_details'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_orders')
+                        
+                        Label:
+                            id: make_screen_label
+                            text:'Детали заказа'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.8, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                id: details_name
+                                text: ''
+                                font_size: self.height/2
+                                color: 0, 0, 0, 1
+                                markup: 1
+                                text_size: self.size
+                                halign: 'center'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_description
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_price
+                                text: ''
+                                font_size: self.height/3
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+
+                            Label:
+                                id: details_courier
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_from
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+        BoxLayout:
+            size_hint: 1, 0.07
+            spacing: 50
+            canvas:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            ToggleButton:
+                id: bar_chat_button
+                icon: 'chat'
+                background_color: 0, 0, 0, 0
+                on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
+                    root.switch_main_to('client_chat')
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        id: icon_chat
+                        source: 'img/chat.png'
+
+            ToggleButton:
+                id: bar_orders_button
+                state: 'down'
+                background_color: 0, 0, 0, 0
+                on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
+                    root.switch_main_to('client_orders')
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        id: icon_list
+                        source: 'img/bold_list.png'
+
+            ToggleButton:
+                id: bar_profile_button
+                background_color: 0, 0, 0, 0
+                on_release:
+                    root.new_order_name.text = ''
+                    root.new_order_description.text = ''
+                    root.new_order_price.text = ''
+                    root.new_order_from.text = ''
+                    root.new_order_to.text = ''
+                    root.new_object = 'order'
+                    root.show_profile()
+                    root.switch_main_to('client_profile')
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        id: icon_user
+                        source: 'img/user.png'
+
+<EditProfile>:
+    firstname: firstname
+    lastname: lastname
+    phone: phone
+
+    Button:
+        background_color: 0, 0, 0, 0
+        text: '<'
+        size_hint_x: 0.1
+        size_y: self.width
+        pos_hint: {'center_x': 0.07, 'center_y': 0.95}
+        font_size: self.height/12
+        on_release:
+            root.firstname.text = ''
+            root.lastname.text = ''
+            root.phone.text = ''
+            root.manager.transition.direction = 'right'
+            root.manager.current = root.check_state()
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '8dp'
+        size_hint: 0.7, 0.6
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            markup: 1
+            font_size: self.width/12
+            color: 1, 1, 1, 1
+            text: '[b]Редактировать профиль[/b]'
+
+        TextInput:
+            id: firstname
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Имя'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: lastname
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Фамилия'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: phone
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Телефон'
+            cursor_color: 1, 1, 1, 1
+
+        RoundedButton:
+            text: 'Фото профиля'
+            font_size: self.height/2.5
+            on_release:
+                root.open_native_filechooser('avatar')
+
+        RoundedButton:
+            text: 'Фото паспорта'
+            font_size: self.height/2.5
+            on_release:
+                root.open_native_filechooser('passport')
+
+        FloatLayout:
+            RoundedButton:
+                text: 'Готово'
+                font_size: self.height/2.5
+                size_hint: 0.7, 0.9
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release:
+                    root.send_edit_request()
 
 <RegisterWindow>:
     client_switch: client
@@ -59,7 +745,7 @@
                         size: self.size
                         radius: [40, 0, 0, 40]
                 on_release:
-                    root.change_client_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'down', 'normal', (120/255, 120/255, 120/255, 1), (80/255, 80/255, 80/255, 1))
 
             ToggleButton:
                 id: delivery
@@ -76,7 +762,7 @@
                         size: self.size
                         radius: [0, 40, 40, 0]
                 on_release:
-                    root.change_delivery_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'normal', 'down', (80/255, 80/255, 80/255, 1), (120/255, 120/255, 120/255, 1))
 
         TextInput:
             id: login
@@ -133,6 +819,7 @@
     login_input: login
     password_input: password
     password_hide_button: hide_password
+
     BoxLayout:
         orientation: 'vertical'
         spacing: '8dp'
@@ -162,7 +849,7 @@
                         size: self.size
                         radius: [40, 0, 0, 40]
                 on_release:
-                    root.change_client_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'down', 'normal', (120/255, 120/255, 120/255, 1), (80/255, 80/255, 80/255, 1))
 
             ToggleButton:
                 id: delivery
@@ -179,7 +866,7 @@
                         size: self.size
                         radius: [0, 40, 40, 0]
                 on_release:
-                    root.change_delivery_state()
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'normal', 'down', (80/255, 80/255, 80/255, 1), (120/255, 120/255, 120/255, 1))
 
         TextInput:
             id: login
@@ -224,7 +911,7 @@
         size_hint: 0.7, 0.2
         pos_hint: {'center_x': 0.5}
         background_color: 0, 0, 0, 0
-        text: 'Вы здесь впервые?\n[b]Зарегистрирустесь[/b]'
+        text: 'Вы здесь впервые?\n[b]Зарегистрируйтесь[/b]'
         font_size: self.height/10
         halign: 'center'
         markup: True

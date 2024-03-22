@@ -1,3 +1,5 @@
 Kivy==2.3.0
 Kivy-examples==2.3.0
 Kivy-Garden==0.1.5
+plyer==2.1.0
+pyobjus==1.2.3

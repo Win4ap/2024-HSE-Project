@@ -1,51 +1,38 @@
-import socket
+import os
+
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from kivy.properties import ObjectProperty
-from kivy.animation import Animation
 
-IP = '127.0.0.1'
-PORT = 1233
+from windows.baseclass import ColorAnimBase
+from windows.server_logic.server_interaction import ServerLogic
 
-class AuthWindow(Screen):
-    client_switch = ObjectProperty()
-    delivery_switch = ObjectProperty()
-    login_input = ObjectProperty()
-    password_input = ObjectProperty()
-    password_hide_button = ObjectProperty()
-
-    def change_color(self, widget, color):
-        animation = Animation(animated_color=color, duration=0.2)
-        animation.start(widget)
-
-    def change_client_state(self):
-        self.client_switch.state, self.delivery_switch.state = 'down', 'normal'
-        self.change_color(self.client_switch, (120/255, 120/255, 120/255, 1))
-        self.change_color(self.delivery_switch, (80/255, 80/255, 80/255, 1))
-    
-    def change_delivery_state(self):
-        self.client_switch.state, self.delivery_switch.state = 'normal', 'down'
-        self.change_color(self.client_switch, (80/255, 80/255, 80/255, 1))
-        self.change_color(self.delivery_switch, (120/255, 120/255, 120/255, 1))
-
+class AuthWindow(Screen, ColorAnimBase, ServerLogic):
     def show_password(self):
         self.password_input.password = False if self.password_hide_button.state == 'down' else True
         self.password_hide_button.text = 'Скрыть пароль' if self.password_hide_button.state == 'down' else 'Показать пароль'
 
     def send_login_request(self):
-        state = 'client' if self.client_switch.state == 'down' else 'delivery'
-        request = 'login ' + state + ' ' + self.login_input.text + ' ' + self.password_input.text
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect((IP, PORT))
-        client.send(request.encode('utf8'))
-        answer = client.recv(1024).decode('utf8')
-        client.close()
-        if (answer == 'incorrect'):
-            Popup(title='Ошибка', content=Label(text='Неверный пароль'), size_hint=(0.7, 0.2)).open()
-        elif (answer == 'login_doesnt_exists'):
-            Popup(title='Ошибка', content=Label(text='Логин не найден'), size_hint=(0.7, 0.2)).open()
+        if self.login_input.text != '' and self.password_input.text != '':
+            state = 'client' if self.client_switch.state == 'down' else 'delivery'
+            answer = super().auth_reg_request(state, 'login', self.login_input.text, self.password_input.text)
+            if answer == 'server_error':
+                Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'done incorrect':
+                Popup(title='Ошибка', content=Label(text='Неверный пароль'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'error login_doesnt_exists':
+                Popup(title='Ошибка', content=Label(text='Логин не найден'), size_hint=(0.8, 0.2)).open()
+            else:
+                answer = answer.split(' ')
+                if len(answer) == 4 and answer[0] == 'done' and answer[1] == 'correct':
+                    self.login_input.text = ''
+                    self.password_input.text = ''
+                    self.manager.transition.direction = 'up'
+                    self.manager.current = 'client'
+                    path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+                    with open(path_to_login, 'w') as file:
+                        file.write(f'{answer[2]} {answer[3]}')
+                else:
+                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
-            self.login_input.text = ''
-            self.password_input.text = ''
-            Popup(title='Placeholder', content=Label(text='УРА РАБОТАЕТ ЧЕГО??'), size_hint=(0.7, 0.2)).open()
+            Popup(title='Ошибка', content=Label(text='Поле пустое'), size_hint=(0.8, 0.2)).open()

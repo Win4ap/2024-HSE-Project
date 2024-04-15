@@ -1,0 +1,55 @@
+<DeliverySide>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    BoxLayout:
+        orientation: 'vertical'
+        ScreenManager:
+            id: client_main_frame
+            transition: NoTransition()
+            size_hint: 1, 0.93
+            # shit
+
+        BoxLayout:
+            size_hint: 1, 0.07
+            spacing: 50
+            canvas:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            ToggleButton:
+                background_color: 0, 0, 0, 0
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        source: 'img/chat.png'
+
+            ToggleButton:
+                background_color: 0, 0, 0, 0
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        source: 'img/list.png'
+
+            ToggleButton:
+                background_color: 0, 0, 0, 0
+                AnchorLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    Image:
+                        source: 'img/user.png'

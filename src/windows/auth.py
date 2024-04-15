@@ -28,7 +28,7 @@ class AuthWindow(Screen, ColorAnimBase, ServerLogic):
                     self.login_input.text = ''
                     self.password_input.text = ''
                     self.manager.transition.direction = 'up'
-                    self.manager.current = 'client'
+                    self.manager.current = answer[2]
                     path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
                     with open(path_to_login, 'w') as file:
                         file.write(f'{answer[2]} {answer[3]}')

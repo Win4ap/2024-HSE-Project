@@ -1,7 +1,19 @@
+import os
+
 from kivy.uix.screenmanager import Screen
+from kivy.uix.button import ButtonBehavior
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 
 from windows.baseclass import ColorAnimBase
 from windows.server_logic.server_interaction import ServerLogic
+
+class DeliveryActiveOrderPreview(ButtonBehavior, BoxLayout):
+    pass
+
+class DeliveryFreeOrderPreview(ButtonBehavior, BoxLayout):
+    pass
 
 class DeliverySide(Screen, ColorAnimBase, ServerLogic):
     def __init__(self, **kw):

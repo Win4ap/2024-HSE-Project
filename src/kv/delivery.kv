@@ -3,6 +3,9 @@
     icon_chat: icon_chat
     icon_list: icon_list
     icon_user: icon_user
+    delivery_orders_scrollview: delivery_orders_scrollview
+    active_orders: active_orders
+    free_orders: free_orders
 
     canvas:
         Color:
@@ -44,8 +47,56 @@
                         font_size: self.height/2
                     
                     BoxLayout:
-                        size_hint: 1, 0.87
+                        size_hint: 1, 0.06
                         spacing: 30
+                        ToggleButton:
+                            id: active_orders
+                            text: 'Активные'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            state: 'down'
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 0)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.free_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+
+                        ToggleButton:
+                            id: free_orders
+                            text: 'Свободные'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            background_color: 0, 0 ,0 ,0  
+                            animated_color: (217/255, 217/255, 217/255, 0)
+                            canvas.before:
+                                Color:
+                                    rgba: self.animated_color
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [20, 20, 20, 20]
+                            on_release:
+                                root.change_color_state(root.active_orders, root.free_orders, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+
+                    Widget:
+                        size_hint: None, 0.01 # spacing thing
+
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        size_hint: 1, 0.8
+                        BoxLayout:
+                            id: delivery_orders_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
 
             Screen:
                 name: 'delivery_profile'

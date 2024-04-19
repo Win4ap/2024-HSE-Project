@@ -1,4 +1,9 @@
 <DeliverySide>:
+    delivery_main_frame: delivery_main_frame
+    icon_chat: icon_chat
+    icon_list: icon_list
+    icon_user: icon_user
+
     canvas:
         Color:
             rgba: 1, 1, 1, 1
@@ -9,10 +14,53 @@
     BoxLayout:
         orientation: 'vertical'
         ScreenManager:
-            id: client_main_frame
+            id: delivery_main_frame
             transition: NoTransition()
             size_hint: 1, 0.93
-            # shit
+            Screen:
+                name: 'delivery_chat'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Чаты'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+                    
+                    BoxLayout:
+                        size_hint: 1, 0.87
+                        spacing: 30
+
+            Screen:
+                name: 'delivery_orders'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Заказы'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+                    
+                    BoxLayout:
+                        size_hint: 1, 0.87
+                        spacing: 30
+
+            Screen:
+                name: 'delivery_profile'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('20dp', '0dp', '20dp', '0dp')
+                    Label:
+                        size_hint: 1, 0.13
+                        text: 'Профиль'
+                        color: 0, 0, 0, 1
+                        font_size: self.height/2
+                    
+                    BoxLayout:
+                        size_hint: 1, 0.87
+                        spacing: 30
 
         BoxLayout:
             size_hint: 1, 0.07
@@ -25,31 +73,45 @@
                     size: self.size
 
             ToggleButton:
+                id: bar_chat_button
                 background_color: 0, 0, 0, 0
+                on_release:
+                    root.switch_main_to('delivery_chat')
                 AnchorLayout:
                     pos: self.parent.pos
                     size: self.parent.size
                     anchor_x: 'center'
                     anchor_y: 'center'
                     Image:
+                        id: icon_chat
                         source: 'img/chat.png'
 
             ToggleButton:
+                id: bar_orders_button
+                state: 'down'
                 background_color: 0, 0, 0, 0
+                on_release:
+                    root.switch_main_to('delivery_orders')
                 AnchorLayout:
                     pos: self.parent.pos
                     size: self.parent.size
                     anchor_x: 'center'
                     anchor_y: 'center'
                     Image:
-                        source: 'img/list.png'
+                        id: icon_list
+                        source: 'img/bold_list.png'
 
             ToggleButton:
+                id: bar_profile_button
                 background_color: 0, 0, 0, 0
+                on_release:
+                    root.show_profile()
+                    root.switch_main_to('delivery_profile')
                 AnchorLayout:
                     pos: self.parent.pos
                     size: self.parent.size
                     anchor_x: 'center'
                     anchor_y: 'center'
                     Image:
+                        id: icon_user
                         source: 'img/user.png'

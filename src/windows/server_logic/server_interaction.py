@@ -20,6 +20,9 @@ class ServerLogic():
             except ConnectionRefusedError:
                 logging.info('Server is down')
                 answer = 'server_error'
+            except TimeoutError:
+                logging.info('timeout')
+                answer = 'server_error'
         return answer
     
     def get_login(self) -> list:

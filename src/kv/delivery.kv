@@ -6,6 +6,8 @@
     delivery_orders_scrollview: delivery_orders_scrollview
     active_orders: active_orders
     free_orders: free_orders
+    user_avatar: user_avatar
+    user_fullname: user_fullname
 
     canvas:
         Color:
@@ -111,7 +113,87 @@
                     
                     BoxLayout:
                         size_hint: 1, 0.87
-                        spacing: 30
+                        orientation: 'vertical'
+                        BoxLayout:
+                            size_hint: 1, 0.93
+                            orientation: 'vertical'
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                Widget:
+                                    id: user_avatar
+                                    path: 'windows/profile/no_avatar.png'
+                                    size_hint: 0.3, 1
+                                    canvas.before:
+                                        Color:
+                                            rgba: 1, 1, 1, 1
+                                        Ellipse:
+                                            source: self.path
+                                            size: self.height/1.3, self.height/1.3
+                                            pos: self.center_x - self.height/2.3, self.center_y - (self.height/1.3)/2
+                                
+                                BoxLayout:
+                                    size_hint: 0.7, 1
+                                    orientation: 'vertical'
+                                    Label:
+                                        id: user_fullname
+                                        text_size: self.size
+                                        text: '[b]Неизвестно[/b]'
+                                        halign: 'left'
+                                        valign: 'bottom'
+                                        markup: 1
+                                        font_size: self.height/2.5
+                                        color: 0, 0, 0, 1
+                                    
+                                    Label:
+                                        text_size: self.size
+                                        text:'Рейтинг: 5'
+                                        halign: 'left'
+                                        valign: 'top'
+                                        font_size: self.height/4
+                                        color: 0, 0, 0, 1
+                            
+                            BoxLayout:
+                                size_hint: 1, 0.2
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Архив заказов'
+                                ProfileButton:
+                                    text: 'Отзывы'
+                                ProfileButton:
+                                    text: 'Сменить регион'
+
+                            BoxLayout:
+                                size_hint: 1, 0.3
+                                spacing: '20dp'
+                                padding: ('5dp', '20dp', '5dp', '20dp')
+
+                            BoxLayout:
+                                size_hint: 1, 0.3
+                                orientation: 'vertical'
+                                ProfileButton:
+                                    text: 'Способ оплаты'
+                                ProfileButton:
+                                    text: 'FAQ'
+                                ProfileButton:
+                                    text: 'Редактировать данные'
+                                    on_release:
+                                        root.manager.transition.direction = 'left'
+                                        root.manager.current = 'edit_profile'
+                                ProfileButton:
+                                    text: 'Промокоды'
+                                ProfileButton:
+                                    text: 'Поддержка'
+
+                        FloatLayout:
+                            size_hint: 1, 0.07
+                            RoundedButton:
+                                text: 'Выйти'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.9
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (178/255, 34/255, 34/255, 1)
+                                on_release:
+                                    root.quit()
 
         BoxLayout:
             size_hint: 1, 0.07

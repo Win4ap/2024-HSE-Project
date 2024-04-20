@@ -75,7 +75,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         path_to_fullname = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'fullname')
         path_to_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
-        path_to_no_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'no_avatar.jpg')
+        path_to_no_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'no_avatar.png')
         with open(path_to_login, 'wb'):
             pass
         with open(path_to_fullname, 'wb'):

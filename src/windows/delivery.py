@@ -20,6 +20,25 @@ class DeliverySide(Screen, ColorAnimBase, ServerLogic):
         super().__init__(**kw)
         self.delivery_main_frame.current = 'delivery_orders'
 
+    def quit(self):
+        path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+        path_to_fullname = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'fullname')
+        path_to_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
+        path_to_no_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'no_avatar.png')
+        with open(path_to_login, 'wb'):
+            pass
+        with open(path_to_fullname, 'wb'):
+            pass
+        if os.path.isfile(path_to_avatar):
+            os.remove(path_to_avatar)
+        self.manager.transition.direction = 'down'
+        self.manager.current = 'auth'
+        self.delivery_main_frame.current = 'delivery_orders'
+        self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/bold_list.png', 'img/user.png'
+        self.active_orders.animated_color , self.free_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 0)
+        self.user_fullname.text = '[b]Неизвестно[/b]'
+        self.user_avatar.path = path_to_no_avatar
+
     def switch_main_to(self, screen):
         if self.delivery_main_frame.current != screen:
             self.delivery_main_frame.current = screen
@@ -31,4 +50,33 @@ class DeliverySide(Screen, ColorAnimBase, ServerLogic):
             self.icon_chat.source, self.icon_list.source, self.icon_user.source = 'img/chat.png', 'img/list.png', 'img/bold_user.png'
 
     def show_profile(self):
-        pass
+        path_to_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
+        path_to_fullname = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'fullname')
+        if not os.path.isfile(path_to_avatar):
+            answer = super().get_profile_data()
+            if answer == 'server_error':
+                Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+            else:
+                answer = answer.split(' ')
+                if answer[0] == 'done':
+                    self.user_fullname.text = f'[b]{answer[1]} {answer[2]}[/b]'
+                    with open(path_to_fullname, 'w') as file:
+                        file.write(f'{answer[1]} {answer[2]}')
+                    self.user_avatar.path = path_to_avatar
+                elif answer[0] == 'error':
+                    if answer[1] == 'fullness_false':
+                        Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать Данные'), size_hint=(0.9, 0.2)).open()
+                    elif answer[1] == 'client_didnt_get_size_correctly':
+                        Popup(title='Ошибка', content=Label(text='Ошибка при передаче'), size_hint=(0.8, 0.2)).open()
+                    elif answer[1] == 'client_didnt_get_picture_correctly':
+                        Popup(title='Ошибка', content=Label(text='Ошибка при передаче'), size_hint=(0.8, 0.2)).open()
+                    else:
+                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+                else:
+                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+        else:
+            with open(path_to_fullname, 'r') as file:
+                data = file.read()
+            data = data.split(' ')
+            self.user_fullname.text = f'[b]{data[0]} {data[1]}[/b]'
+            self.user_avatar.path = path_to_avatar

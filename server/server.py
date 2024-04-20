@@ -11,7 +11,7 @@ path_to_database = os.path.join(
 
 
 def start_the_server():
-    logging.basicConfig(level=logging.INFO, filename="loggings.log",
+    logging.basicConfig(level=logging.DEBUG, filename="loggings.log",
                         filemode="w", format="%(asctime)s %(levelname)s %(message)s")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -112,9 +112,20 @@ def process_the_request(request_data):
                     password_input = request[3]
                     return try_to_login(login, password_input, state)
                 case 'get_profile_fullness':
-                    logging.debug('client get_profile_fullness case')
+                    logging.debug('delivery get_profile_fullness case')
                     login = request[2]
-                    return get_profile_fullness(login, state)
+                    return get_profile_fullness(state, login)
+                case 'edit_profile':
+                    logging.debug('delivery edit_profie case')
+                    login = request[2]
+                    name = request[3]
+                    surname = request[4]
+                    phone = request[5]
+                    return edit_profile(state, login, name, surname, phone)
+                case 'get_profile_info':
+                    logging.debug('delivery get_profile_info case')
+                    login = request[2]
+                    return get_profile_info(state, login)
                 case _:
                     return 'error error_of_request'
         case _:

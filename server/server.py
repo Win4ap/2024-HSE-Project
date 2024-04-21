@@ -1,11 +1,11 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 import uvicorn
 import os
 import logging
 import sqlite3
 from AdditionalClasses import Order 
-import constatns
+import constants
 
 
 path_to_database = os.path.join(
@@ -215,4 +215,4 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     database.commit()
 
-uvicorn.run(server, host = constatns.IP, port = constatns.PORT)
+uvicorn.run(server, host = constants.IP, port = constants.PORT)

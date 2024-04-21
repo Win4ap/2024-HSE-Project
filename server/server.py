@@ -5,10 +5,11 @@ import os
 import logging
 import sqlite3
 from AdditionalClasses import Order 
+import constatns
 
 
 path_to_database = os.path.join(
-    os.getcwd(), '2024-HSE-Project', 'server', 'database', 'database.db')
+    os.getcwd(), 'database', 'database.db')
 server = FastAPI()
 
 
@@ -196,7 +197,7 @@ def get_user_file(picture, state: str, login: str) -> bytes: #getting user's pas
         if user == None or user[0] == 0:
             raise HTTPException(status_code=404, detail="Item not found")
     path_to_picture = os.path.join(
-        os.getcwd(), '2024-HSE-Project', 'server', 'images', f'{state}_{login}_{picture}.jpg')
+        os.getcwd(), 'images', f'{state}_{login}_{picture}.jpg')
     return FileResponse(path=path_to_picture)
 
 
@@ -214,4 +215,4 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     database.commit()
 
-uvicorn.run(server, host = '127.0.0.1', port = 1233)
+uvicorn.run(server, host = constatns.IP, port = constatns.PORT)

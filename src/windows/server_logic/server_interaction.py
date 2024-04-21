@@ -2,14 +2,22 @@ import socket
 import requests
 import os
 import logging
-import sys 
-sys.set_int_max_str_digits(1000000000)
+
 from windows.server_logic.constants import IP, PORT
 from windows.server_logic.raw_rsa import RSA
 
 URL = f'http://{IP}:{PORT}'
 
 class ServerLogic():
+    def check_status(self, answer):
+        if answer.status_code == 200:
+            answer = (answer.text).replace('"', '')
+            logging.info(f'Server answer: {answer}')
+            return answer
+        else:
+            logging.info('Server is down')
+            return 'server_error'
+
     def get_login(self) -> list:
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         with open(path_to_login, 'r') as file:
@@ -25,13 +33,7 @@ class ServerLogic():
             answer = requests.post(f'{URL}/{command}?body={state}~{login}~{password}')
         else:
             return 'FATAL'
-        if answer.status_code == 200:
-            answer = (answer.text).replace('"', '')
-            logging.info(f'Server answer: {answer}')
-            return answer
-        else:
-            logging.info('Server is down')
-            return 'server_error'
+        return self.check_status(answer)
     
     def get_client_data(self, info) -> str:
         data = self.get_login()
@@ -39,13 +41,7 @@ class ServerLogic():
         else: return 'ты че натворил'
         logging.info(f'get_user_{info}: {state} {login}')
         answer = requests.get(f'{URL}/get_user_{info}?login={login}')
-        if answer.status_code == 200:
-            answer = (answer.text).replace('"', '')
-            logging.info(f'Server answer: {answer}')
-            return answer
-        else:
-            logging.info('Server is down')
-            return 'server_error'
+        return self.check_status(answer)
     
     def get_profile_fullness(self) -> str:
         data = self.get_login()
@@ -53,13 +49,7 @@ class ServerLogic():
         else: return 'ты че натворил'
         logging.info(f'get_profile_fullness: {state} {login}')
         answer = requests.get(f'{URL}/get_profile_fullness?body={state}~{login}')
-        if answer.status_code == 200:
-            answer = (answer.text).replace('"', '')
-            logging.info(f'Server answer: {answer}')
-            return answer
-        else:
-            logging.info('Server is down')
-            return 'server_error'
+        return self.check_status(answer)
     
     # TODO -> fastAPI
     def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
@@ -131,10 +121,4 @@ class ServerLogic():
         else: return 'ты че натворил'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
         answer = requests.post(f'{URL}/new_{object}?body={login}~{name}~{price}~{description}~{adress_from}~{adress_to}')
-        if answer.status_code == 200:
-            answer = (answer.text).replace('"', '')
-            logging.info(f'Server answer: {answer}')
-            return answer
-        else:
-            logging.info('Server is down')
-            return 'server_error'
+        return self.check_status(answer)

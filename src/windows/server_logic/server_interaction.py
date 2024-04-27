@@ -28,9 +28,9 @@ class ServerLogic():
         password = RSA().encrypt(password)
         logging.info(f'{command}: {state} {login}')
         if command == 'login':
-            answer = requests.get(f'{URL}/{command}', {'body': f'{state}~{login}~{password}'})
+            answer = requests.get(f'{URL}/{command}', json={'state': f'{state}', 'login': f'{login}', 'password': f'{password}'})
         elif command == 'register':
-            answer = requests.post(f'{URL}/{command}?body={state}~{login}~{password}')
+            answer = requests.post(f'{URL}/{command}', json={'state': f'{state}', 'login': f'{login}', 'password': f'{password}'})
         else:
             return 'FATAL'
         return self.check_status(answer)
@@ -51,69 +51,23 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_profile_fullness?body={state}~{login}')
         return self.check_status(answer)
     
-    # TODO -> fastAPI
     def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                request = f'{state} edit_profile {login} {firstname} {lastname} {phone}'
-                client.send(request.encode('utf8'))
-                size = str(os.path.getsize(path_to_avatar))
-                client.send(size.encode('utf8'))
-                logging.info(client.recv(1024).decode('utf8'))
-                with open(path_to_avatar, mode = 'rb') as file:
-                    data = file.read(2048)
-                    while data:
-                        client.send(data)
-                        data = file.read(2048)
-                answer = client.recv(1024).decode('utf8')
-                size = str(os.path.getsize(path_to_passport))
-                client.send(size.encode('utf8'))
-                with open(path_to_passport, mode = 'rb') as file:
-                    data = file.read(2048)
-                    while data:
-                        client.send(data)
-                        data = file.read(2048)
-                answer = client.recv(1024).decode('utf8')
-                client.close()
-                logging.info(answer)
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        answer = requests.post(f'{URL}/upload_user_info', json={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
+        return self.check_status(answer)
     
-    # TODO -> fastAPI
     def get_profile_data(self) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                request = f'{state} get_profile_info {login}'
-                client.send(request.encode('utf8'))
-                size = client.recv(1024).decode('utf8')
-                if size[:5] == 'error':
-                    return size
-                else:
-                    size = int(size)
-                client.send(f'debug size_is_{size}'.encode('utf8'))
-                path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
-                processed_size = 0
-                with open(path, mode='wb') as file:
-                    while processed_size < size:
-                        data = client.recv(2048)
-                        processed_size += len(data)
-                        file.write(data)
-                client.send(('debug done').encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
+        answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
+        answer = requests.get(f'{URL}/get_user_file/profile_picture',  json={'state': f'{state}', 'login': f'{login}'})
+        with open(path, mode='wb') as file:
+            file.write(answer.content)
+        return self.check_status(answer)
     
     def new_object(self, object, name, price, description, adress_from, adress_to):
         data = self.get_login()

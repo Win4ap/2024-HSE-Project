@@ -183,7 +183,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
 
     def send_new_object_request(self, object):
         fullness = super().get_profile_fullness()
-        if fullness == 'done True':
+        if fullness == True:
             if (object != 'order' and object != 'template'):
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             name = self.new_order_name.text

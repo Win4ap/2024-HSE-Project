@@ -163,12 +163,12 @@ def get_user_data(data, user: User) -> str:
 def edit_profile(user: User, profile_picture: UploadFile, passport: UploadFile) -> str:
     result = 'done '
     path_to_profile_picture = os.path.join(
-        os.getcwd(), '2024-HSE-Project', 'server', 'images', f'{user.state}_{user.login}_profile_picture.jpg')
+        os.getcwd(), 'images', f'{user.state}_{user.login}_profile_picture.jpg')
     with open(path_to_profile_picture, mode='wb') as file:
         file.write(profile_picture.file)
     logging.debug('Done with profile picture')
     path_to_passport = os.path.join(
-        os.getcwd(), '2024-HSE-Project', 'server', 'images', f'{user.state}_{user.login}_passport.jpg')
+        os.getcwd(), 'images', f'{user.state}_{user.login}_passport.jpg')
     logging.debug('Try to get size of passport image')
     with open(path_to_passport, mode='wb') as file:
         file.write(passport.file)

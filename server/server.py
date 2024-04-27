@@ -94,7 +94,7 @@ def make_new_template(order: Order) -> str:
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
-            return 'error login_doesnt_exists'
+            raise HTTPException(status_code=404, detail="Item not found")
         query = """ INSERT INTO templates_list (login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()

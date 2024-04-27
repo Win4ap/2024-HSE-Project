@@ -161,7 +161,7 @@ def get_user_data(data, user: User) -> str:
     return result
 
 
-@server.put('/upload_user_info')
+@server.post('/upload_user_info')
 def upload_user_info(user: User, files: list[UploadFile]) -> str:
     result = 'done '
     profile_picture = files[0]

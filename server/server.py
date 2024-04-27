@@ -127,8 +127,10 @@ def get_user_info(user: User) -> str:
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         fullness = cursor.fetchone()
-        if fullness == None or fullness[0] == 0:
-            raise HTTPException(status_code=404, detail="Item not found or fullness is false")
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == False:
+            raise HTTPException(status_code=423, detail="Fullness is false")
         query = f""" SELECT name, surname, phone FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         user_info = cursor.fetchone()
@@ -146,7 +148,7 @@ def get_user_data(data, user: User) -> str:
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         if cursor.fetchone() == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         query = f""" SELECT * FROM {data}_list WHERE login = ? """
         cursor.execute(query, (user.login,))
         data = cursor.fetchall()
@@ -160,8 +162,18 @@ def get_user_data(data, user: User) -> str:
 
 
 @server.put('/upload_user_info')
-def edit_profile(user: User, profile_picture: UploadFile, passport: UploadFile) -> str:
+def upload_user_info(user: User, files: list[UploadFile]) -> str:
     result = 'done '
+    profile_picture = files[0]
+    passport = files[1]
+    if user.name == None or user.surname == None or user.phone == None:
+        raise HTTPException(status_code=422, detail="Need more information!")
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT login from {user.state}_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        if cursor.fetchone() == None:
+            raise HTTPException(status_code=404, detail="Login not found")
     path_to_profile_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_profile_picture.jpg')
     with open(path_to_profile_picture, mode='wb') as file:

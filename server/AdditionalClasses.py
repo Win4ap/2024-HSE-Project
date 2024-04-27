@@ -1,12 +1,23 @@
-class Order(object):
-    def __init__(self, login, name, cost, description, start, finish, supplier=None):
-        self.owner = login
-        self.name = name
-        self.cost = cost
-        self.description = description
-        self.start = start
-        self.finish = finish
-        self.supplier = supplier
+from pydantic import BaseModel
+
+
+class Order(BaseModel):
+    owner: str
+    name: str
+    cost: int
+    description: str = None
+    start: str
+    finish: str
+    supplier: str = None
 
     def get_tuple(self) -> tuple:
         return (self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier)
+
+
+class User(BaseModel):
+    state: str 
+    login: str 
+    password: str = None
+    name: str = None
+    surname: str = None
+    phone: str = None

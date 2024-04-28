@@ -103,7 +103,7 @@ def make_new_template(order: Order) -> str:
 
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
-    logging.info(f'getting profile fullness: {state} {login}')
+    logging.info(f'getting profile fullness: {user.state} {user.login}')
     result = True
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
@@ -140,7 +140,7 @@ def get_user_info(user: User) -> str:
 
 @server.get('/get_user_{data}') #getting orders or templates
 def get_user_data(data, user: User) -> str:
-    logging.info(f"get user's {user.data}")
+    logging.info(f"get user's {data}")
     result = 'done '
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
@@ -196,7 +196,7 @@ def upload_user_info(user: User, files: list[UploadFile]) -> str:
 
 @server.get('/get_user_picture/{picture}')
 def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
-    logging.info(f'Get profile picture of {state} {login}')
+    logging.info(f'Get profile picture of {user.state} {user.login}')
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()

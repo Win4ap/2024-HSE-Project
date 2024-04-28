@@ -9,11 +9,15 @@ from windows.server_logic.raw_rsa import RSA
 URL = f'http://{IP}:{PORT}'
 
 class ServerLogic():
+    # TODO add more
     def check_status(self, answer):
+        logging.info(f'Server answer: {answer.status_code}, {answer.text}')
         if answer.status_code == 200:
             answer = (answer.text).replace('"', '')
-            logging.info(f'Server answer: {answer}')
             return answer
+        elif answer.status_code == 404:
+            answer = answer.json()
+            return answer['detail']
         else:
             logging.info('Server is down')
             return 'server_error'
@@ -40,15 +44,16 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'get_user_{info}: {state} {login}')
-        answer = requests.get(f'{URL}/get_user_{info}?login={login}')
+        answer = requests.get(f'{URL}/get_user_{info}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
+    # TODO json
     def get_profile_fullness(self) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'get_profile_fullness: {state} {login}')
-        answer = requests.get(f'{URL}/get_profile_fullness?body={state}~{login}')
+        answer = requests.get(f'{URL}/get_profile_fullness', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
     def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
@@ -62,17 +67,21 @@ class ServerLogic():
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
+        if self.get_profile_fullness() == 'false':
+            return 'Not Found'
         path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
-        answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         answer = requests.get(f'{URL}/get_user_file/profile_picture',  json={'state': f'{state}', 'login': f'{login}'})
-        with open(path, mode='wb') as file:
-            file.write(answer.content)
+        if answer.status_code == 200:
+            with open(path, mode='wb') as file:
+                file.write(answer.content)
+            answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
+    # TODO json
     def new_object(self, object, name, price, description, adress_from, adress_to):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
-        answer = requests.post(f'{URL}/new_{object}?body={login}~{name}~{price}~{description}~{adress_from}~{adress_to}')
+        answer = requests.post(f'{URL}/new_{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         return self.check_status(answer)

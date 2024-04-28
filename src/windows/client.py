@@ -156,24 +156,14 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
             answer = super().get_profile_data()
             if answer == 'server_error':
                 Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'Not Found':
+                Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать Данные'), size_hint=(0.9, 0.2)).open()
             else:
-                answer = answer.split(' ')
-                if answer[0] == 'done':
-                    self.user_fullname.text = f'[b]{answer[1]} {answer[2]}[/b]'
-                    with open(path_to_fullname, 'w') as file:
-                        file.write(f'{answer[1]} {answer[2]}')
-                    self.user_avatar.path = path_to_avatar
-                elif answer[0] == 'error':
-                    if answer[1] == 'fullness_false':
-                        Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать Данные'), size_hint=(0.9, 0.2)).open()
-                    elif answer[1] == 'client_didnt_get_size_correctly':
-                        Popup(title='Ошибка', content=Label(text='Ошибка при передаче'), size_hint=(0.8, 0.2)).open()
-                    elif answer[1] == 'client_didnt_get_picture_correctly':
-                        Popup(title='Ошибка', content=Label(text='Ошибка при передаче'), size_hint=(0.8, 0.2)).open()
-                    else:
-                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
-                else:
-                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+                answer = answer.split('~')
+                self.user_fullname.text = f'[b]{answer[0]} {answer[1]}[/b]'
+                with open(path_to_fullname, 'w') as file:
+                    file.write(f'{answer[1]} {answer[2]}')
+                self.user_avatar.path = path_to_avatar
         else:
             with open(path_to_fullname, 'r') as file:
                 data = file.read()
@@ -183,7 +173,7 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
 
     def send_new_object_request(self, object):
         fullness = super().get_profile_fullness()
-        if fullness == True:
+        if fullness == 'true':
             if (object != 'order' and object != 'template'):
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             name = self.new_order_name.text

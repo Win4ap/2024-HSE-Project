@@ -103,7 +103,7 @@ def make_new_template(order: Order) -> str:
 
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
-    logging.info(f'getting profile fullness: {state} {login}')
+    logging.info(f'getting profile fullness: {user.state} {user.login}')
     result = True
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')

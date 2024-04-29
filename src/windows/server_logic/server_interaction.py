@@ -70,7 +70,7 @@ class ServerLogic():
         if self.get_profile_fullness() == 'false':
             return 'Not Found'
         path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
-        answer = requests.get(f'{URL}/get_user_file/profile_picture',  json={'state': f'{state}', 'login': f'{login}'})
+        answer = requests.get(f'{URL}/get_user_picture/profile_picture',  json={'state': f'{state}', 'login': f'{login}'})
         if answer.status_code == 200:
             with open(path, mode='wb') as file:
                 file.write(answer.content)

@@ -157,12 +157,12 @@ class ClientSide(Screen, ColorAnimBase, ServerLogic):
             if answer == 'server_error':
                 Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
             elif answer == 'Not Found':
-                Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать Данные'), size_hint=(0.9, 0.2)).open()
+                Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать данные'), size_hint=(0.9, 0.2)).open()
             else:
                 answer = answer.split('~')
                 self.user_fullname.text = f'[b]{answer[0]} {answer[1]}[/b]'
                 with open(path_to_fullname, 'w') as file:
-                    file.write(f'{answer[1]} {answer[2]}')
+                    file.write(f'{answer[0]} {answer[1]}')
                 self.user_avatar.path = path_to_avatar
         else:
             with open(path_to_fullname, 'r') as file:

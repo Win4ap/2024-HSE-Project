@@ -157,7 +157,6 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 @server.get('/get_user_{data}') #getting orders or templates
 def get_user_data(data, user: User) -> str:
-    logging.info(f"get user's {user.data}")
     result = 'done '
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')

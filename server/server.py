@@ -103,7 +103,7 @@ def make_new_template(order: Order) -> str:
 
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
-    logging.info(f'getting profile fullness: {user.state} {user.login}')
+    logging.info(f'getting profile fullness: {state} {login}')
     result = True
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
@@ -140,7 +140,7 @@ def get_user_info(user: User) -> str:
 
 @server.get('/get_user_{data}') #getting orders or templates
 def get_user_data(data, user: User) -> str:
-    logging.info(f"get user's {data}")
+    logging.info(f"get user's {user.data}")
     result = 'done '
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
@@ -196,15 +196,16 @@ def upload_user_info(user: User, files: list[UploadFile]) -> str:
 
 @server.get('/get_user_picture/{picture}')
 def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
-    logging.info(f'Get profile picture of {user.state} {user.login}')
     with sqlite3.connect(path_to_database) as database:
         logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         fulness = cursor.fetchone()
-        if fulness == None or fulness[0] == 0:
+        if fulness == None:
             raise HTTPException(status_code=404, detail="Item not found")
+        if fullness[0] == 0:
+            rasi HTTPException(status_code=423, detail="Fullness is false")
     path_to_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
     return FileResponse(path=path_to_picture)

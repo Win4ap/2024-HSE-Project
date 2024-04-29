@@ -145,10 +145,10 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
-        fulness = cursor.fetchone()
-        if fulness == None:
+        fullness = cursor.fetchone()
+        if fullness == None:
             raise HTTPException(status_code=404, detail="Item not found")
-        if fulness[0] == 0:
+        if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
     path_to_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')

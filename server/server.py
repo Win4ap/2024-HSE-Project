@@ -148,8 +148,8 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
         fulness = cursor.fetchone()
         if fulness == None:
             raise HTTPException(status_code=404, detail="Item not found")
-        if fullness[0] == 0:
-            rasi HTTPException(status_code=423, detail="Fullness is false")
+        if fulness[0] == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
     path_to_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
     return FileResponse(path=path_to_picture)

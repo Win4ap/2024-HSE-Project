@@ -138,6 +138,23 @@ def get_user_info(user: User) -> str:
     return result
 
 
+@server.get('/get_user_picture/{picture}')
+def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
+    with sqlite3.connect(path_to_database) as database:
+        logging.debug('connected to database')
+        cursor = database.cursor()
+        query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fulness = cursor.fetchone()
+        if fulness == None:
+            raise HTTPException(status_code=404, detail="Item not found")
+        if fullness[0] == 0:
+            rasi HTTPException(status_code=423, detail="Fullness is false")
+    path_to_picture = os.path.join(
+        os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
+    return FileResponse(path=path_to_picture)
+
+
 @server.get('/get_user_{data}') #getting orders or templates
 def get_user_data(data, user: User) -> str:
     logging.info(f"get user's {user.data}")
@@ -177,7 +194,7 @@ def upload_user_info(user: User, files: list[UploadFile]) -> str:
     path_to_profile_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_profile_picture.jpg')
     with open(path_to_profile_picture, mode='wb') as file:
-        file.write(profile_picture.file)
+        file.write(profile_picture.file)                                        
     logging.debug('Done with profile picture')
     path_to_passport = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_passport.jpg')
@@ -192,23 +209,6 @@ def upload_user_info(user: User, files: list[UploadFile]) -> str:
         cursor.execute(query, (user.name, user.surname, user.phone, 1, user.login))
         database.commit()
     return result
-
-
-@server.get('/get_user_picture/{picture}')
-def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
-    with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
-        cursor = database.cursor()
-        query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
-        cursor.execute(query, (user.login,))
-        fulness = cursor.fetchone()
-        if fulness == None:
-            raise HTTPException(status_code=404, detail="Item not found")
-        if fullness[0] == 0:
-            rasi HTTPException(status_code=423, detail="Fullness is false")
-    path_to_picture = os.path.join(
-        os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
-    return FileResponse(path=path_to_picture)
 
 
 logging.basicConfig(level=logging.INFO, filename="loggings.log",

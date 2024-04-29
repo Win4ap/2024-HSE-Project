@@ -1,4 +1,3 @@
-import socket
 import requests
 import os
 import logging
@@ -47,7 +46,6 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_user_{info}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    # TODO json
     def get_profile_fullness(self) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
@@ -77,7 +75,6 @@ class ServerLogic():
             answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    # TODO json
     def new_object(self, object, name, price, description, adress_from, adress_to):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]

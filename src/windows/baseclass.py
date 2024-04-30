@@ -55,3 +55,6 @@ class ProfileBase(ServerLogic):
             data = data.split(' ')
             self.user_fullname.text = f'[b]{data[0]} {data[1]}[/b]'
             self.user_avatar.path = path_to_avatar
+
+    def fill_archive(self, archive):
+        print('я тёма')

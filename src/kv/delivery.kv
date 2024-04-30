@@ -4,6 +4,7 @@
     icon_list: icon_list
     icon_user: icon_user
     delivery_orders_scrollview: delivery_orders_scrollview
+    delivery_archive_scrollview: delivery_archive_scrollview
     active_orders: active_orders
     free_orders: free_orders
     user_avatar: user_avatar
@@ -157,6 +158,8 @@
                                 orientation: 'vertical'
                                 ProfileButton:
                                     text: 'Архив заказов'
+                                    on_release:
+                                        root.delivery_main_frame.current = 'delivery_archive'
                                 ProfileButton:
                                     text: 'Отзывы'
                                 ProfileButton:
@@ -194,6 +197,40 @@
                                 cur_color: (178/255, 34/255, 34/255, 1)
                                 on_release:
                                     root.quit()
+
+            Screen:
+                name: 'delivery_archive'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('15dp', '0dp', '15dp', '0dp')
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.fill_archive(root.delivery_archive_scrollview)
+                                root.switch_main_to('delivery_profile')
+                        
+                        Label:
+                            text:'Архив'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        size_hint: 1, 0.9
+                        BoxLayout:
+                            id: delivery_archive_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
 
         BoxLayout:
             size_hint: 1, 0.07

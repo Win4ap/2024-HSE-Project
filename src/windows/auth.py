@@ -20,7 +20,7 @@ class AuthWindow(Screen, ColorAnimBase, ServerLogic):
                 Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
             elif answer == 'done incorrect':
                 Popup(title='Ошибка', content=Label(text='Неверный пароль'), size_hint=(0.8, 0.2)).open()
-            elif answer == 'error login_doesnt_exists':
+            elif answer == 'error login_doesnt_exists' or answer == 'Item not found':
                 Popup(title='Ошибка', content=Label(text='Логин не найден'), size_hint=(0.8, 0.2)).open()
             else:
                 answer = answer.split(' ')

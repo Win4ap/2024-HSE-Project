@@ -21,6 +21,7 @@
     details_courier: details_courier
     details_from: details_from
     details_to: details_to
+    details_delete: details_delete
 
     canvas:
         Color:
@@ -361,6 +362,7 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
+                                root.details_delete.order_id = -1
                                 root.switch_main_to('client_orders')
                         
                         Label:
@@ -431,6 +433,20 @@
                                 text_size: self.size
                                 halign: 'left'
                                 valign: 'top'
+
+                            RoundedButton:
+                                id: details_delete
+                                order_id: -1
+                                text: 'Удалить'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.6
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (178/255, 34/255, 34/255, 1)
+                                on_release:
+                                    root.delete_order(self.order_id)
+                                    self.order_id = -1
+                                    root.show_client_data('orders')
+                                    root.switch_main_to('client_orders')
 
         BoxLayout:
             size_hint: 1, 0.07

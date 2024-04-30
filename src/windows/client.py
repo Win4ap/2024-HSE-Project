@@ -1,5 +1,3 @@
-import os
-
 from kivy.uix.screenmanager import Screen
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
@@ -10,7 +8,7 @@ from windows.baseclass import ColorAnimBase, ProfileBase
 from windows.server_logic.server_interaction import ServerLogic
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to):
+    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_delete):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -26,9 +24,11 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.link_courier = link_courier
         self.link_from = link_from
         self.link_to = link_to
+        self.link_delete = link_delete
 
     def on_release(self):
         self.root_sm.current = 'client_order_details'
+        self.link_delete.order_id = self.order_id
         self.link_name.text = self.order_name
         self.link_desc.text = self.description
         self.link_price.text = self.price
@@ -118,7 +118,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         description = description.replace('_', ' ')
                         start = start.replace('_', ' ')
                         finish = finish.replace('_', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to))
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_delete))
                 elif info == 'templates':
                     for i in range(1, len(answer)):
                         template = answer[i].split(' ')
@@ -178,5 +178,11 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
             Popup(title='Ошибка', content=Label(text='Сначала заполните профиль'), size_hint=(0.8, 0.2)).open()
         elif fullness == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+
+    def delete_order(self, order_id):
+        if order_id > -1:
+            Popup(title='Ура', content=Label(text='Типо удалил'), size_hint=(0.8, 0.2)).open()
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

@@ -8,7 +8,7 @@ from windows.server_logic.raw_rsa import RSA
 URL = f'http://{IP}:{PORT}'
 
 class ServerLogic():
-    # TODO add more
+    # TODO add more cases
     def check_status(self, answer):
         logging.info(f'Server answer: {answer.status_code}, {answer.text}')
         if answer.status_code == 200:
@@ -46,6 +46,22 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_user_{info}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
+    def get_free_orders(self) -> str:
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_free_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_free_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_delivery_orders(self) -> str:
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_delivery_active_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_delivery_active_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
     def get_profile_fullness(self) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
@@ -58,6 +74,7 @@ class ServerLogic():
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
+        logging.info(f'edit_profile: {state} {login} {firstname} {lastname} {phone} {path_to_avatar} {path_to_passport}')
         answer = requests.post(f'{URL}/upload_user_info', json={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
         return self.check_status(answer)
     
@@ -65,6 +82,7 @@ class ServerLogic():
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
+        logging.info(f'get_profile: {state} {login}')
         if self.get_profile_fullness() == 'false':
             return 'Not Found'
         path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
@@ -75,10 +93,26 @@ class ServerLogic():
             answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def new_object(self, object, name, price, description, adress_from, adress_to):
+    def new_object(self, object, name, price, description, adress_from, adress_to) -> str:
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
         answer = requests.post(f'{URL}/new_{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
+        return self.check_status(answer)
+    
+    def order_operation(self, order_id, operation) -> str: # operation = take/complete/delete
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'{operation}_order: {state} {login} {order_id}')
+        answer = requests.get(f'{URL}/{operation}_order', json={'state': f'{state}', 'login': f'{login}', 'id': f'{order_id}'})
+        return self.check_status(answer)
+    
+    def get_archive_orders(self) -> str:
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_archive: {state} {login}')
+        answer = requests.get(f'{URL}/get_archive', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)

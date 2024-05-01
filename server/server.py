@@ -79,7 +79,7 @@ def make_new_order(order: Order) -> str:
                 else:
                     right = mid 
             cur_id = right 
-        query = """ INSERT INTO orders_list (id, login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO orders_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id,) + order.get_tuple())
         database.commit()
     return f"done {cur_id}"
@@ -95,7 +95,7 @@ def make_new_template(order: Order) -> str:
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Item not found")
-        query = """ INSERT INTO templates_list (login, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO templates_list (owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return 'done'
@@ -155,17 +155,45 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
+@server.get('/get_active_orders')
+def get_active_orders(user: User) -> list[Order]:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM delivery_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = """ SELECT * FROM orders_list WHERE supplier = ? """
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = {
+                'id': elem[0],
+                'owner': elem[1],
+                'name': elem[2],
+                'cost': elem[3],
+                'description': elem[4],
+                'start': elem[5],
+                'finish': elem[6],
+                'supplier': elem[7],
+            }
+            result.append(order)
+    return result
+
+
 @server.get('/get_user_{data}') #getting orders or templates
 def get_user_data(data, user: User) -> str:
     result = 'done '
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Login not found")
-        query = f""" SELECT * FROM {data}_list WHERE login = ? """
+        query = f""" SELECT * FROM {data}_list WHERE owner = ? """
         cursor.execute(query, (user.login,))
         data = cursor.fetchall()
         if data == None:
@@ -218,9 +246,9 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, login TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS templates_list ( login TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS templates_list ( owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)
     database.commit()
 

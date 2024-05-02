@@ -9,6 +9,13 @@
     free_orders: free_orders
     user_avatar: user_avatar
     user_fullname: user_fullname
+    details_name: details_name
+    details_description: details_description
+    details_price: details_price
+    details_courier: details_courier
+    details_from: details_from
+    details_to: details_to
+    details_button: details_button
 
     canvas:
         Color:
@@ -59,7 +66,7 @@
                             color: 0, 0, 0, 1
                             state: 'down'
                             background_color: 0, 0 ,0 ,0  
-                            animated_color: (217/255, 217/255, 217/255, 0)
+                            animated_color: (217/255, 217/255, 217/255, 1)
                             canvas.before:
                                 Color:
                                     rgba: self.animated_color
@@ -69,6 +76,7 @@
                                     radius: [20, 20, 20, 20]
                             on_release:
                                 root.change_color_state(root.active_orders, root.free_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+                                root.show_orders()
 
                         ToggleButton:
                             id: free_orders
@@ -86,6 +94,7 @@
                                     radius: [20, 20, 20, 20]
                             on_release:
                                 root.change_color_state(root.active_orders, root.free_orders, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+                                root.show_orders()
 
                     Widget:
                         size_hint: None, 0.01 # spacing thing
@@ -98,8 +107,43 @@
                             id: delivery_orders_scrollview
                             spacing: '10dp'
                             size_hint_y: None
-                            height: 0
+                            height: 370
                             orientation: 'vertical'
+                            # test orders, delete when the backend is completed
+                            DeliveryFreeOrderPreview:
+                                height: 180
+                                order_id: 1
+                                description: 'hello world'
+                                order_name: 'first'
+                                price: '345'
+                                start: 'start1'
+                                finish: 'finish1'
+                                courier: 'owner1'
+                                root_sm: root.delivery_main_frame
+                                link_button: root.details_button
+                                link_name: root.details_name
+                                link_desc: root.details_description
+                                link_price: root.details_price
+                                link_from: root.details_from
+                                link_to: root.details_to
+                                link_courier: root.details_courier
+                            DeliveryActiveOrderPreview:
+                                height: 180
+                                order_id: 2
+                                description: 'hello world'
+                                order_name: 'second'
+                                price: '560'
+                                start: 'start2'
+                                finish: 'finish2'
+                                courier: 'owner2'
+                                root_sm: root.delivery_main_frame
+                                link_button: root.details_button
+                                link_name: root.details_name
+                                link_desc: root.details_description
+                                link_price: root.details_price
+                                link_from: root.details_from
+                                link_to: root.details_to
+                                link_courier: root.details_courier
 
             Screen:
                 name: 'delivery_profile'
@@ -231,6 +275,107 @@
                             size_hint_y: None
                             height: 0
                             orientation: 'vertical'
+
+            Screen:
+                name: 'delivery_order_details'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.details_button.order_id = -1
+                                root.switch_main_to('delivery_orders')
+                        
+                        Label:
+                            text:'Детали заказа'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.8, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                id: details_name
+                                text: ''
+                                font_size: self.height/2
+                                color: 0, 0, 0, 1
+                                markup: 1
+                                text_size: self.size
+                                halign: 'center'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_description
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_price
+                                text: ''
+                                font_size: self.height/3
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+
+                            Label:
+                                id: details_courier
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+                            
+                            Label:
+                                id: details_from
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            RoundedButton:
+                                id: details_button
+                                order_id: -1
+                                text: 'Взять'
+                                operation: 'take'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.6
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (120/255, 219/255, 226/255, 1)
+                                on_release:
+                                    print(self.order_id)
+                                    root.order_interaction(self.operation)
+                                    self.order_id = -1
+                                    root.show_orders()
+                                    root.switch_main_to('delivery_orders')
 
         BoxLayout:
             size_hint: 1, 0.07

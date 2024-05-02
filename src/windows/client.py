@@ -1,81 +1,24 @@
 from kivy.uix.screenmanager import Screen
-from kivy.uix.button import ButtonBehavior
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from windows.baseclass import ColorAnimBase, ProfileBase
+from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, ClientTemplatePreview
 from windows.server_logic.server_interaction import ServerLogic
-
-class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_delete):
-        super().__init__()
-        self.order_id = order_id
-        self.description = description
-        self.order_name = name
-        self.price = price
-        self.start = start
-        self.finish = finish
-        self.courier = courier
-        self.root_sm = root_sm
-        self.link_name = link_name
-        self.link_desc = link_desc
-        self.link_price = link_price
-        self.link_courier = link_courier
-        self.link_from = link_from
-        self.link_to = link_to
-        self.link_delete = link_delete
-
-    def on_release(self):
-        self.root_sm.current = 'client_order_details'
-        self.link_delete.order_id = self.order_id
-        self.link_name.text = self.order_name
-        self.link_desc.text = self.description
-        self.link_price.text = self.price
-        self.link_from.text = f'Забрать отсюда: {self.start}'
-        self.link_to.text = f'Доставить сюда: {self.finish}'
-        if self.courier == 'None':
-            self.link_courier.text = 'Нет активного курьера'
-        else:
-            self.link_courier.text = self.courier
-        return super().on_release()
-
-class ClientTemplatePreview(ButtonBehavior, BoxLayout):
-    def __init__(self, name, price, description, start, finish, root_sm, link_label, link_name, link_desc, link_price, link_from, link_to):
-        super().__init__()
-        self.template_name = name
-        self.price = price
-        self.description = description
-        self.start = start
-        self.finish = finish
-        self.root_sm = root_sm
-        self.link_label = link_label
-        self.link_name = link_name
-        self.link_desc = link_desc
-        self.link_price = link_price
-        self.link_from = link_from
-        self.link_to = link_to
-
-    def on_release(self):
-        self.root_sm.current = 'client_make_new_object'
-        self.link_label.text = 'Создать заказ'
-        self.link_name.text = self.template_name
-        self.link_desc.text = self.description
-        self.link_price.text = self.price
-        self.link_from.text = self.start
-        self.link_to.text = self.finish
-        return super().on_release()
 
 class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
     def __init__(self, **kw):
         super().__init__(**kw)
-        self.client_main_frame.current = 'client_orders'
+        self.client_main_frame.current = 'client_orders'        
+
+    def on_enter(self, *args):
+        self.show_client_data('orders')
+        return super().on_enter(*args)
 
     def quit(self):
         super().quit()
         self.client_orders_scrollview.clear_widgets()
         self.client_main_frame.current = 'client_orders'
-        self.active_orders.animated_color , self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 0)
+        self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 0)
 
     def switch_main_to(self, screen):
         if self.client_main_frame.current != screen:
@@ -118,7 +61,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         description = description.replace('_', ' ')
                         start = start.replace('_', ' ')
                         finish = finish.replace('_', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_delete))
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
                 elif info == 'templates':
                     for i in range(1, len(answer)):
                         template = answer[i].split(' ')

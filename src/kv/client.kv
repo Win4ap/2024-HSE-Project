@@ -22,7 +22,7 @@
     details_courier: details_courier
     details_from: details_from
     details_to: details_to
-    details_delete: details_delete
+    details_button: details_button
 
     canvas:
         Color:
@@ -73,7 +73,7 @@
                             color: 0, 0, 0, 1
                             state: 'down'
                             background_color: 0, 0 ,0 ,0  
-                            animated_color: (217/255, 217/255, 217/255, 0)
+                            animated_color: (217/255, 217/255, 217/255, 1)
                             canvas.before:
                                 Color:
                                     rgba: self.animated_color
@@ -366,7 +366,7 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.details_delete.order_id = -1
+                                root.details_button.order_id = -1
                                 root.switch_main_to('client_orders')
                         
                         Label:
@@ -439,7 +439,7 @@
                                 valign: 'top'
 
                             RoundedButton:
-                                id: details_delete
+                                id: details_button
                                 order_id: -1
                                 text: 'Удалить'
                                 font_size: self.height/2

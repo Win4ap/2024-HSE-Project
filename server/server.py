@@ -102,26 +102,22 @@ def make_new_order(order: Order) -> str:
 
 @server.post('/new_template')
 def make_new_template(order: Order) -> str:
-    logging.info('make new template')
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Item not found")
-        query = """ INSERT INTO templates_list (owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, order.get_tuple())
+        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (-1,) + order.get_tuple())
         database.commit()
     return 'done'
 
 
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
-    logging.info(f'getting profile fullness: {user.state} {user.login}')
     result = True
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
@@ -268,7 +264,7 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS templates_list ( owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)
     database.commit()
 

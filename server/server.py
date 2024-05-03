@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
 from pydantic import BaseModel
-from typing import List, Annotated
+from typing import Annotated
 from AdditionalClasses import Order, User 
 from rsa import decrypt
 import uvicorn
@@ -17,7 +17,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: List):
+def get_orders_json(elem: list):
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -73,7 +73,7 @@ def try_to_login(
 
 
 @server.post('/new_order')
-def make_new_order(order: Order) -> str:
+def make_new_order(order: Order) -> int:
     logging.info('make new order')
     cur_id = -1
     with sqlite3.connect(path_to_database) as database:
@@ -82,7 +82,7 @@ def make_new_order(order: Order) -> str:
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         query = """ SELECT id FROM orders_list ORDER BY id """
         cursor.execute(query)
         order_id = cursor.fetchall()
@@ -104,21 +104,21 @@ def make_new_order(order: Order) -> str:
         query = """ INSERT INTO orders_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
-    return f"done {cur_id}"
+    return cur_id
 
 
 @server.post('/new_template')
-def make_new_template(order: Order) -> str:
+def make_new_template(order: Order) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
-    return 'done'
+    return True
 
 
 @server.get('/get_profile_fullness')
@@ -130,17 +130,14 @@ def get_profile_fullness(user: User) -> bool:
         cursor.execute(query, (user.login,))
         data = cursor.fetchone()
         if data == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         result = data[0]
     return result
 
 
 @server.get('/get_user_info')
-def get_user_info(user: User) -> str:
-    logging.info(f'Get main info of {user.state} {user.login}')
-    result = ''
+def get_user_info(user: User) -> dict:
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
@@ -152,20 +149,23 @@ def get_user_info(user: User) -> str:
         query = f""" SELECT name, surname, phone FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         user_info = cursor.fetchone()
-        result = '~'.join(user_info)
+    result = {
+        'name': user_info[0],
+        'surname': user_info[1],
+        'phone': user_info[2]
+    }
     return result
 
 
 @server.get('/get_user_picture/{picture}')
 def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         fullness = cursor.fetchone()
         if fullness == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
     path_to_picture = os.path.join(
@@ -174,7 +174,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 
 @server.get('/get_active_orders')
-def get_active_orders(user: User) -> List:
+def get_active_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -194,7 +194,7 @@ def get_active_orders(user: User) -> List:
 
 
 @server.get('/get_user_orders') 
-def get_user_orders(user: User) -> List:
+def get_user_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -211,7 +211,7 @@ def get_user_orders(user: User) -> List:
 
 
 @server.get('/get_user_templates') 
-def get_user_templates(user: User) -> List:
+def get_user_templates(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -236,7 +236,7 @@ def upload_user_info(
     phone: Annotated[str, Form()],
     profile_picture: Annotated[UploadFile, File()],
     passport: Annotated[UploadFile, File()]
-)-> str:
+)-> bool:
     if name == None or surname == None or phone == None:
         raise HTTPException(status_code=422, detail="Need more information!")
     with sqlite3.connect(path_to_database) as database:
@@ -258,7 +258,7 @@ def upload_user_info(
         query = f""" UPDATE {state}_data SET name = ?, surname = ?, phone = ?, fullness = ? WHERE login = ?"""
         cursor.execute(query, (name, surname, phone, 1, login)) 
         database.commit()
-    return 'done'
+    return True
 
 
 logging.basicConfig(level=logging.INFO, filename="loggings.log",

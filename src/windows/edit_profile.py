@@ -24,7 +24,7 @@ class EditProfile(Screen, ServerLogic):
         return data
     
     def open_native_filechooser(self, photo):
-        path = filechooser.open_file()
+        path = filechooser.open_file(filters=["*.jpg"])
         if photo:
             if photo == 'avatar':
                 self.avatar = path[0]
@@ -38,7 +38,7 @@ class EditProfile(Screen, ServerLogic):
         elif answer == 'true' or answer == 'false':
             if self.firstname.text != '' and self.lastname.text != '' and self.phone.text != '' and self.avatar != '' and self.passport != '':
                 answer = super().edit_profile(self.firstname.text, self.lastname.text, self.phone.text, self.avatar, self.passport)
-                if answer == 'done':
+                if answer == 'true':
                     self.firstname.text = ''
                     self.lastname.text = ''
                     self.phone.text = ''

@@ -94,24 +94,20 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                 answer = super().new_object(object, name, price, description, adress_from, adress_to)
                 if answer == 'server_error':
                     Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+                elif answer == 'true' or isinstance(int(answer), int):
+                    self.new_order_name.text = ''
+                    self.new_order_description.text = ''
+                    self.new_order_price.text = ''
+                    self.new_order_from.text = ''
+                    self.new_order_to.text = ''
+                    self.show_profile()
+                    self.switch_main_to('client_profile')
+                    Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
                 else:
-                    answer = answer.split(' ')
-                    if answer[0] == 'error':
-                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
-                    elif answer[0] == 'done':
-                        self.new_order_name.text = ''
-                        self.new_order_description.text = ''
-                        self.new_order_price.text = ''
-                        self.new_order_from.text = ''
-                        self.new_order_to.text = ''
-                        self.show_profile()
-                        self.switch_main_to('client_profile')
-                        Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
-                    else:
-                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             else:
                 Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
-        elif fullness == 'done False':
+        elif fullness == 'false':
             Popup(title='Ошибка', content=Label(text='Сначала заполните профиль'), size_hint=(0.8, 0.2)).open()
         elif fullness == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()

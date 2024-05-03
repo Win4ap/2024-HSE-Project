@@ -72,10 +72,8 @@ def try_to_login(
 
 @server.post('/new_order')
 def make_new_order(order: Order) -> int:
-    logging.info('make new order')
     cur_id = -1
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))

@@ -46,10 +46,9 @@ class ProfileBase(ServerLogic):
             elif answer == 'Not Found':
                 Popup(title='Завершить регистрацию', content=Label(text='Заполните профиль\nПрофиль -> Редактировать данные'), size_hint=(0.9, 0.2)).open()
             else:
-                answer = answer.split('~')
-                self.user_fullname.text = f'[b]{answer[0]} {answer[1]}[/b]'
+                self.user_fullname.text = f'[b]{answer['name']} {answer['surname']}[/b]'
                 with open(path_to_fullname, 'w') as file:
-                    file.write(f'{answer[0]} {answer[1]}')
+                    file.write(f'{answer['name']} {answer['surname']}')
                 self.user_avatar.path = path_to_avatar
         else:
             with open(path_to_fullname, 'r') as file:

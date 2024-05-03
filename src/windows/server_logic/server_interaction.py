@@ -12,7 +12,7 @@ class ServerLogic():
     def check_status(self, answer):
         logging.info(f'Server answer: {answer.status_code} {answer.text}')
         if answer.status_code == 200:
-            if answer.text[0] == '[':
+            if answer.text[0] == '[' or answer.text[0] == '{':
                 answer = answer.json()
             else:
                 answer = (answer.text).replace('"', '')

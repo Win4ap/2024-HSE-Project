@@ -43,7 +43,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         elif answer == 'error login_doesnt_exists':
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
-            new_height = 10 * (len(answer) - 2) + 180 * (len(answer) - 1)
+            new_height = 10 * (len(answer) - 1) + 180 * (len(answer))
             self.client_orders_scrollview.height = new_height
             if info == 'orders':
                 for order in answer:

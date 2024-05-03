@@ -6,18 +6,12 @@ from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview
 from windows.server_logic.server_interaction import ServerLogic
 
 class DeliveryActiveOrderPreview(ClientOrderPreview):
-    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button):
-        super().__init__(order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button)
-
     def on_release(self):
         self.link_button.text = 'Завершить'
         self.link_button.operation = 'complete'
         return super().on_release()
 
 class DeliveryFreeOrderPreview(ClientOrderPreview):
-    def __init__(self, **kwargs):
-        super(ClientOrderPreview, self).__init__(**kwargs)
-
     def on_release(self):
         self.link_button.text = 'Взять'
         self.link_button.operation = 'take'

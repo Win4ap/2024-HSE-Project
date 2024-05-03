@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Order(BaseModel):
-    id: int = None
+    id: int = int(-1)
     owner: str
     name: str
     cost: int
@@ -12,7 +12,7 @@ class Order(BaseModel):
     supplier: str = None
 
     def get_tuple(self) -> tuple:
-        return (self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier)
+        return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier)
 
 
 class User(BaseModel):

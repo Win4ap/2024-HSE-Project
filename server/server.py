@@ -4,6 +4,7 @@ from fastapi.logger import logger
 from pydantic import BaseModel
 from typing import List, Annotated
 from AdditionalClasses import Order, User 
+from rsa import decrypt
 import uvicorn
 import os
 import logging
@@ -31,38 +32,44 @@ def get_orders_json(elem: List):
 
 
 @server.post('/register')
-def try_to_register(user: User) -> str:
-    logging.info('try to register')
+def try_to_register(
+        state: Annotated[str, Form()],
+        login: Annotated[str, Form()],
+        password: Annotated[UploadFile, File()]
+    ) -> bool:
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
-        query = f""" SELECT login FROM {user.state}_data WHERE login = ? """
-        cursor.execute(query, (user.login,))
+        query = f""" SELECT login FROM {state}_data WHERE login = ? """
+        cursor.execute(query, (login,))
         if cursor.fetchone() == None:
-            query = f""" INSERT INTO {user.state}_data (login, password, fullness) VALUES (?, ?, ?) """
-            cursor.execute(query, (user.login, user.password, 0))
+            query = f""" INSERT INTO {state}_data (login, password, fullness) VALUES (?, ?, ?) """
+            cursor.execute(query, (login, password.file.read(), 0))
             database.commit()
-            return 'done'
+            return True
         else:
             raise HTTPException(status_code=423, detail='Login already in use')
 
 
 @server.get('/login')
-def try_to_login(user: User) -> str:
-    logging.info('try to login')
+def try_to_login(
+    state: Annotated[str, Form()],
+    login: Annotated[str, Form()],
+    password: Annotated[UploadFile, File()]
+) -> bool:
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
-        query = f""" SELECT * FROM {user.state}_data WHERE login = ? """
-        cursor.execute(query, (user.login,))
+        query = f""" SELECT password FROM {state}_data WHERE login = ? """
+        cursor.execute(query, (login,))
         data = cursor.fetchone()
         if data == None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Login not found")
         else:
-            if user.password == data[1]:
-                return 'done correct ' + user.state + ' ' + user.login
+            password = decrypt(password.file.read(), constants.privkey)
+            correct_password = decrypt(data[0], constants.privkey)
+            if password == correct_password:
+                return True
             else:
-                return 'done incorrect'
+                return False
 
 
 @server.post('/new_order')
@@ -258,9 +265,9 @@ logging.basicConfig(level=logging.INFO, filename="loggings.log",
                     filemode="w", format="%(asctime)s %(levelname)s %(message)s")
 with sqlite3.connect(path_to_database) as database:
     cursor = database.cursor()
-    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password TEXT, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)

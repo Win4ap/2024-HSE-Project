@@ -18,7 +18,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         super().quit()
         self.client_orders_scrollview.clear_widgets()
         self.client_main_frame.current = 'client_orders'
-        self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 0)
+        self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
 
     def switch_main_to(self, screen):
         if self.client_main_frame.current != screen:
@@ -101,7 +101,12 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     self.new_order_from.text = ''
                     self.new_order_to.text = ''
                     self.show_profile()
-                    self.switch_main_to('client_profile')
+                    self.show_client_data(object + 's')
+                    if object == 'order':
+                        self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
+                    else:
+                        self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1)
+                    self.switch_main_to('client_orders')
                     Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
                 else:
                     Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

@@ -336,11 +336,8 @@
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (120/255, 219/255, 226/255, 1)
                                 on_release:
-                                    print(self.order_id)
-                                    root.order_interaction(self.operation)
+                                    root.order_interaction(self.order_id, self.operation)
                                     self.order_id = -1
-                                    root.show_orders()
-                                    root.switch_main_to('delivery_orders')
 
         BoxLayout:
             size_hint: 1, 0.07

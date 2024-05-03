@@ -30,7 +30,7 @@ class ServerLogic():
             data = (file.read()).split(' ')
         return data
     
-    def auth_reg_request(self, state, command, login, password) -> str:
+    def auth_reg_request(self, state, command, login, password):
         password = password.encode('utf-8')
         password = encrypt(password, pubkey)
         logging.info(f'{command}: {state} {login}')
@@ -42,7 +42,7 @@ class ServerLogic():
             return 'FATAL'
         return self.check_status(answer)
     
-    def get_client_data(self, info) -> str:
+    def get_client_data(self, info):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -50,7 +50,7 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_user_{info}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def get_free_orders(self) -> str:
+    def get_free_orders(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -58,7 +58,7 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_free_orders', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def get_delivery_orders(self) -> str:
+    def get_delivery_orders(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -66,7 +66,7 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_active_orders', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def get_profile_fullness(self) -> str:
+    def get_profile_fullness(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -74,7 +74,7 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_profile_fullness', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
+    def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -82,7 +82,7 @@ class ServerLogic():
         answer = requests.post(f'{URL}/upload_user_info', data={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
         return self.check_status(answer)
     
-    def get_profile_data(self) -> str:
+    def get_profile_data(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -97,7 +97,7 @@ class ServerLogic():
             answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def new_object(self, object, name, price, description, adress_from, adress_to) -> str:
+    def new_object(self, object, name, price, description, adress_from, adress_to):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -105,15 +105,15 @@ class ServerLogic():
         answer = requests.post(f'{URL}/new_{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         return self.check_status(answer)
     
-    def order_operation(self, order_id, operation) -> str: # operation = take/complete/delete
+    def order_operation(self, order_id, operation): # operation = take/complete/delete
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        logging.info(f'{operation}_order: {state} {login} {order_id}')
-        answer = requests.get(f'{URL}/{operation}_order', json={'state': f'{state}', 'login': f'{login}', 'id': f'{order_id}'})
+        logging.info(f'{operation}_order: {state} {login}')
+        answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def get_archive_orders(self) -> str:
+    def get_archive_orders(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'

@@ -72,5 +72,18 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                 else:
                     self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
 
-    def order_interaction(self, operation):
-        print(operation)
+    def order_interaction(self, order_id, operation):
+        answer = super().order_operation(order_id, operation)
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Login not found':
+            Popup(title='Ошибка', content=Label(text='Вашего профиля не существует'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Fullness is false':
+            Popup(title='Ошибка', content=Label(text='Заполните профиль'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'true':
+            Popup(title='Ошибка', content=Label(text=f'Успешная операция: {self.details_button.text}'), size_hint=(0.8, 0.2)).open()
+            super().change_color_state(self.active_orders, self.free_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+            self.show_orders()
+            self.switch_main_to('delivery_orders')
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

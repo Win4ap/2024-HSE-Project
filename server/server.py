@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
 from pydantic import BaseModel
-from typing import List
+from typing import List, Annotated
 from AdditionalClasses import Order, User 
 import uvicorn
 import os
@@ -16,7 +16,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: List[]):
+def get_orders_json(elem: List):
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -171,7 +171,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 
 @server.get('/get_active_orders')
-def get_active_orders(user: User) -> List[]:
+def get_active_orders(user: User) -> List:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -191,7 +191,7 @@ def get_active_orders(user: User) -> List[]:
 
 
 @server.get('/get_user_orders') 
-def get_user_orders(user: User) -> List[]:
+def get_user_orders(user: User) -> List:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -208,7 +208,7 @@ def get_user_orders(user: User) -> List[]:
 
 
 @server.get('/get_user_templates') 
-def get_user_templates(user: User) -> List[]:
+def get_user_templates(user: User) -> List:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -225,36 +225,37 @@ def get_user_templates(user: User) -> List[]:
 
 
 @server.post('/upload_user_info')
-def upload_user_info(user: User, files: list[UploadFile]) -> str:
-    result = 'done '
-    profile_picture = files[0]
-    passport = files[1]
-    if user.name == None or user.surname == None or user.phone == None:
+def upload_user_info(
+    state: Annotated[str, Form()],
+    login: Annotated[str, Form()],
+    name: Annotated[str, Form()],
+    surname: Annotated[str, Form()],
+    phone: Annotated[str, Form()],
+    profile_picture: Annotated[UploadFile, File()],
+    passport: Annotated[UploadFile, File()]
+)-> str:
+    if name == None or surname == None or phone == None:
         raise HTTPException(status_code=422, detail="Need more information!")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = f""" SELECT login from {user.state}_data WHERE login = ? """
-        cursor.execute(query, (user.login,))
+        query = f""" SELECT login from {state}_data WHERE login = ? """
+        cursor.execute(query, (login,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Login not found")
     path_to_profile_picture = os.path.join(
-        os.getcwd(), 'images', f'{user.state}_{user.login}_profile_picture.jpg')
-    with open(path_to_profile_picture, mode='wb') as file:
-        file.write(profile_picture.file)                                        
-    logging.debug('Done with profile picture')
+        os.getcwd(), 'images', f'{state}_{login}_profile_picture.jpg')
+    with open(path_to_profile_picture, mode='wb') as File:
+        File.write(profile_picture.file.read())
     path_to_passport = os.path.join(
-        os.getcwd(), 'images', f'{user.state}_{user.login}_passport.jpg')
-    logging.debug('Try to get size of passport image')
-    with open(path_to_passport, mode='wb') as file:
-        file.write(passport.file)
-    logging.debug('Done with passport picture')
+        os.getcwd(), 'images', f'{state}_{login}_passport.jpg')
+    with open(path_to_passport, mode='wb') as File:
+        File.write(passport.file.read())
     with sqlite3.connect(path_to_database) as database:
-        logging.debug('connected to database')
         cursor = database.cursor()
-        query = f""" UPDATE {user.state}_data SET name = ?, surname = ?, phone = ?, fullness = ? WHERE login = ?"""
-        cursor.execute(query, (user.name, user.surname, user.phone, 1, user.login))
+        query = f""" UPDATE {state}_data SET name = ?, surname = ?, phone = ?, fullness = ? WHERE login = ?"""
+        cursor.execute(query, (name, surname, phone, 1, login)) 
         database.commit()
-    return result
+    return 'done'
 
 
 logging.basicConfig(level=logging.INFO, filename="loggings.log",

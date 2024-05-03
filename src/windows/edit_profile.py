@@ -35,27 +35,23 @@ class EditProfile(Screen, ServerLogic):
         answer = super().get_profile_fullness()
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-        elif answer[:4] != 'done':
-            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
-        else:
-            answer = answer.split(' ')
-            if answer[0] == 'done':
-                if self.firstname.text != '' and self.lastname.text != '' and self.phone.text != '' and self.avatar != '' and self.passport != '':
-                    answer = super().edit_profile(self.firstname.text, self.lastname.text, self.phone.text, self.avatar, self.passport)
-                    if answer[:5] == 'debug':
-                        self.firstname.text = ''
-                        self.lastname.text = ''
-                        self.phone.text = ''
-                        self.avatar = ''
-                        self.passport = ''
-                        self.manager.transition.direction = 'right'
-                        self.manager.current = self.check_state()
-                        Popup(title='Указание', content=Label(text='Перезайдите в аккаунт и приложение,\nчтобы данные обновились'), size_hint=(0.8, 0.2)).open()
-                    elif answer == 'server_error':
-                        Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-                    else:
-                        Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'true' or answer == 'false':
+            if self.firstname.text != '' and self.lastname.text != '' and self.phone.text != '' and self.avatar != '' and self.passport != '':
+                answer = super().edit_profile(self.firstname.text, self.lastname.text, self.phone.text, self.avatar, self.passport)
+                if answer[:5] == 'debug':
+                    self.firstname.text = ''
+                    self.lastname.text = ''
+                    self.phone.text = ''
+                    self.avatar = ''
+                    self.passport = ''
+                    self.manager.transition.direction = 'right'
+                    self.manager.current = self.check_state()
+                    Popup(title='Указание', content=Label(text='Перезайдите в аккаунт и приложение,\nчтобы данные обновились'), size_hint=(0.8, 0.2)).open()
+                elif answer == 'server_error':
+                    Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
                 else:
-                    Popup(title='Ошибка', content=Label(text='Нужно заполнить все поля'), size_hint=(0.8, 0.2)).open()
+                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             else:
-                Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+                Popup(title='Ошибка', content=Label(text='Нужно заполнить все поля'), size_hint=(0.8, 0.2)).open()
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

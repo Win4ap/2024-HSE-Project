@@ -10,9 +10,12 @@ URL = f'http://{IP}:{PORT}'
 class ServerLogic():
     # TODO add more cases
     def check_status(self, answer):
-        logging.info(f'Server answer: {answer.status_code}, {answer.text}')
+        logging.info(f'Server answer: {answer.status_code} {answer.text}')
         if answer.status_code == 200:
-            answer = (answer.text).replace('"', '')
+            if answer.text[0] == '[':
+                answer = answer.json()
+            else:
+                answer = (answer.text).replace('"', '')
             return answer
         elif answer.status_code == 404:
             answer = answer.json()
@@ -75,7 +78,7 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'edit_profile: {state} {login} {firstname} {lastname} {phone} {path_to_avatar} {path_to_passport}')
-        answer = requests.post(f'{URL}/upload_user_info', json={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
+        answer = requests.post(f'{URL}/upload_user_info', data={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
         return self.check_status(answer)
     
     def get_profile_data(self) -> str:

@@ -62,7 +62,7 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'get_delivery_active_orders: {state} {login}')
-        answer = requests.get(f'{URL}/get_delivery_active_orders', json={'state': f'{state}', 'login': f'{login}'})
+        answer = requests.get(f'{URL}/get_active_orders', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
     def get_profile_fullness(self) -> str:

@@ -1,9 +1,9 @@
 import requests
 import os
 import logging
+from rsa import encrypt
 
-from windows.server_logic.constants import IP, PORT
-from windows.server_logic.raw_rsa import RSA
+from windows.server_logic.constants import IP, PORT, pubkey
 
 URL = f'http://{IP}:{PORT}'
 
@@ -17,7 +17,7 @@ class ServerLogic():
             else:
                 answer = (answer.text).replace('"', '')
             return answer
-        elif answer.status_code == 404:
+        elif answer.status_code == 404 or answer.status_code == 423:
             answer = answer.json()
             return answer['detail']
         else:
@@ -31,12 +31,13 @@ class ServerLogic():
         return data
     
     def auth_reg_request(self, state, command, login, password) -> str:
-        password = RSA().encrypt(password)
+        password = password.encode('utf-8')
+        password = encrypt(password, pubkey)
         logging.info(f'{command}: {state} {login}')
         if command == 'login':
-            answer = requests.get(f'{URL}/{command}', json={'state': f'{state}', 'login': f'{login}', 'password': f'{password}'})
+            answer = requests.get(f'{URL}/{command}', data={'state': f'{state}', 'login': f'{login}'}, files={'password': password})
         elif command == 'register':
-            answer = requests.post(f'{URL}/{command}', json={'state': f'{state}', 'login': f'{login}', 'password': f'{password}'})
+            answer = requests.post(f'{URL}/{command}', data={'state': f'{state}', 'login': f'{login}'}, files={'password': password})
         else:
             return 'FATAL'
         return self.check_status(answer)

@@ -53,7 +53,7 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         answer = super().get_delivery_orders() if cur == 'down' else super().get_free_orders()
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-        elif answer == [] or answer == 'Not Found':
+        elif answer == [] or answer == 'Not Found' or answer == 'Fullness is false':
             self.delivery_orders_scrollview.height = 180
             self.delivery_orders_scrollview.add_widget(Label(text='Нет активных заказов' if cur == 'down' else 'Нет свободных заказов', color=(0, 0, 0, 1), font_size=(self.height/30)))
         elif answer == 'error login_doesnt_exists':

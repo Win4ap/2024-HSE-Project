@@ -93,8 +93,9 @@ def make_new_order(order: Order) -> str:
                 else:
                     right = mid 
             cur_id = right 
+        order.id = cur_id
         query = """ INSERT INTO orders_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order.get_tuple())
+        cursor.execute(query, order.get_tuple())
         database.commit()
     return f"done {cur_id}"
 
@@ -108,7 +109,7 @@ def make_new_template(order: Order) -> str:
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Item not found")
         query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (-1,) + order.get_tuple())
+        cursor.execute(query, order.get_tuple())
         database.commit()
     return 'done'
 

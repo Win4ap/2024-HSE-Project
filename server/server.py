@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
-from pydantic import BaseModel
 from typing import Annotated
 from AdditionalClasses import Order, User 
 from rsa import decrypt
 import uvicorn
 import os
-import logging
 import sqlite3
 import constants
 
@@ -261,8 +259,6 @@ def upload_user_info(
     return True
 
 
-logging.basicConfig(level=logging.INFO, filename="loggings.log",
-                    filemode="w", format="%(asctime)s %(levelname)s %(message)s")
 with sqlite3.connect(path_to_database) as database:
     cursor = database.cursor()
     query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """

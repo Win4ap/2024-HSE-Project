@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
 from pydantic import BaseModel
+from typing import List
 from AdditionalClasses import Order, User 
 import uvicorn
 import os
@@ -13,6 +14,20 @@ import constants
 path_to_database = os.path.join(
     os.getcwd(), 'database', 'database.db')
 server = FastAPI()
+
+
+def get_orders_json(elem: List[]):
+    order = {
+        'id': elem[0],
+        'owner': elem[1],
+        'name': elem[2],
+        'cost': elem[3],
+        'description': elem[4],
+        'start': elem[5],
+        'finish': elem[6],
+        'supplier': elem[7],
+    }
+    return order
 
 
 @server.post('/register')
@@ -156,7 +171,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 
 @server.get('/get_active_orders')
-def get_active_orders(user: User) -> list[Order]:
+def get_active_orders(user: User) -> List[]:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -170,38 +185,42 @@ def get_active_orders(user: User) -> list[Order]:
         query = """ SELECT * FROM orders_list WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
-            order = {
-                'id': elem[0],
-                'owner': elem[1],
-                'name': elem[2],
-                'cost': elem[3],
-                'description': elem[4],
-                'start': elem[5],
-                'finish': elem[6],
-                'supplier': elem[7],
-            }
+            order = get_orders_json(elem)
             result.append(order)
     return result
 
 
-@server.get('/get_user_{data}') #getting orders or templates
-def get_user_data(data, user: User) -> str:
-    result = 'done '
+@server.get('/get_user_orders') 
+def get_user_orders(user: User) -> List[]:
+    result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT login FROM client_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Login not found")
-        query = f""" SELECT * FROM {data}_list WHERE owner = ? """
+        query = f""" SELECT * FROM orders_list WHERE owner = ? """
         cursor.execute(query, (user.login,))
-        data = cursor.fetchall()
-        if data == None:
-            return 'done not_found'
-        for item in data:
-            result += '~ '
-            for elem in item:
-                result += str(elem) + ' '
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            result.append(order)
+    return result
+
+
+@server.get('/get_user_templates') 
+def get_user_templates(user: User) -> List[]:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT login FROM client_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        if cursor.fetchone() == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        query = f""" SELECT * FROM templates_list WHERE owner = ? """
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            result.append(order)
     return result
 
 

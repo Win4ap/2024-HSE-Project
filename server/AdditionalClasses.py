@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class Order(BaseModel):
+    id: int = None
     owner: str
     name: str
     cost: int

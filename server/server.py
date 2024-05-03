@@ -108,7 +108,7 @@ def make_new_template(order: Order) -> str:
         cursor.execute(query, (order.owner,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Item not found")
-        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return 'done'

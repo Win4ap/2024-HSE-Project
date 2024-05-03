@@ -62,7 +62,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
             elif info == 'templates':
                 for template in answer:
                     name = template['name']
-                    price = template['price']
+                    price = str(template['cost'])
                     description = template['description']
                     start = template['start']
                     finish = template['finish']

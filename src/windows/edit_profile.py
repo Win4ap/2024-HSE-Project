@@ -38,7 +38,7 @@ class EditProfile(Screen, ServerLogic):
         elif answer == 'true' or answer == 'false':
             if self.firstname.text != '' and self.lastname.text != '' and self.phone.text != '' and self.avatar != '' and self.passport != '':
                 answer = super().edit_profile(self.firstname.text, self.lastname.text, self.phone.text, self.avatar, self.passport)
-                if answer[:5] == 'debug':
+                if answer == 'done':
                     self.firstname.text = ''
                     self.lastname.text = ''
                     self.phone.text = ''

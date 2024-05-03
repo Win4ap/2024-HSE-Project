@@ -38,8 +38,7 @@ def try_to_register(user: User) -> str:
         cursor = database.cursor()
         query = f""" SELECT login FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
-        user = cursor.fetchone()
-        if user == None:
+        if cursor.fetchone() == None:
             query = f""" INSERT INTO {user.state}_data (login, password, fullness) VALUES (?, ?, ?) """
             cursor.execute(query, (user.login, user.password, 0))
             database.commit()

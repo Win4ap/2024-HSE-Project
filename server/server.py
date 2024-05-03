@@ -75,10 +75,13 @@ def make_new_order(order: Order) -> int:
     cur_id = -1
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT login FROM client_data WHERE login = ? """
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
-        if cursor.fetchone() == None:
+        fullness = cursor.fetchone()
+        if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
+        if fullness == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
         query = """ SELECT id FROM orders_list ORDER BY id """
         cursor.execute(query)
         order_id = cursor.fetchall()
@@ -107,12 +110,32 @@ def make_new_order(order: Order) -> int:
 def make_new_template(order: Order) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT login FROM client_data WHERE login = ? """
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
         cursor.execute(query, (order.owner,))
-        if cursor.fetchone() == None:
+        fullness = cursor.fetchone()
+        if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
+        if fullness == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
         query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
+        database.commit()
+    return True
+
+
+@server.put('/take_order/{order_id}')
+def take_order(order_id: int, user: User) -> bool:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM delivery_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = """ UPDATE orders_list SET supplier = ? WHERE id = ? """
+        cursor.execute(query, (user.login, order_id))
         database.commit()
     return True
 

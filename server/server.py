@@ -269,7 +269,7 @@ def get_archive_orders(user: User) -> list:
         query = f""" SELECT * FROM archive WHERE {relation} = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
-            order = get_order_json(elem)
+            order = get_orders_json(elem)
             result.append(order)
     return result
 

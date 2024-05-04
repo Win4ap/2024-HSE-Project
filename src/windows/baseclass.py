@@ -57,8 +57,66 @@ class ProfileBase(ServerLogic):
             self.user_fullname.text = f'[b]{data[0]} {data[1]}[/b]'
             self.user_avatar.path = path_to_avatar
 
-    def fill_archive(self, archive):
-        print('я тёма')
+    def fill_archive(self, archive, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
+        answer = super().get_archive_orders()
+        archive.clear_widgets()
+        data = super().get_login()
+        state = data[0]
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Login not found':
+            Popup(title='Ошибка', content=Label(text='Вашего профиля не существует'), size_hint=(0.8, 0.2)).open()
+        elif answer == [] or answer == 'Not Found' or answer == 'Fullness is false':
+            archive.height = 180
+            archive.add_widget(Label(text='Нет архивированных заказов', color=(0, 0, 0, 1), font_size=(self.height/30)))
+        else:
+            new_height = 10 * (len(answer) - 1) + 180 * (len(answer))
+            archive.height = new_height
+            for order in answer:
+                name = order['name']
+                price = str(order['cost'])+'₽'
+                description = order['description']
+                start = order['start']
+                finish = order['finish']
+                if state == 'delivery':
+                    person = str(order['owner'])
+                else:
+                    person = str(order['supplier'])
+                name = name.replace('_', ' ')
+                description = description.replace('_', ' ')
+                start = start.replace('_', ' ')
+                finish = finish.replace('_', ' ')
+                archive.add_widget(ArchiveOrder(description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to))
+
+class ArchiveOrder(ButtonBehavior, BoxLayout):
+    def __init__(self, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
+        super().__init__()
+        self.description = description
+        self.order_name = name
+        self.price = price
+        self.start = start
+        self.finish = finish
+        self.person = person
+        self.root_sm = root_sm
+        self.link_name = link_name
+        self.link_desc = link_desc
+        self.link_price = link_price
+        self.link_person = link_person
+        self.link_from = link_from
+        self.link_to = link_to
+
+    def on_release(self):
+        path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
+        with open(path_to_login, 'r') as file:
+            state = (file.read()).split(' ')[0]
+        self.root_sm.current = f'{state}_archive_details'
+        self.link_name.text = self.order_name
+        self.link_desc.text = self.description
+        self.link_price.text = self.price
+        self.link_from.text = f'Забрать отсюда: {self.start}'
+        self.link_to.text = f'Доставить сюда: {self.finish}'
+        self.link_person.text = self.person
+        return super().on_release()
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
     def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button):

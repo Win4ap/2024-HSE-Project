@@ -121,5 +121,5 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'get_archive: {state} {login}')
-        answer = requests.get(f'{URL}/get_archive', json={'state': f'{state}', 'login': f'{login}'})
+        answer = requests.get(f'{URL}/get_archive_orders', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)

@@ -121,6 +121,16 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
 
     def delete_order(self, order_id):
         if order_id > -1:
-            Popup(title='Ура', content=Label(text='Типо удалил'), size_hint=(0.8, 0.2)).open()
+            answer = super().order_operation(order_id, 'delete')
+            if answer == 'server_error':
+                Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'Order not found':
+                Popup(title='Ошибка', content=Label(text='Заказ не найден'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'true':
+                Popup(title='Ошибка', content=Label(text=f'Успешная операция: Удалить'), size_hint=(0.8, 0.2)).open()
+                self.show_client_data('orders')
+                self.switch_main_to('client_orders')
+            else:
+                Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()

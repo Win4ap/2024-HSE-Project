@@ -135,7 +135,7 @@ def take_order(order_id: int, user: User) -> bool:
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
         query = """ SELECT id FROM orders_list WHERE id = ? """
-        cursor.execute(query, (user_id,))
+        cursor.execute(query, (order_id,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Order not found")
         query = """ UPDATE orders_list SET supplier = ? WHERE id = ? """

@@ -29,6 +29,29 @@ def get_orders_json(elem: list):
     return order
 
 
+def get_order_id(table: str) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT id FROM {table} ORDER BY id """
+        cursor.execute(query)
+        order_id = cursor.fetchall()
+        left = 0
+        right = len(order_id)
+        if right == 0 or order_id[0][0] != 0:
+            cur_id = 0
+        elif right == 0 or right == order_id[-1][0] + 1:
+            cur_id = right
+        else:
+            while right - left > 1:
+                mid = (right + left) // 2
+                if order_id[mid][0] == mid:
+                    left = mid 
+                else:
+                    right = mid 
+            cur_id = right 
+    return cur_id
+
+
 @server.post('/register')
 def try_to_register(
         state: Annotated[str, Form()],
@@ -70,9 +93,9 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order') #todo
-def make_new_order(order: Order) -> int:
-    cur_id = -1
+@server.post('/new_order/{type_of_order}') 
+def make_new_order(type_of_order: str, order: Order) -> int:
+    order.id = get_order_id(f'{type_of_order}_orders')
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT fullness FROM client_data WHERE login = ? """
@@ -82,25 +105,7 @@ def make_new_order(order: Order) -> int:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT id FROM orders_list ORDER BY id """
-        cursor.execute(query)
-        order_id = cursor.fetchall()
-        left = 0
-        right = len(order_id)
-        if right == 0 or order_id[0][0] != 0:
-            cur_id = 0
-        elif right == 0 or right == order_id[-1][0] + 1:
-            cur_id = right
-        else:
-            while right - left > 1:
-                mid = (right + left) // 2
-                if order_id[mid][0] == mid:
-                    left = mid 
-                else:
-                    right = mid 
-            cur_id = right 
-        order.id = cur_id
-        query = """ INSERT INTO orders_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return cur_id
@@ -123,8 +128,10 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-@server.put('/take_order/{order_id}') #todo
-def take_order(order_id: int, user: User) -> bool:
+@server.put('/take_order/{type_of_order}/{order_id}') 
+def take_order(type_of_order: str, order_id: int, user: User) -> int:
+    if user.state == 'client':
+        raise HTTPException(status_code=423, detail="It is not a client case")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT fullness FROM delivery_data WHERE login = ? """
@@ -134,14 +141,22 @@ def take_order(order_id: int, user: User) -> bool:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT id FROM orders_list WHERE id = ? """
+        query = f""" SELECT id FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ UPDATE orders_list SET supplier = ? WHERE id = ? """
-        cursor.execute(query, (user.login, order_id))
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_info = cursor.fetchone()
+        query = f""" DELETE FROM {type_of_order}_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        if type_of_order == 'free':
+            type_of_order = 'active'
+        cur_id = get_order_id(f'{type_of_order}_orders')
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:])
         database.commit()
-    return True
+    return cur_id
 
 
 @server.put('/complete_order/{order_id}') #todo

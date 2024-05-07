@@ -267,8 +267,12 @@ def get_active_orders(user: User) -> list:
     return result
 
 
+#TODO: get_auction_orders
+
+
 @server.get('/get_archive_orders')
 def get_archive_orders(user: User) -> list:
+    #TODO: update_archive
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -290,7 +294,7 @@ def get_archive_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_free_orders') #todo
+@server.get('/get_free_orders')
 def get_free_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -302,7 +306,7 @@ def get_free_orders(user: User) -> list:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM orders_list WHERE supplier IS NULL """
+        query = """ SELECT * FROM free_orders """
         cursor.execute(query)
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
@@ -310,7 +314,7 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders') #todo
+@server.get('/get_user_orders') #TODO
 def get_user_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:

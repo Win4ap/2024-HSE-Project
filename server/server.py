@@ -70,7 +70,7 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order')
+@server.post('/new_order') #todo
 def make_new_order(order: Order) -> int:
     cur_id = -1
     with sqlite3.connect(path_to_database) as database:
@@ -123,7 +123,7 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-@server.put('/take_order/{order_id}')
+@server.put('/take_order/{order_id}') #todo
 def take_order(order_id: int, user: User) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -144,7 +144,7 @@ def take_order(order_id: int, user: User) -> bool:
     return True
 
 
-@server.put('/complete_order/{order_id}')
+@server.put('/complete_order/{order_id}') #todo
 def complete_order(order_id: int) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -164,7 +164,7 @@ def complete_order(order_id: int) -> int:
     return cur_id
 
 
-@server.delete('/delete_order/{order_id}')
+@server.delete('/delete_order/{order_id}') #todo
 def delete_order(order_id: int) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -231,7 +231,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
-@server.get('/get_active_orders')
+@server.get('/get_active_orders') #todo
 def get_active_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -274,7 +274,7 @@ def get_archive_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_free_orders')
+@server.get('/get_free_orders') #todo
 def get_free_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -294,7 +294,7 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders') 
+@server.get('/get_user_orders') #todo
 def get_user_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -368,7 +368,13 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
     cursor.execute(query)

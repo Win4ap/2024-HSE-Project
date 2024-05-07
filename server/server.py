@@ -159,20 +159,19 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
     return cur_id
 
 
-@server.put('/complete_order/{order_id}') #todo
+@server.put('/complete_order/{order_id}')
 def complete_order(order_id: int) -> int:
+    #TODO: update_archive
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT * FROM orders_list WHERE id = ? """
+        query = """ SELECT * FROM active_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ DELETE FROM orders_list WHERE id = ? """
+        query = """ DELETE FROM active_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
-        query = """ SELECT COUNT(*) FROM archive """
-        cursor.execute(query)
-        cur_id = cursor.fetchone()[0]
+        cur_id = get_order_id('archive')
         query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id,) + order_info[1:])
         database.commit()

@@ -178,16 +178,16 @@ def complete_order(order_id: int) -> int:
     return cur_id
 
 
-@server.delete('/delete_order/{order_id}') #todo
-def delete_order(order_id: int) -> bool:
+@server.delete('/delete_order/{type_of_order}/{order_id}')
+def delete_order(type_of_order: str, order_id: int) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT * FROM orders_list WHERE id = ? """
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ DELETE FROM orders_list WHERE id = ? """
+        query = f""" DELETE FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         database.commit()
     return True

@@ -95,6 +95,7 @@ def try_to_login(
 
 @server.post('/new_order/{type_of_order}') 
 def make_new_order(type_of_order: str, order: Order) -> int:
+    #TODO: update_auction_orders
     order.id = get_order_id(f'{type_of_order}_orders')
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -245,8 +246,9 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
-@server.get('/get_active_orders') #todo
+@server.get('/get_active_orders')
 def get_active_orders(user: User) -> list:
+    #TODO: update_auction_orders
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -257,7 +259,7 @@ def get_active_orders(user: User) -> list:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM orders_list WHERE supplier = ? """
+        query = """ SELECT * FROM active_orders WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)

@@ -108,7 +108,7 @@ def make_new_order(type_of_order: str, order: Order) -> int:
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
-    return cur_id
+    return order.id
 
 
 @server.post('/new_template')

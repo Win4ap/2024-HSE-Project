@@ -26,7 +26,7 @@ def get_orders_json(elem: list):
         'start': elem[5],
         'finish': elem[6],
         'supplier': elem[7],
-        'time': datetime.strptime(elem[8], "%d/%m/%Y %H:%M")
+        'time': datetime.strptime(elem[8], "%Y/%m/%d %H:%M")
     }
     return order
 
@@ -131,6 +131,9 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
+#TODO: update in_process_orders
+
+
 @server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     #TODO: update_auction_orders
@@ -161,7 +164,7 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
     return cur_id
 
 
-@server.put('/complete_order/{order_id}') #TODO: time
+@server.put('/complete_order/{order_id}')
 def complete_order(order_id: int) -> int:
     #TODO: update_archive
     with sqlite3.connect(path_to_database) as database:
@@ -171,11 +174,12 @@ def complete_order(order_id: int) -> int:
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ DELETE FROM active_orders WHERE id = ? """
+        query = """ DELETE FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
-        cur_id = get_order_id('archive')
-        query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:])
+        order_info[0] = get_order_id('archive')
+        order_info[-1] = datetime.now() + constants.delta
+        query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, order_info)
         database.commit()
     return cur_id
 

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Order(BaseModel):
@@ -11,7 +11,7 @@ class Order(BaseModel):
     start: str
     finish: str
     supplier: str = None
-    time: datetime  = datetime.now()
+    time: datetime  = datetime.now() + timedelta(hours=3)
 
     def get_tuple(self) -> tuple:
         time = f"{self.time.day}/{self.time.month}/{self.time.year} {self.time.hour}:{self.time.minute}"

@@ -14,7 +14,8 @@ class Order(BaseModel):
     time: datetime  = datetime.now()
 
     def get_tuple(self) -> tuple:
-        return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier)
+        time = f"{self.time.day}/{self.time.month}/{self.time.year} {self.time.hour}:{self.time.minute}"
+        return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier, time)
 
 
 class User(BaseModel):

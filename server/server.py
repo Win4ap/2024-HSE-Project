@@ -131,7 +131,7 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-#TODO: update in_process_orders
+#TODO: update active_orders
 
 
 @server.put('/take_order/{type_of_order}/{order_id}')
@@ -251,9 +251,10 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
-@server.get('/get_active_orders') #TODO: time
+@server.get('/get_active_orders') 
 def get_active_orders(user: User) -> list:
     #TODO: update_auction_orders
+    #TODO: update_active_orders
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -301,6 +302,7 @@ def get_archive_orders(user: User) -> list:
 
 @server.get('/get_free_orders') #TODO: time
 def get_free_orders(user: User) -> list:
+    #TODO: update free_orders
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

@@ -26,6 +26,7 @@ def get_orders_json(elem: list):
         'start': elem[5],
         'finish': elem[6],
         'supplier': elem[7],
+        'time': datetime.strptime(elem[8], "%d/%m/%Y %H:%M")
     }
     return order
 

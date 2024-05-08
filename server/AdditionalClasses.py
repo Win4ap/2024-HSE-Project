@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class Order(BaseModel):
@@ -10,6 +11,7 @@ class Order(BaseModel):
     start: str
     finish: str
     supplier: str = None
+    time: datetime  = datetime.now()
 
     def get_tuple(self) -> tuple:
         return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier)

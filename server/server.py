@@ -125,14 +125,15 @@ def make_new_template(order: Order) -> bool:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return True
 
 
-@server.put('/take_order/{type_of_order}/{order_id}')  #TODO: time
+@server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
+    #TODO: update_auction_orders
     if user.state == 'client':
         raise HTTPException(status_code=423, detail="It is not a client case")
     with sqlite3.connect(path_to_database) as database:
@@ -144,19 +145,17 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = f""" SELECT id FROM {type_of_order}_orders WHERE id = ? """
-        cursor.execute(query, (order_id,))
-        if cursor.fetchone() == None:
-            raise HTTPException(status_code=404, detail="Order not found")
         query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
+        if order_info == None:
+            raise HTTPException(status_code=404, detail="Order not found")
         query = f""" DELETE FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         if type_of_order == 'free':
             type_of_order = 'active'
         cur_id = get_order_id(f'{type_of_order}_orders')
-        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id,) + order_info[1:])
         database.commit()
     return cur_id

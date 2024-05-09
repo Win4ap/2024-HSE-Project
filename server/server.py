@@ -54,11 +54,11 @@ def get_order_id(table: str) -> int:
     return cur_id
 
 
-def update_auction_orders():
+def update_auction_orders() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        now = datetime.now() + constants.delta
-        time = f"{now.year}/{now.month}/{now.day + 1} {now.hour}:{now.minute}"
+        now = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
+        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
         query = """ SELECT * FROM auction_orders WHERE time < ? """
         cursor.execute(query, (time,))
         orders_info = cursor.fetchall()
@@ -71,7 +71,18 @@ def update_auction_orders():
             query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
             cursor.execute(query, elem)
         database.commit()
-    return True
+    return None
+
+
+def update_archive() -> None:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        now = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
+        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+        query = """ DELETE FROM archive WHERE time < ? """
+        cursor.execute(query, (time,))
+        database.commit()
+    return None
         
 
 
@@ -203,7 +214,7 @@ def start_order(order_id: int) -> int:
 
 @server.put('/complete_order/{order_id}')
 def complete_order(order_id: int) -> int:
-    #TODO: update_archive
+    update_archive()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT * FROM in_process_orders WHERE id = ? """
@@ -290,8 +301,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 @server.get('/get_active_orders') 
 def get_active_orders(user: User) -> list:
-    #TODO: update_auction_orders
-    #TODO: update_active_orders
+    update_auction_orders()
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -315,7 +325,7 @@ def get_active_orders(user: User) -> list:
 
 @server.get('/get_archive_orders') #TODO: time
 def get_archive_orders(user: User) -> list:
-    #TODO: update_archive
+    update_archive()
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -339,7 +349,6 @@ def get_archive_orders(user: User) -> list:
 
 @server.get('/get_free_orders') #TODO: time
 def get_free_orders(user: User) -> list:
-    #TODO: update free_orders
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

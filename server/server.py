@@ -54,6 +54,27 @@ def get_order_id(table: str) -> int:
     return cur_id
 
 
+def update_auction_orders():
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        now = datetime.now() + constants.delta
+        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+        query = """ SELECT * FROM auction_orders WHERE time > ? """
+        cursor.execute(query, (time,))
+        orders_info = cursor.fetchall()
+        query = """ DELETE FROM auction_orders WHERE time > ? """
+        cursor.execute(query, (time,))
+        for elem in orders_info:
+            table = 'active_orders'
+            if elem[-2] == None:
+                table = 'free_orders'
+            query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
+            cursor.execute(query, elem)
+        database.commit()
+    return True
+        
+
+
 @server.post('/register')
 def try_to_register(
         state: Annotated[str, Form()],
@@ -129,9 +150,6 @@ def make_new_template(order: Order) -> bool:
         cursor.execute(query, order.get_tuple())
         database.commit()
     return True
-
-
-#TODO: update active_orders
 
 
 @server.put('/take_order/{type_of_order}/{order_id}')

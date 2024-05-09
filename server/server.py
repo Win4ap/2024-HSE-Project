@@ -341,7 +341,7 @@ def get_auction_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_archive_orders') #TODO: time
+@server.get('/get_archive_orders') 
 def get_archive_orders(user: User) -> list:
     update_archive()
     result = []
@@ -365,7 +365,7 @@ def get_archive_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_free_orders') #TODO: time
+@server.get('/get_free_orders') 
 def get_free_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -385,16 +385,62 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders') #TODO
-def get_user_orders(user: User) -> list:
+@server.get('/get_user_orders')
+def get_user_orders(user: User) -> dict:
+    result = {}
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = """ SELECT * FROM free_orders WHERE owner = ? """
+        free_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            free_orders.append(order)
+        result['free_orders'] = free_orders
+        query = """ SELECT * FROM active_orders WHERE owner = ? """
+        active_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            active_orders.append(order)
+        result['active_orders'] = active_orders
+        query = """ SELECT * FROM auction_orders WHERE owner = ? """
+        auction_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            auction_orders.append(order)
+        result['auction_orders'] = auction_orders
+        query = """ SELECT * FROM in_process_orders WHERE owner = ? """
+        in_process_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            in_process_orders.append(order)
+        result['in_process_orders'] = in_process_orders
+    return result
+
+
+@server.get('/get_user_orders/{type_of_order}')
+def get_user_orders_by_type(type_of_order: str, user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT login FROM client_data WHERE login = ? """
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
         cursor.execute(query, (user.login,))
-        if cursor.fetchone() == None:
+        fullness = cursor.fetchone()
+        if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
-        query = f""" SELECT * FROM orders_list WHERE owner = ? """
+        if fullness[0] == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE owner = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)

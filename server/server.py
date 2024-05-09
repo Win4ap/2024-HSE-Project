@@ -58,11 +58,11 @@ def update_auction_orders():
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         now = datetime.now() + constants.delta
-        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
-        query = """ SELECT * FROM auction_orders WHERE time > ? """
+        time = f"{now.year}/{now.month}/{now.day + 1} {now.hour}:{now.minute}"
+        query = """ SELECT * FROM auction_orders WHERE time < ? """
         cursor.execute(query, (time,))
         orders_info = cursor.fetchall()
-        query = """ DELETE FROM auction_orders WHERE time > ? """
+        query = """ DELETE FROM auction_orders WHERE time < ? """
         cursor.execute(query, (time,))
         for elem in orders_info:
             table = 'active_orders'
@@ -118,7 +118,7 @@ def try_to_login(
 
 @server.post('/new_order/{type_of_order}')
 def make_new_order(type_of_order: str, order: Order) -> int:
-    #TODO: update_auction_orders
+    update_auction_orders()
     order.id = get_order_id(f'{type_of_order}_orders')
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -154,7 +154,7 @@ def make_new_template(order: Order) -> bool:
 
 @server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
-    #TODO: update_auction_orders
+    update_auction_orders()
     if user.state == 'client':
         raise HTTPException(status_code=423, detail="It is not a client case")
     with sqlite3.connect(path_to_database) as database:

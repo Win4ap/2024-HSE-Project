@@ -164,12 +164,31 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
     return cur_id
 
 
+@server.put('/start_order/{order_id}')
+def start_order(order_id: int) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT * FROM active_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_info = cursor.fetchone()
+        if order_info == None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        query = """ DELETE FROM active_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_info[0] = get_order_id('in_process_orders')
+        order_info[-1] = datetime.now() + constants.delta
+        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, order_info)
+        database.commit()
+    return cur_id
+
+
 @server.put('/complete_order/{order_id}')
 def complete_order(order_id: int) -> int:
     #TODO: update_archive
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT * FROM active_orders WHERE id = ? """
+        query = """ SELECT * FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
         if order_info == None:

@@ -85,7 +85,6 @@ def update_archive() -> None:
     return None
         
 
-
 @server.post('/register')
 def try_to_register(
         state: Annotated[str, Form()],
@@ -191,6 +190,26 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         cursor.execute(query, (cur_id,) + order_info[1:])
         database.commit()
     return cur_id
+
+
+@server.put('/edit_order/{type_of_order}/{order_id}')
+def edit_order(type_of_order: str, order_id: int, order: Order) -> int:
+    update_auction_orders()
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
+        cursor.execute(query, (order.owner,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = f""" UPDATE {type_of_order}_orders
+                SET (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE id = ? """
+        cursor.execute(query, order.get_tuple() + (order_id,))
+        database.commit()
+    return order.id
 
 
 @server.put('/start_order/{order_id}')

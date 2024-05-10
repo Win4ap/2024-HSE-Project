@@ -37,29 +37,39 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         answer = super().get_client_data(info)
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-        elif answer == []:
-            self.client_orders_scrollview.height = 180
-            self.client_orders_scrollview.add_widget(Label(text='Нет активных заказов' if info == 'orders' else 'Нет шаблонов', color=(0, 0, 0, 1), font_size=(self.height/30)))
         elif answer == 'error login_doesnt_exists':
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Fullness is false' or answer == [] or (info == 'orders' and (answer['free_orders'] == [] and answer['active_orders'] == [] and answer['auction_orders'] == [] and answer['in_process_orders'] == [])):
+            self.client_orders_scrollview.height = 180
+            self.client_orders_scrollview.add_widget(Label(text='Нет заказов' if info == 'orders' else 'Нет шаблонов', color=(0, 0, 0, 1), font_size=(self.height/30)))
         else:
-            new_height = 10 * (len(answer) - 1) + 180 * (len(answer))
-            self.client_orders_scrollview.height = new_height
             if info == 'orders':
-                for order in answer:
-                    order_id = order['id']
-                    name = order['name']
-                    price = str(order['cost'])+'₽'
-                    description = order['description']
-                    start = order['start']
-                    finish = order['finish']
-                    courier = str(order['supplier'])
-                    name = name.replace('_', ' ')
-                    description = description.replace('_', ' ')
-                    start = start.replace('_', ' ')
-                    finish = finish.replace('_', ' ')
-                    self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                types = {'free_orders': 'Свободный',
+                         'active_orders': 'Подготовка',
+                         'auction_orders': 'Аукцион',
+                         'in_process_orders': 'В пути'}
+                count = 0
+                for data in answer.values():
+                    count += len(data)
+                new_height = 10 * (count - 1) + 180 * count
+                self.client_orders_scrollview.height = new_height
+                for type in types.keys():
+                    for order in answer[type]:
+                        order_id = order['id']
+                        name = order['name']
+                        price = str(order['cost'])+'₽'
+                        description = order['description']
+                        start = order['start']
+                        finish = order['finish']
+                        courier = str(order['supplier'])
+                        name = name.replace('_', ' ')
+                        description = description.replace('_', ' ')
+                        start = start.replace('_', ' ')
+                        finish = finish.replace('_', ' ')
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
             elif info == 'templates':
+                new_height = 10 * (len(answer) - 1) + 180 * len(answer)
+                self.client_orders_scrollview.height = new_height
                 for template in answer:
                     name = template['name']
                     price = str(template['cost'])
@@ -75,7 +85,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
     def send_new_object_request(self, object):
         fullness = super().get_profile_fullness()
         if fullness == 'true':
-            if (object != 'order' and object != 'template'):
+            if (object != 'free' and object != 'auction' and object != 'template'):
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             name = self.new_order_name.text
             price = self.new_order_price.text
@@ -101,13 +111,14 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     self.new_order_from.text = ''
                     self.new_order_to.text = ''
                     self.show_profile()
-                    self.show_client_data(object + 's')
-                    if object == 'order':
+                    self.show_client_data('orders') if object != 'template' else self.show_client_data('templates')
+                    self.create_order.animated_color, self.create_auction.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
+                    if object == 'order' or object == 'auction':
                         self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
                     else:
                         self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1)
                     self.switch_main_to('client_orders')
-                    Popup(title='Успех', content=Label(text='Ваш заказ/шаблон создан'), size_hint=(0.8, 0.2)).open()
+                    Popup(title='Успех', content=Label(text='Ваш заказ/аукцион/шаблон создан'), size_hint=(0.8, 0.2)).open()
                 else:
                     Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             else:

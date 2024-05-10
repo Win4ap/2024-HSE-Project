@@ -119,7 +119,7 @@ class ArchiveOrder(ButtonBehavior, BoxLayout):
         return super().on_release()
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button):
+    def __init__(self, order_id, description, name, price, start, finish, courier, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -128,6 +128,8 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.start = start
         self.finish = finish
         self.courier = courier
+        self.type = type
+        self.status = status
         self.root_sm = root_sm
         self.link_name = link_name
         self.link_desc = link_desc

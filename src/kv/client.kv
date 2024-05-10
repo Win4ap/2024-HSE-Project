@@ -15,7 +15,7 @@
     new_order_from: new_order_from
     new_order_to: new_order_to
     make_screen_label: make_screen_label
-    new_object: 'order'
+    new_object: 'free'
     details_name: details_name
     details_description: details_description
     details_price: details_price
@@ -29,6 +29,8 @@
     archive_person: archive_person
     archive_from: archive_from
     archive_to: archive_to
+    create_order: create_order
+    create_auction: create_auction
 
     canvas:
         Color:
@@ -203,7 +205,7 @@
                                     valign: 'center'
                                     on_release:
                                         root.client_main_frame.current = 'client_make_new_object'
-                                        root.new_object = 'order'
+                                        root.new_object = 'free'
                                         root.make_screen_label.text = 'Создать заказ'
 
                                 RoundedButton:
@@ -265,7 +267,7 @@
                                 root.new_order_price.text = ''
                                 root.new_order_from.text = ''
                                 root.new_order_to.text = ''
-                                root.new_object = 'order'
+                                root.new_object = 'free'
                                 root.show_profile()
                                 root.switch_main_to('client_profile')
                         
@@ -284,6 +286,46 @@
                             spacing: '2dp'
                             size_hint: 0.7, 0.8
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            BoxLayout:
+                                size_hint: 1, 1
+                                spacing: 30
+                                ToggleButton:
+                                    id: create_order
+                                    text: 'Заказ'
+                                    font_size: self.height/2
+                                    color: 0, 0, 0, 1
+                                    state: 'down'
+                                    background_color: 0, 0 ,0 ,0  
+                                    animated_color: (217/255, 217/255, 217/255, 1)
+                                    canvas.before:
+                                        Color:
+                                            rgba: self.animated_color
+                                        RoundedRectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                            radius: [20, 20, 20, 20]
+                                    on_release:
+                                        root.change_color_state(root.create_order, root.create_auction, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+                                        root.new_object = 'free' if root.new_object != 'template' else 'template'
+
+                                ToggleButton:
+                                    id: create_auction
+                                    text: 'Аукцион'
+                                    font_size: self.height/2
+                                    color: 0, 0, 0, 1
+                                    background_color: 0, 0 ,0 ,0  
+                                    animated_color: (217/255, 217/255, 217/255, 0)
+                                    canvas.before:
+                                        Color:
+                                            rgba: self.animated_color
+                                        RoundedRectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                            radius: [20, 20, 20, 20]
+                                    on_release:
+                                        root.change_color_state(root.create_order, root.create_auction, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+                                        root.new_object = 'auction' if root.new_object != 'template' else 'template'
+
                             Label:
                                 text: 'Название'
                                 color: 0, 0, 0, 1
@@ -348,6 +390,8 @@
                                 cursor_color: 0, 0, 0, 1
                                 multiline: False
                                 font_size: self.height/1.8
+
+                            # TODO: для аукциона нужно выставлять время
 
                             FloatLayout:
                                 RoundedButton:
@@ -595,7 +639,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_object = 'free'
                     root.switch_main_to('client_chat')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -616,7 +660,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_object = 'free'
                     root.switch_main_to('client_orders')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -636,7 +680,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_object = 'free'
                     root.show_profile()
                     root.switch_main_to('client_profile')
                 AnchorLayout:

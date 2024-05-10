@@ -102,7 +102,10 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
-        answer = requests.post(f'{URL}/new_{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
+        if object == 'template':
+            answer = requests.post(f'{URL}/new_template', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
+        else:
+            answer = requests.post(f'{URL}/new_order/{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         return self.check_status(answer)
     
     def order_operation(self, order_id, operation): # operation = take/complete/delete

@@ -113,7 +113,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     self.show_profile()
                     self.show_client_data('orders') if object != 'template' else self.show_client_data('templates')
                     self.create_order.animated_color, self.create_auction.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
-                    if object == 'order' or object == 'auction':
+                    if object == 'free' or object == 'auction':
                         self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
                     else:
                         self.active_orders.animated_color, self.template_orders.animated_color = (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1)
@@ -130,9 +130,9 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
-    def delete_order(self, order_id):
+    def delete_order(self, order_id, type):
         if order_id > -1:
-            answer = super().order_operation(order_id, 'delete')
+            answer = super().order_operation('delete', type, order_id)
             if answer == 'server_error':
                 Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
             elif answer == 'Order not found':

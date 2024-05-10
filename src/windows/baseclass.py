@@ -145,6 +145,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
             state = (file.read()).split(' ')[0]
         self.root_sm.current = f'{state}_order_details'
         self.link_button.order_id = self.order_id
+        self.link_button.type = self.type
         self.link_name.text = self.order_name
         self.link_desc.text = self.description
         self.link_price.text = self.price

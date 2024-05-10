@@ -105,18 +105,20 @@ class ServerLogic():
         if object == 'template':
             answer = requests.post(f'{URL}/new_template', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         else:
+            print(f'{URL}/new_order/{object}')
             answer = requests.post(f'{URL}/new_order/{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         return self.check_status(answer)
     
-    def order_operation(self, order_id, operation): # operation = take/complete/delete
+    def order_operation(self, operation, type, order_id): # operation = take/complete/delete
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'{operation}_order: {state} {login}')
+        type = type.split('_')[0]
         if operation == 'delete':
-            answer = requests.delete(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+            answer = requests.delete(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
         else:
-            answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+            answer = requests.put(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
     def get_archive_orders(self):

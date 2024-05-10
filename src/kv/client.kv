@@ -402,6 +402,7 @@
                                     color: 0, 0, 0, 1
                                     on_release:
                                         root.send_new_object_request(root.new_object)
+                                        root.new_object = 'free'
 
             Screen:
                 name: 'client_order_details'
@@ -417,6 +418,7 @@
                             size_hint: 0.15, 1
                             on_release:
                                 root.details_button.order_id = -1
+                                root.details_button.type = ''
                                 root.switch_main_to('client_orders')
                         
                         Label:
@@ -491,14 +493,16 @@
                             RoundedButton:
                                 id: details_button
                                 order_id: -1
+                                type: ''
                                 text: 'Удалить'
                                 font_size: self.height/2
                                 size_hint: 0.4, 0.6
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (178/255, 34/255, 34/255, 1)
                                 on_release:
-                                    root.delete_order(self.order_id)
+                                    root.delete_order(self.order_id, self.type)
                                     self.order_id = -1
+                                    self.type = ''
 
             Screen:
                 name: 'client_archive_details'

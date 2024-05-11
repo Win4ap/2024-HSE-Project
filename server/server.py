@@ -244,7 +244,7 @@ def start_order(order_id: int) -> int:
         query = """ DELETE FROM active_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         cur_id = get_order_id('in_process_orders')
-        time = datetime.now() + constants.delta
+        time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
         query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id,) + order_info[1:-1] + (time,))

@@ -264,10 +264,11 @@ def complete_order(order_id: int) -> int:
             raise HTTPException(status_code=404, detail="Order not found")
         query = """ DELETE FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
-        order_info[0] = get_order_id('archive')
-        order_info[-1] = datetime.now() + constants.delta
+        cur_id = get_order_id('archive')
+        time = datetime.now() + constants.delta
+        time = time_to_str(time)
         query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, order_info)
+        cursor.execute(query, (cur_id,) + order_info[1:-1] + (time,))
         database.commit()
     return cur_id
 

@@ -57,8 +57,8 @@ def get_order_id(table: str) -> int:
 def update_auction_orders() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        now = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
-        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+        time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
+        time = f"{time.year}/{time.month}/{time.day} {time.hour}:{time.minute}"
         query = """ SELECT * FROM auction_orders WHERE time < ? """
         cursor.execute(query, (time,))
         orders_info = cursor.fetchall()
@@ -78,8 +78,21 @@ def update_auction_orders() -> None:
 def update_archive() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        now = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
-        time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+        time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
+        year = time.year 
+        month = f'0{time.month}'
+        if time.month >= 10:
+            month = f'{time.month}'
+        day = f'0{time.day}'
+        if time.day >= 10:
+            day = f'{time.day}'
+        hour = f'0{time.hour}'
+        if time.hour >= 10:
+            hour = f'{time.hour}'
+        minute = f'0{time.minute}'
+        if time.minute >= 10:
+            minute = f'{time.minute}'
+        time = f"{year}/{month}/{day} {hour}:{minute}"
         query = """ DELETE FROM archive WHERE time < ? """
         cursor.execute(query, (time,))
         database.commit()

@@ -66,40 +66,44 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
         elif answer1 == 'error login_doesnt_exists':
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
-            new_height = 10 * (len(answer1) + len(answer2) - 1) + 180 * (len(answer1) + len(answer2))
+            new_height = 0
+            if answer1 != 'Not Found':
+                new_height += 10 * (len(answer1) - 1) + 180 * len(answer1)
+                for order in answer1:
+                    order_id = order['id']
+                    name = order['name']
+                    price = str(order['cost'])+'₽'
+                    description = order['description']
+                    start = order['start']
+                    finish = order['finish']
+                    owner = str(order['owner'])
+                    name = name.replace('_', ' ')
+                    description = description.replace('_', ' ')
+                    start = start.replace('_', ' ')
+                    finish = finish.replace('_', ' ')
+                    if cur == 'down':
+                        self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                    else:
+                        self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+            if answer2 != 'Not Found':
+                new_height += 10 * (len(answer2) - 1) + 180 * len(answer2)
+                for order in answer2:
+                    order_id = order['id']
+                    name = order['name']
+                    price = str(order['cost'])+'₽'
+                    description = order['description']
+                    start = order['start']
+                    finish = order['finish']
+                    owner = str(order['owner'])
+                    name = name.replace('_', ' ')
+                    description = description.replace('_', ' ')
+                    start = start.replace('_', ' ')
+                    finish = finish.replace('_', ' ')
+                    if cur == 'down':
+                        self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                    else:
+                        self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
             self.delivery_orders_scrollview.height = new_height
-            for order in answer1:
-                order_id = order['id']
-                name = order['name']
-                price = str(order['cost'])+'₽'
-                description = order['description']
-                start = order['start']
-                finish = order['finish']
-                owner = str(order['owner'])
-                name = name.replace('_', ' ')
-                description = description.replace('_', ' ')
-                start = start.replace('_', ' ')
-                finish = finish.replace('_', ' ')
-                if cur == 'down':
-                    self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
-                else:
-                    self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
-            for order in answer2:
-                order_id = order['id']
-                name = order['name']
-                price = str(order['cost'])+'₽'
-                description = order['description']
-                start = order['start']
-                finish = order['finish']
-                owner = str(order['owner'])
-                name = name.replace('_', ' ')
-                description = description.replace('_', ' ')
-                start = start.replace('_', ' ')
-                finish = finish.replace('_', ' ')
-                if cur == 'down':
-                    self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
-                else:
-                    self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
 
     def order_interaction(self, order_id, operation, type):
         answer = super().order_operation(operation, type, order_id)

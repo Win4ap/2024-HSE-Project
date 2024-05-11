@@ -372,8 +372,8 @@ def get_in_progress_orders(user: User) -> list:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM in_progress_orders """
-        cursor.execute(query)
+        query = """ SELECT * FROM in_progress_orders WHERE supplier = ? """
+        cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
             result.append(order)

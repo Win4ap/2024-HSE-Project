@@ -204,8 +204,10 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         if type_of_order == 'free':
             type_of_order = 'active'
         cur_id = get_order_id(f'{type_of_order}_orders')
+        time = order_info[-1]
+        supplier = user.login
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:])
+        cursor.execute(query, (cur_id,) + order_info[1:-2] + (supplier, time))
         database.commit()
     return cur_id
 

@@ -54,6 +54,23 @@ def get_order_id(table: str) -> int:
     return cur_id
 
 
+def time_to_str(time: datetime) -> str:
+    year = time.year 
+    month = f'0{time.month}'
+    if time.month >= 10:
+        month = f'{time.month}'
+    day = f'0{time.day}'
+    if time.day >= 10:
+        day = f'{time.day}'
+    hour = f'0{time.hour}'
+    if time.hour >= 10:
+        hour = f'{time.hour}'
+    minute = f'0{time.minute}'
+    if time.minute >= 10:
+        minute = f'{time.minute}'
+    return f"{year}/{month}/{day} {hour}:{minute}"
+
+
 def update_auction_orders() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -79,20 +96,7 @@ def update_archive() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
-        year = time.year 
-        month = f'0{time.month}'
-        if time.month >= 10:
-            month = f'{time.month}'
-        day = f'0{time.day}'
-        if time.day >= 10:
-            day = f'{time.day}'
-        hour = f'0{time.hour}'
-        if time.hour >= 10:
-            hour = f'{time.hour}'
-        minute = f'0{time.minute}'
-        if time.minute >= 10:
-            minute = f'{time.minute}'
-        time = f"{year}/{month}/{day} {hour}:{minute}"
+        time = time_to_str(time)
         query = """ DELETE FROM archive WHERE time < ? """
         cursor.execute(query, (time,))
         database.commit()

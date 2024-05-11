@@ -241,10 +241,11 @@ def start_order(order_id: int) -> int:
             raise HTTPException(status_code=404, detail="Order not found")
         query = """ DELETE FROM active_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
-        order_info[0] = get_order_id('in_process_orders')
-        order_info[-1] = datetime.now() + constants.delta
+        cur_id = get_order_id('in_process_orders')
+        time = datetime.now() + constants.delta
+        time = time_to_str(time)
         query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, order_info)
+        cursor.execute(query, (cur_id,) + order_info[1:-1] + (time,))
         database.commit()
     return cur_id
 
@@ -378,8 +379,8 @@ def get_auction_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_in_process_orders')
-def get_in_process_orders(user: User) -> list:
+@server.get('/get_in_progress_orders')
+def get_in_progress_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -390,7 +391,7 @@ def get_in_process_orders(user: User) -> list:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM in_process_orders WHERE supplier = ? """
+        query = """ SELECT * FROM in_progress_orders WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)

@@ -75,7 +75,7 @@ def update_auction_orders() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
-        time = f"{time.year}/{time.month}/{time.day} {time.hour}:{time.minute}"
+        time = time_to_str(time)
         query = """ SELECT * FROM auction_orders WHERE time < ? """
         cursor.execute(query, (time,))
         orders_info = cursor.fetchall()

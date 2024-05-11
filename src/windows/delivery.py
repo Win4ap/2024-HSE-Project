@@ -5,7 +5,7 @@ from kivy.uix.popup import Popup
 from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview
 from windows.server_logic.server_interaction import ServerLogic
 
-class DeliveryActiveOrderPreview(ClientOrderPreview):
+class DeliveryInProcessOrderPreview(ClientOrderPreview):
     def on_release(self):
         self.link_button.text = 'Завершить'
         self.link_button.operation = 'complete'
@@ -14,6 +14,18 @@ class DeliveryActiveOrderPreview(ClientOrderPreview):
 class DeliveryFreeOrderPreview(ClientOrderPreview):
     def on_release(self):
         self.link_button.text = 'Взять'
+        self.link_button.operation = 'take'
+        return super().on_release()
+    
+class DeliveryActiveOrderPreview(ClientOrderPreview):
+    def on_release(self):
+        self.link_button.text = 'Получен на руки'
+        self.link_button.operation = 'start'
+        return super().on_release()
+    
+class DeliveryAuctionPreview(ClientOrderPreview):
+    def on_release(self):
+        self.link_button.text = 'Понизить цену'
         self.link_button.operation = 'take'
         return super().on_release()
 
@@ -44,18 +56,19 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
     def show_orders(self):
         cur = self.active_orders.state
         self.delivery_orders_scrollview.clear_widgets()
-        answer = super().get_delivery_orders() if cur == 'down' else super().get_free_orders()
-        if answer == 'server_error':
+        answer1 = super().get_in_process_orders() if cur == 'down' else super().get_free_orders()
+        answer2 = super().get_delivery_orders() if cur == 'down' else super().get_auction_orders()
+        if answer1 == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-        elif answer == [] or answer == 'Not Found' or answer == 'Fullness is false':
+        elif (answer1 == [] or answer1 == 'Not Found' or answer1 == 'Fullness is false') and (answer2 == [] or answer2 == 'Not Found' or answer2 == 'Fullness is false'):
             self.delivery_orders_scrollview.height = 180
             self.delivery_orders_scrollview.add_widget(Label(text='Нет активных заказов' if cur == 'down' else 'Нет свободных заказов', color=(0, 0, 0, 1), font_size=(self.height/30)))
-        elif answer == 'error login_doesnt_exists':
+        elif answer1 == 'error login_doesnt_exists':
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
-            new_height = 10 * (len(answer) - 1) + 180 * (len(answer))
+            new_height = 10 * (len(answer1) + len(answer2) - 1) + 180 * (len(answer1) + len(answer2))
             self.delivery_orders_scrollview.height = new_height
-            for order in answer:
+            for order in answer1:
                 order_id = order['id']
                 name = order['name']
                 price = str(order['cost'])+'₽'
@@ -68,9 +81,25 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                 start = start.replace('_', ' ')
                 finish = finish.replace('_', ' ')
                 if cur == 'down':
-                    self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                    self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
                 else:
-                    self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                    self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+            for order in answer2:
+                order_id = order['id']
+                name = order['name']
+                price = str(order['cost'])+'₽'
+                description = order['description']
+                start = order['start']
+                finish = order['finish']
+                owner = str(order['owner'])
+                name = name.replace('_', ' ')
+                description = description.replace('_', ' ')
+                start = start.replace('_', ' ')
+                finish = finish.replace('_', ' ')
+                if cur == 'down':
+                    self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Приступите к работе', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                else:
+                    self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
 
     def order_interaction(self, order_id, operation):
         answer = super().order_operation(order_id, operation)

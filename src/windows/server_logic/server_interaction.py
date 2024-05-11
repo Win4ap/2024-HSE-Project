@@ -66,6 +66,22 @@ class ServerLogic():
         answer = requests.get(f'{URL}/get_active_orders', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
+    def get_in_process_orders(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_in_process_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_in_process_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_auction_orders(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_auction_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_auction_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
     def get_profile_fullness(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
@@ -114,7 +130,7 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'{operation}_order: {state} {login}')
-        type = type.split('_')[0]
+        type = type.strip('_orders')
         if operation == 'delete':
             answer = requests.delete(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
         else:

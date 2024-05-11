@@ -265,7 +265,7 @@ def complete_order(order_id: int) -> int:
         query = """ DELETE FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         cur_id = get_order_id('archive')
-        time = datetime.now() + constants.delta
+        time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
         query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id,) + order_info[1:-1] + (time,))

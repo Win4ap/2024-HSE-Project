@@ -360,6 +360,26 @@ def get_auction_orders(user: User) -> list:
     return result
 
 
+@server.get('/get_in_progress_orders')
+def get_in_progress_orders(user: User) -> list:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM delivery_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = """ SELECT * FROM in_progress_orders """
+        cursor.execute(query)
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            result.append(order)
+    return result
+
+
 @server.get('/get_archive_orders') 
 def get_archive_orders(user: User) -> list:
     update_archive()

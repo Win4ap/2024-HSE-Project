@@ -7,5 +7,5 @@ privkey = PrivateKey(27873459002857105072721172926754957330831217291729981871022
 delta = {
     'UTC': timedelta(hours=3),
     'DAY': timedelta(days=1),
-    'MONTH': timedelta(months=1)
+    'MONTH': timedelta(days=30)
 }

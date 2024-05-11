@@ -19,7 +19,7 @@ class DeliveryFreeOrderPreview(ClientOrderPreview):
     
 class DeliveryActiveOrderPreview(ClientOrderPreview):
     def on_release(self):
-        self.link_button.text = 'Получен на руки'
+        self.link_button.text = 'Взять в работу'
         self.link_button.operation = 'start'
         return super().on_release()
     
@@ -97,12 +97,12 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                 start = start.replace('_', ' ')
                 finish = finish.replace('_', ' ')
                 if cur == 'down':
-                    self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Приступите к работе', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                    self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
                 else:
                     self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
 
-    def order_interaction(self, order_id, operation):
-        answer = super().order_operation(order_id, operation)
+    def order_interaction(self, order_id, operation, type):
+        answer = super().order_operation(operation, type, order_id)
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
         elif answer == 'Login not found':

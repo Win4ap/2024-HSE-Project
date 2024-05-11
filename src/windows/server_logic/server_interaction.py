@@ -130,11 +130,13 @@ class ServerLogic():
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
         logging.info(f'{operation}_order: {state} {login}')
-        type = type.strip('_orders')
+        type = type.rsplit('_orders', 1)[0]
         if operation == 'delete':
             answer = requests.delete(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
-        else:
+        elif operation == 'take':
             answer = requests.put(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+        else:
+            answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
     def get_archive_orders(self):

@@ -347,6 +347,7 @@
                             size_hint: 0.15, 1
                             on_release:
                                 root.details_button.order_id = -1
+                                root.details_button.type = ''
                                 root.switch_main_to('delivery_orders')
                         
                         Label:
@@ -421,15 +422,17 @@
                             RoundedButton:
                                 id: details_button
                                 order_id: -1
+                                type: ''
                                 text: 'Взять'
                                 operation: 'take'
                                 font_size: self.height/2
-                                size_hint: 0.4, 0.6
+                                size_hint: 0.6, 0.6
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (120/255, 219/255, 226/255, 1)
                                 on_release:
-                                    root.order_interaction(self.order_id, self.operation)
+                                    root.order_interaction(self.order_id, self.operation, self.type)
                                     self.order_id = -1
+                                    self.type = ''
 
         BoxLayout:
             size_hint: 1, 0.07

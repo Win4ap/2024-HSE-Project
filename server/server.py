@@ -68,6 +68,7 @@ def update_auction_orders() -> None:
             table = 'active_orders'
             if elem[-2] == None:
                 table = 'free_orders'
+            elem[0] = get_order_id(table)
             query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
             cursor.execute(query, elem)
         database.commit()

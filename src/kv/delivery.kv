@@ -16,6 +16,7 @@
     details_from: details_from
     details_to: details_to
     details_button: details_button
+    details_time: details_time
     archive_name: archive_name
     archive_description: archive_description
     archive_price: archive_price
@@ -412,6 +413,15 @@
 
                             Label:
                                 id: details_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: details_time
                                 text: ''
                                 font_size: self.height/4
                                 color: 0, 0, 0, 1

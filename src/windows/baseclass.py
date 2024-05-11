@@ -119,7 +119,7 @@ class ArchiveOrder(ButtonBehavior, BoxLayout):
         return super().on_release()
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button):
+    def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -128,6 +128,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.start = start
         self.finish = finish
         self.courier = courier
+        self.time = time
         self.type = type
         self.status = status
         self.root_sm = root_sm
@@ -138,6 +139,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.link_from = link_from
         self.link_to = link_to
         self.link_button = link_button
+        self.link_time = link_time
 
     def on_release(self):
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
@@ -151,6 +153,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.link_price.text = self.price
         self.link_from.text = f'Забрать отсюда: {self.start}'
         self.link_to.text = f'Доставить сюда: {self.finish}'
+        self.link_time.text = self.time
         if self.courier == 'None':
             self.link_courier.text = 'Нет активного курьера'
         else:

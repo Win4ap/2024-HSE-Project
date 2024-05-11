@@ -77,14 +77,16 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     start = order['start']
                     finish = order['finish']
                     owner = str(order['owner'])
+                    time = order['time']
                     name = name.replace('_', ' ')
                     description = description.replace('_', ' ')
                     start = start.replace('_', ' ')
                     finish = finish.replace('_', ' ')
+                    time = time.replace('T', ' ')
                     if cur == 'down':
-                        self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                        self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, time, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
                     else:
-                        self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                        self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, time, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
             if answer2 != 'Not Found':
                 new_height += 10 * (len(answer2) - 1) + 180 * len(answer2)
                 for order in answer2:
@@ -95,14 +97,16 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     start = order['start']
                     finish = order['finish']
                     owner = str(order['owner'])
+                    time = order['time']
                     name = name.replace('_', ' ')
                     description = description.replace('_', ' ')
                     start = start.replace('_', ' ')
                     finish = finish.replace('_', ' ')
+                    time = time.replace('T', ' ')
                     if cur == 'down':
-                        self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                        self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, time, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
                     else:
-                        self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                        self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, time, 'auction_orders', 'Аукцион', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
             self.delivery_orders_scrollview.height = new_height
 
     def order_interaction(self, order_id, operation, type):

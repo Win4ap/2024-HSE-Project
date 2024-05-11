@@ -62,11 +62,13 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         start = order['start']
                         finish = order['finish']
                         courier = str(order['supplier'])
+                        time = order['time']
                         name = name.replace('_', ' ')
                         description = description.replace('_', ' ')
                         start = start.replace('_', ' ')
                         finish = finish.replace('_', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button))
+                        time = time.replace('T', ' ')
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, time, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
             elif info == 'templates':
                 new_height = 10 * (len(answer) - 1) + 180 * len(answer)
                 self.client_orders_scrollview.height = new_height
@@ -92,16 +94,22 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
             description = self.new_order_description.text
             adress_from = self.new_order_from.text
             adress_to = self.new_order_to.text
+            time = self.new_time.text
+            if (object != 'template' and time == ''):
+                Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
+                return
             for i in price:
                 if i not in '0123456789':
                     Popup(title='Ошибка', content=Label(text='Цена должна состоять только из цифр'), size_hint=(0.8, 0.2)).open()
                     return
-            if (name != '' and description != '' and price != '' and adress_from != '' and adress_to != ''):
+            if (name == '' or description == '' or price == '' or adress_from == '' or adress_to == ''):
+                Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
+            else:
                 name = name.replace(' ', '_')
                 description = description.replace(' ', '_')
                 adress_from = adress_from.replace(' ', '_')
                 adress_to = adress_to.replace(' ', '_')
-                answer = super().new_object(object, name, price, description, adress_from, adress_to)
+                answer = super().new_object(object, name, price, description, adress_from, adress_to, time)
                 if answer == 'server_error':
                     Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
                 elif answer == 'true' or isinstance(int(answer), int):
@@ -110,6 +118,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     self.new_order_price.text = ''
                     self.new_order_from.text = ''
                     self.new_order_to.text = ''
+                    self.new_time.text = ''
                     self.show_profile()
                     self.show_client_data('orders') if object != 'template' else self.show_client_data('templates')
                     self.create_order.animated_color, self.create_auction.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
@@ -121,8 +130,6 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     Popup(title='Успех', content=Label(text='Ваш заказ/аукцион/шаблон создан'), size_hint=(0.8, 0.2)).open()
                 else:
                     Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
-            else:
-                Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
         elif fullness == 'false':
             Popup(title='Ошибка', content=Label(text='Сначала заполните профиль'), size_hint=(0.8, 0.2)).open()
         elif fullness == 'server_error':

@@ -14,6 +14,7 @@
     new_order_price: new_order_price
     new_order_from: new_order_from
     new_order_to: new_order_to
+    new_time: new_time
     make_screen_label: make_screen_label
     new_object: 'free'
     details_name: details_name
@@ -23,6 +24,7 @@
     details_from: details_from
     details_to: details_to
     details_button: details_button
+    details_time: details_time
     archive_name: archive_name
     archive_description: archive_description
     archive_price: archive_price
@@ -267,6 +269,7 @@
                                 root.new_order_price.text = ''
                                 root.new_order_from.text = ''
                                 root.new_order_to.text = ''
+                                root.new_time.text = ''
                                 root.new_object = 'free'
                                 root.show_profile()
                                 root.switch_main_to('client_profile')
@@ -284,7 +287,7 @@
                         BoxLayout:
                             orientation: 'vertical'
                             spacing: '2dp'
-                            size_hint: 0.7, 0.8
+                            size_hint: 0.8, 0.95
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                             BoxLayout:
                                 size_hint: 1, 1
@@ -391,7 +394,19 @@
                                 multiline: False
                                 font_size: self.height/1.8
 
-                            # TODO: для аукциона нужно выставлять время
+                            Label:
+                                text: 'Время (не для шаблонов)'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_time
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+                                hint_text: 'ГГГГ-ММ-ДД ЧЧ:ММ'
 
                             FloatLayout:
                                 RoundedButton:
@@ -483,6 +498,15 @@
 
                             Label:
                                 id: details_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+                            
+                            Label:
+                                id: details_time
                                 text: ''
                                 font_size: self.height/4
                                 color: 0, 0, 0, 1
@@ -643,6 +667,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
+                    root.new_time.text = ''
                     root.new_object = 'free'
                     root.switch_main_to('client_chat')
                 AnchorLayout:
@@ -664,6 +689,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
+                    root.new_time.text = ''
                     root.new_object = 'free'
                     root.switch_main_to('client_orders')
                 AnchorLayout:
@@ -684,6 +710,7 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
+                    root.new_time.text = ''
                     root.new_object = 'free'
                     root.show_profile()
                     root.switch_main_to('client_profile')

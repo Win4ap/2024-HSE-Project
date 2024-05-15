@@ -344,7 +344,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
-@server.get('/get_active_orders') #TODO: fee
+@server.get('/get_active_orders')
 def get_active_orders(user: User) -> list:
     update_auction_orders()
     result = []
@@ -365,7 +365,7 @@ def get_active_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_auction_orders') #TODO: fee
+@server.get('/get_auction_orders')
 def get_auction_orders(user: User) -> list:
     update_auction_orders()
     result = []
@@ -386,7 +386,7 @@ def get_auction_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_in_process_orders') #TODO: fee
+@server.get('/get_in_process_orders')
 def get_in_process_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -406,7 +406,7 @@ def get_in_process_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_archive_orders')  #TODO: fee
+@server.get('/get_archive_orders')
 def get_archive_orders(user: User) -> list:
     update_archive()
     result = []
@@ -430,7 +430,7 @@ def get_archive_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_free_orders')  #TODO: fee
+@server.get('/get_free_orders')
 def get_free_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -450,7 +450,7 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders') #TODO: fee
+@server.get('/get_user_orders')
 def get_user_orders(user: User) -> dict:
     result = {}
     with sqlite3.connect(path_to_database) as database:
@@ -493,7 +493,7 @@ def get_user_orders(user: User) -> dict:
     return result
 
 
-@server.get('/get_user_orders/{type_of_order}') #TODO: fee
+@server.get('/get_user_orders/{type_of_order}')
 def get_user_orders_by_type(type_of_order: str, user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:

@@ -16,7 +16,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: list): 
+def get_orders_json(elem: list): #TODO: last_cost
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -72,7 +72,7 @@ def time_to_str(time: datetime) -> str:
     return f"{year}/{month}/{day} {hour}:{minute}"
 
 
-def update_auction_orders() -> None:
+def update_auction_orders() -> None: #TODO: last_cost
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
@@ -145,7 +145,7 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order/{type_of_order}')
+@server.post('/new_order/{type_of_order}') #TODO: last_cost
 def make_new_order(type_of_order: str, order: Order) -> int:
     update_auction_orders()
     order.id = get_order_id(f'{type_of_order}_orders')
@@ -181,7 +181,7 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-@server.put('/take_order/{type_of_order}/{order_id}')
+@server.put('/take_order/{type_of_order}/{order_id}') #TODO: last_cost
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
     if user.state == 'client':
@@ -573,7 +573,7 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, last_cost INTEGER ) """
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)

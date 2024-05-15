@@ -74,7 +74,7 @@ def time_to_str(time: datetime) -> str:
     return f"{year}/{month}/{day} {hour}:{minute}"
 
 
-def update_auction_orders() -> None: #TODO: last_cost
+def update_auction_orders() -> None:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
@@ -86,11 +86,13 @@ def update_auction_orders() -> None: #TODO: last_cost
         cursor.execute(query, (time,))
         for elem in orders_info:
             table = 'active_orders'
-            if elem[-2] == None:
+            cost = elem[-1]
+            if elem[-4] == None:
                 table = 'free_orders'
-            elem[0] = get_order_id(table)
+                cost = elem[3]
+            cur_id = get_order_id(table)
             query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-            cursor.execute(query, elem)
+            cursor.execute(query, (cur_id,) + elem[1:3] + cost + elem[4:-1])
         database.commit()
     return None
 

@@ -227,14 +227,14 @@ def edit_order(type_of_order: str, order_id: int, order: Order) -> int:
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
         query = f""" UPDATE {type_of_order}_orders
-                SET (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                SET (owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE id = ? """
-        cursor.execute(query, order.get_tuple() + (order_id,))
+        cursor.execute(query, order.get_tuple()[1:-1] + (order_id,))
         database.commit()
     return order.id
 
 
-@server.put('/start_order/{order_id}') #TODO: fee
+@server.put('/start_order/{order_id}')
 def start_order(order_id: int) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -248,8 +248,9 @@ def start_order(order_id: int) -> int:
         cur_id = get_order_id('in_process_orders')
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
-        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:-1] + (time,))
+        fee = order_info[-1]
+        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:-2] + (time, fee))
         database.commit()
     return cur_id
 

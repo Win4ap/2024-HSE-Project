@@ -16,7 +16,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: list):
+def get_orders_json(elem: list): #TODO: fee
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -71,7 +71,7 @@ def time_to_str(time: datetime) -> str:
     return f"{year}/{month}/{day} {hour}:{minute}"
 
 
-def update_auction_orders() -> None:
+def update_auction_orders() -> None: #TODO: fee
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
@@ -92,7 +92,7 @@ def update_auction_orders() -> None:
     return None
 
 
-def update_archive() -> None:
+def update_archive() -> None: #TODO: fee
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
@@ -144,7 +144,7 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order/{type_of_order}')
+@server.post('/new_order/{type_of_order}') #TODO: fee
 def make_new_order(type_of_order: str, order: Order) -> int:
     update_auction_orders()
     order.id = get_order_id(f'{type_of_order}_orders')
@@ -180,7 +180,7 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-@server.put('/take_order/{type_of_order}/{order_id}')
+@server.put('/take_order/{type_of_order}/{order_id}') #TODO: fee
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
     if user.state == 'client':
@@ -232,7 +232,7 @@ def edit_order(type_of_order: str, order_id: int, order: Order) -> int:
     return order.id
 
 
-@server.put('/start_order/{order_id}')
+@server.put('/start_order/{order_id}') #TODO: fee
 def start_order(order_id: int) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -252,7 +252,7 @@ def start_order(order_id: int) -> int:
     return cur_id
 
 
-@server.put('/complete_order/{order_id}')
+@server.put('/complete_order/{order_id}') #TODO: fee
 def complete_order(order_id: int) -> int:
     update_archive()
     with sqlite3.connect(path_to_database) as database:
@@ -340,7 +340,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
     return FileResponse(path=path_to_picture)
 
 
-@server.get('/get_active_orders') 
+@server.get('/get_active_orders') #TODO: fee
 def get_active_orders(user: User) -> list:
     update_auction_orders()
     result = []
@@ -361,7 +361,7 @@ def get_active_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_auction_orders')
+@server.get('/get_auction_orders') #TODO: fee
 def get_auction_orders(user: User) -> list:
     update_auction_orders()
     result = []
@@ -382,7 +382,7 @@ def get_auction_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_in_process_orders')
+@server.get('/get_in_process_orders') #TODO: fee
 def get_in_process_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -402,7 +402,7 @@ def get_in_process_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_archive_orders') 
+@server.get('/get_archive_orders')  #TODO: fee
 def get_archive_orders(user: User) -> list:
     update_archive()
     result = []
@@ -426,7 +426,7 @@ def get_archive_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_free_orders') 
+@server.get('/get_free_orders')  #TODO: fee
 def get_free_orders(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -446,7 +446,7 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders')
+@server.get('/get_user_orders') #TODO: fee
 def get_user_orders(user: User) -> dict:
     result = {}
     with sqlite3.connect(path_to_database) as database:
@@ -489,7 +489,7 @@ def get_user_orders(user: User) -> dict:
     return result
 
 
-@server.get('/get_user_orders/{type_of_order}')
+@server.get('/get_user_orders/{type_of_order}') #TODO: fee
 def get_user_orders_by_type(type_of_order: str, user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
@@ -566,17 +566,17 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
     database.commit()
 

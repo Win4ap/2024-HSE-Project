@@ -12,7 +12,7 @@ class Order(BaseModel):
     finish: str
     supplier: str = None
     time: datetime = datetime.now() + timedelta(hours=3)
-    fee: int = None
+    fee: int
 
     def get_tuple(self) -> tuple:
         time = f"{self.time.year}/{self.time.month}/{self.time.day} {self.time.hour}:{self.time.minute}"

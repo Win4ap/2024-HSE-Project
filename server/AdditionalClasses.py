@@ -16,7 +16,7 @@ class Order(BaseModel):
 
     def get_tuple(self) -> tuple:
         time = f"{self.time.year}/{self.time.month}/{self.time.day} {self.time.hour}:{self.time.minute}"
-        return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier, time)
+        return (self.id, self.owner, self.name, self.cost, self.description, self.start, self.finish, self.supplier, time, self.fee)
 
 
 class User(BaseModel):

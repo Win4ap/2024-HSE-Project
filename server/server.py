@@ -93,7 +93,7 @@ def update_auction_orders() -> None:
     return None
 
 
-def update_archive() -> None: #TODO: fee
+def update_archive() -> None: 
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
@@ -145,7 +145,7 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order/{type_of_order}') #TODO: fee
+@server.post('/new_order/{type_of_order}')
 def make_new_order(type_of_order: str, order: Order) -> int:
     update_auction_orders()
     order.id = get_order_id(f'{type_of_order}_orders')
@@ -158,7 +158,7 @@ def make_new_order(type_of_order: str, order: Order) -> int:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return order.id

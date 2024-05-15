@@ -204,12 +204,15 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         cursor.execute(query, (order_id,))
         if type_of_order == 'free':
             type_of_order = 'active'
+        cost = order[3]
+        if type_of_order == 'auction':
+            cost = int(cost*(0.95))
         cur_id = get_order_id(f'{type_of_order}_orders')
         time = order_info[-2]
         fee = order_info[-1]
         supplier = user.login
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:-3] + (supplier, time, fee))
+        cursor.execute(query, (cur_id) + order_info[1:3] + (cost,) + order_info[4:-3] + (supplier, time, fee))
         database.commit()
     return cur_id
 

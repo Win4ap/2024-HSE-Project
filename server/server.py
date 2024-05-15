@@ -149,7 +149,7 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order/{type_of_order}') #TODO: last_cost
+@server.post('/new_order/{type_of_order}')
 def make_new_order(type_of_order: str, order: Order) -> int:
     update_auction_orders()
     order.id = get_order_id(f'{type_of_order}_orders')
@@ -185,7 +185,7 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
-@server.put('/take_order/{type_of_order}/{order_id}') #TODO: last_cost
+@server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
     if user.state == 'client':
@@ -209,6 +209,7 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         if type_of_order == 'free':
             type_of_order = 'active'
         cost = order[3]
+        last_cost = int(cost)
         if type_of_order == 'auction':
             cost = int(cost*(0.95))
         cur_id = get_order_id(f'{type_of_order}_orders')
@@ -217,6 +218,9 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         supplier = user.login
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id) + order_info[1:3] + (cost,) + order_info[4:-3] + (supplier, time, fee))
+        if type_of_order == 'auction':
+            query = f""" UPDATE {type_of_order}_orders SET (last_cost) VALUES (?) WHERE id = ? """
+            cursor.execute(query, (last_cost, cur_id))
         database.commit()
     return cur_id
 

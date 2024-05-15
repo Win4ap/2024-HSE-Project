@@ -16,7 +16,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: list): #TODO: fee
+def get_orders_json(elem: list): 
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -26,7 +26,8 @@ def get_orders_json(elem: list): #TODO: fee
         'start': elem[5],
         'finish': elem[6],
         'supplier': elem[7],
-        'time': datetime.strptime(elem[8], "%Y/%m/%d %H:%M")
+        'time': datetime.strptime(elem[8], "%Y/%m/%d %H:%M"),
+        'fee': elem[9]
     }
     return order
 

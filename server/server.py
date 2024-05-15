@@ -16,7 +16,7 @@ path_to_database = os.path.join(
 server = FastAPI()
 
 
-def get_orders_json(elem: list): #TODO: last_cost
+def get_orders_json(elem: list):
     order = {
         'id': elem[0],
         'owner': elem[1],
@@ -29,6 +29,8 @@ def get_orders_json(elem: list): #TODO: last_cost
         'time': datetime.strptime(elem[8], "%Y/%m/%d %H:%M"),
         'fee': elem[9]
     }
+    if len(elem) == 11:
+        order['last_cost'] = elem[10]
     return order
 
 

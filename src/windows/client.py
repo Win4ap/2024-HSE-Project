@@ -57,7 +57,10 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     for order in answer[type]:
                         order_id = order['id']
                         name = order['name']
-                        price = str(order['cost'])+'₽'
+                        if type == 'auction_orders' and order['last_cost'] != None:
+                            price = str(order['last_cost'])+'₽'
+                        else:
+                            price = str(order['cost'])+'₽'
                         description = order['description']
                         start = order['start']
                         finish = order['finish']
@@ -95,6 +98,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
             adress_from = self.new_order_from.text
             adress_to = self.new_order_to.text
             time = self.new_time.text
+            fee = round(int(price) * 0.08)
             if (object != 'template' and time == ''):
                 Popup(title='Ошибка', content=Label(text='Заполните все поля'), size_hint=(0.8, 0.2)).open()
                 return
@@ -109,7 +113,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                 description = description.replace(' ', '_')
                 adress_from = adress_from.replace(' ', '_')
                 adress_to = adress_to.replace(' ', '_')
-                answer = super().new_object(object, name, price, description, adress_from, adress_to, time)
+                answer = super().new_object(object, name, price, description, adress_from, adress_to, time, fee)
                 if answer == 'server_error':
                     Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
                 elif answer == 'true' or isinstance(int(answer), int):

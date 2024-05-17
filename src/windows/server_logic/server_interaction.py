@@ -113,7 +113,7 @@ class ServerLogic():
             answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
         return self.check_status(answer)
     
-    def new_object(self, object, name, price, description, adress_from, adress_to, time):
+    def new_object(self, object, name, price, description, adress_from, adress_to, time, fee):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -122,7 +122,7 @@ class ServerLogic():
             answer = requests.post(f'{URL}/new_template', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
         else:
             print(f'{URL}/new_order/{object}')
-            answer = requests.post(f'{URL}/new_order/{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}', 'time': f'{time}'})
+            answer = requests.post(f'{URL}/new_order/{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}', 'time': f'{time}', 'fee': f'{fee}'})
         return self.check_status(answer)
     
     def order_operation(self, operation, type, order_id): # operation = take/complete/delete

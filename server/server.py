@@ -179,7 +179,7 @@ def make_new_template(order: Order) -> bool:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
             raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return True

@@ -217,9 +217,9 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         fee = order_info[-1]
         supplier = user.login
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id) + order_info[1:3] + (cost,) + order_info[4:-3] + (supplier, time, fee))
+        cursor.execute(query, (cur_id) + order_info[1:3] + (cost,) + order_info[4:7] + (supplier, time, fee))
         if type_of_order == 'auction':
-            query = f""" UPDATE {type_of_order}_orders SET (last_cost) VALUES (?) WHERE id = ? """
+            query = f""" UPDATE {type_of_order}_orders SET last_cost = ? WHERE id = ? """
             cursor.execute(query, (last_cost, cur_id))
         database.commit()
     return cur_id

@@ -92,7 +92,7 @@ def update_auction_orders() -> None:
                 cost = elem[3]
             cur_id = get_order_id(table)
             query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-            cursor.execute(query, (cur_id,) + elem[1:3] + cost + elem[4:-1])
+            cursor.execute(query, (cur_id,) + elem[1:3] + (cost,) + elem[4:-1])
         database.commit()
     return None
 
@@ -208,7 +208,7 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         cursor.execute(query, (order_id,))
         if type_of_order == 'free':
             type_of_order = 'active'
-        cost = order[3]
+        cost = order_info[3]
         last_cost = int(cost)
         if type_of_order == 'auction':
             cost = int(cost*(0.95))
@@ -217,7 +217,7 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         fee = order_info[-1]
         supplier = user.login
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id) + order_info[1:3] + (cost,) + order_info[4:7] + (supplier, time, fee))
+        cursor.execute(query, (cur_id,) + order_info[1:3] + (cost,) + order_info[4:7] + (supplier, time, fee,))
         if type_of_order == 'auction':
             query = f""" UPDATE {type_of_order}_orders SET last_cost = ? WHERE id = ? """
             cursor.execute(query, (last_cost, cur_id))

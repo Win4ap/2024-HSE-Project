@@ -119,7 +119,7 @@ class ServerLogic():
         else: return 'ты че натворил'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
         if object == 'template':
-            answer = requests.post(f'{URL}/new_template', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
+            answer = requests.post(f'{URL}/new_template', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}', 'time': f'{time}', 'fee': f'{fee}'})
         else:
             print(f'{URL}/new_order/{object}')
             answer = requests.post(f'{URL}/new_order/{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}', 'time': f'{time}', 'fee': f'{fee}'})

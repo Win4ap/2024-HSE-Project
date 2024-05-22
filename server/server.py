@@ -161,7 +161,7 @@ def make_new_order(type_of_order: str, order: Order) -> int:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
@@ -178,7 +178,7 @@ def make_new_template(order: Order) -> bool:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
@@ -198,7 +198,7 @@ def take_order(type_of_order: str, order_id: int, user: User) -> int:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
@@ -234,7 +234,7 @@ def edit_order(type_of_order: str, order_id: int, order: Order) -> int:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" UPDATE {type_of_order}_orders
                 SET (owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE id = ? """
@@ -343,7 +343,7 @@ def get_user_info(user: User) -> dict:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == False:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT name, surname, phone FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         user_info = cursor.fetchone()
@@ -367,7 +367,7 @@ def get_user_rating(user: User) -> float:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == False:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT COUNT(rating) FROM archive WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         cnt_of_marks = cursor.fetchone()[0]
@@ -388,7 +388,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
     path_to_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
     return FileResponse(path=path_to_picture)
@@ -406,7 +406,7 @@ def get_active_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT * FROM active_orders WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
@@ -427,7 +427,7 @@ def get_auction_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT * FROM auction_orders """
         cursor.execute(query)
         for elem in cursor.fetchall():
@@ -447,7 +447,7 @@ def get_in_process_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT * FROM in_process_orders WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
@@ -471,7 +471,7 @@ def get_archive_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT * FROM archive WHERE {relation} = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
@@ -491,7 +491,7 @@ def get_free_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT * FROM free_orders """
         cursor.execute(query)
         for elem in cursor.fetchall():
@@ -511,7 +511,7 @@ def get_user_orders(user: User) -> dict:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = """ SELECT * FROM free_orders WHERE owner = ? """
         free_orders = []
         cursor.execute(query, (user.login,))
@@ -554,7 +554,7 @@ def get_user_orders_by_type(type_of_order: str, user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT * FROM {type_of_order}_orders WHERE owner = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():

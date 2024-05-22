@@ -575,21 +575,21 @@ def upload_user_info(
 
 with sqlite3.connect(path_to_database) as database:
     cursor = database.cursor()
-    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT PRIMARY KEY, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT PRIMARY KEY, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, last_cost INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, last_cost INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, rating INTEGER ) """
     cursor.execute(query)
     database.commit()
 

@@ -286,6 +286,22 @@ def complete_order(order_id: int) -> int:
     return cur_id
 
 
+@server.put('/rate_order/{order_id}')
+def rate_order(order_id: int, rating: int) -> bool:
+    update_archive()
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT rating FROM archive_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_rating = cursor.fetchone()
+        if order_rating != None:
+            raise HTTPException(status_code=423, detail="Order is already rated")
+        query = """ UPDATE archive_orders SET rating = ? WHERE id = ? """
+        cursor.execute(query, (rating, order_id))
+        database.commit()
+    return True
+
+
 @server.delete('/delete_order/{type_of_order}/{order_id}')
 def delete_order(type_of_order: str, order_id: int) -> bool:
     with sqlite3.connect(path_to_database) as database:

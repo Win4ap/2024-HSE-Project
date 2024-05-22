@@ -294,7 +294,9 @@ def rate_order(order_id: int, rating: int) -> bool:
         query = """ SELECT rating FROM archive_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_rating = cursor.fetchone()
-        if order_rating != None:
+        if order_rating == None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order_rating[0] != None:
             raise HTTPException(status_code=423, detail="Order is already rated")
         query = """ UPDATE archive_orders SET rating = ? WHERE id = ? """
         cursor.execute(query, (rating, order_id))

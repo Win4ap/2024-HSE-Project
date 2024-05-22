@@ -355,6 +355,29 @@ def get_user_info(user: User) -> dict:
     return result
 
 
+@server.get('/get_user_rating')
+def get_user_rating(user: User) -> float:
+    update_archive()
+    result = 6.0
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == False:
+            raise HTTPException(status_code=423, detail="Fullness is false")
+        query = """ SELECT COUNT(rating) FROM archive WHERE supplier = ? """
+        cursor.execute(query, (user.login,))
+        cnt_of_marks = cursor.fetchone()[0]
+        if cnt_of_marks >= 5:
+            query = """ SELECT AVG(rating) FROM archive WHERE supplier = ? """
+            cursor.execute(query, (user.login,))
+            result = cursor.fetchone()[0]
+    return result
+
+
 @server.get('/get_user_picture/{picture}')
 def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
     with sqlite3.connect(path_to_database) as database:

@@ -188,6 +188,8 @@ def make_new_template(order: Order) -> bool:
 @server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
+    if get_user_rating(user) < 3.5:
+        raise HTTPException(status_code=403, detail="Rating is too low")
     if user.state == 'client':
         raise HTTPException(status_code=423, detail="It is not a client case")
     with sqlite3.connect(path_to_database) as database:

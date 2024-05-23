@@ -291,14 +291,14 @@ def rate_order(order_id: int, rating: int) -> bool:
     update_archive()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT rating FROM archive_orders WHERE id = ? """
+        query = """ SELECT rating FROM archive WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_rating = cursor.fetchone()
         if order_rating == None:
             raise HTTPException(status_code=404, detail="Order not found")
         if order_rating[0] != None:
             raise HTTPException(status_code=423, detail="Order is already rated")
-        query = """ UPDATE archive_orders SET rating = ? WHERE id = ? """
+        query = """ UPDATE archive SET rating = ? WHERE id = ? """
         cursor.execute(query, (rating, order_id))
         database.commit()
     return True

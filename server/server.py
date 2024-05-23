@@ -289,7 +289,10 @@ def complete_order(order_id: int) -> int:
 
 
 @server.put('/rate_order/{order_id}')
-def rate_order(order_id: int, rating: int) -> bool:
+def rate_order(
+    order_id: int,
+    rating: Annotated[float, Form()]
+    ) -> bool:
     update_archive()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

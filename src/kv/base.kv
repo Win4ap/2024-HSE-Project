@@ -1,0 +1,156 @@
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+<RoundedButton@Button>:
+    background_color: 0, 0 ,0 ,0
+    cur_color: (100/255, 100/255, 100/255, 1)
+    canvas.before:
+        Color:
+            rgba: self.cur_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [40,]
+
+<ProfileButton@Button>:
+    background_color: 0, 0, 0, 0
+    text_size: self.size
+    font_size: self.height/2
+    halign: 'left'
+    color: 0, 0, 0, 1
+
+<ClientOrderPreview>:
+    order_id: None
+    description: ''
+    order_name: ''
+    price: ''
+    start: ''
+    finish: ''
+    courier: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 2
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.order_name}[/b]'
+            font_size: self.height/2
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: 'Подробнее'
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'bottom'
+        Label:
+            text_size: self.size
+            text: root.courier
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'bottom'
+
+<ClientTemplatePreview>:
+    template_name: ''
+    description: ''
+    price: ''
+    start: ''
+    finish: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 1
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.template_name}[/b]'
+            font_size: self.height/3
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'middle'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/4
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'middle'
+
+<ArchiveOrder>:
+    order_id: None
+    description: ''
+    order_name: ''
+    price: ''
+    start: ''
+    finish: ''
+    person: ''
+    background_color: 0, 0 ,0 ,0
+    height: 180
+    padding: ('30px', '15px', '30px', '15px')
+    canvas.before:
+        Color:
+            rgba: (217/255, 217/255, 217/255, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+    GridLayout:
+        rows: 2
+        cols: 2
+        Label:
+            text_size: self.size
+            text: f'[b]{root.order_name}[/b]'
+            font_size: self.height/2
+            markup: 1
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: root.price
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'top'
+        Label:
+            text_size: self.size
+            text: 'Подробнее'
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'bottom'
+        Label:
+            text_size: self.size
+            text: root.person
+            font_size: self.height/2
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'bottom'

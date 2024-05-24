@@ -1,142 +1,125 @@
-import socket
+import requests
 import os
 import logging
-import sys 
-sys.set_int_max_str_digits(1000000000)
-from windows.server_logic.constants import IP, PORT
-from windows.server_logic.raw_rsa import RSA
+from rsa import encrypt
+
+from windows.server_logic.constants import IP, PORT, pubkey
+
+URL = f'http://{IP}:{PORT}'
 
 class ServerLogic():
-    def auth_reg_request(self, state, command, login, password) -> str:
-        password = RSA().encrypt(password)
-        request = f'{state} {command} {login} {password}'
-        logging.info(f'{command}: {state} {login}')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                client.send(request.encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-                logging.info(f'Server answer: {answer}')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
-    
+    # TODO add more cases
+    def check_status(self, answer):
+        logging.info(f'Server answer: {answer.status_code} {answer.text}')
+        if answer.status_code == 200:
+            if answer.text[0] == '[' or answer.text[0] == '{':
+                answer = answer.json()
+            else:
+                answer = (answer.text).replace('"', '')
+            return answer
+        elif answer.status_code == 404 or answer.status_code == 423:
+            answer = answer.json()
+            return answer['detail']
+        else:
+            logging.info('Server is down')
+            return 'server_error'
+
     def get_login(self) -> list:
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         with open(path_to_login, 'r') as file:
             data = (file.read()).split(' ')
         return data
     
-    def get_client_data(self, info) -> str:
+    def auth_reg_request(self, state, command, login, password):
+        password = password.encode('utf-8')
+        password = encrypt(password, pubkey)
+        logging.info(f'{command}: {state} {login}')
+        if command == 'login':
+            answer = requests.get(f'{URL}/{command}', data={'state': f'{state}', 'login': f'{login}'}, files={'password': password})
+        elif command == 'register':
+            answer = requests.post(f'{URL}/{command}', data={'state': f'{state}', 'login': f'{login}'}, files={'password': password})
+        else:
+            return 'FATAL'
+        return self.check_status(answer)
+    
+    def get_client_data(self, info):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        request = f'{state} get_user_{info} {login}'
         logging.info(f'get_user_{info}: {state} {login}')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                client.send(request.encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-                logging.info(f'Server answer: {answer}')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        answer = requests.get(f'{URL}/get_user_{info}', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
     
-    def get_profile_fullness(self) -> str:
+    def get_free_orders(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        request = f'{state} get_profile_fullness {login}'
+        logging.info(f'get_free_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_free_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_delivery_orders(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_delivery_active_orders: {state} {login}')
+        answer = requests.get(f'{URL}/get_active_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_profile_fullness(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
         logging.info(f'get_profile_fullness: {state} {login}')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                client.send(request.encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-                logging.info(f'Server answer: {answer}')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        answer = requests.get(f'{URL}/get_profile_fullness', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
     
-    def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport) -> str:
+    def edit_profile(self, firstname, lastname, phone, path_to_avatar, path_to_passport):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                request = f'{state} edit_profile {login} {firstname} {lastname} {phone}'
-                client.send(request.encode('utf8'))
-                size = str(os.path.getsize(path_to_avatar))
-                client.send(size.encode('utf8'))
-                logging.info(client.recv(1024).decode('utf8'))
-                with open(path_to_avatar, mode = 'rb') as file:
-                    data = file.read(2048)
-                    while data:
-                        client.send(data)
-                        data = file.read(2048)
-                answer = client.recv(1024).decode('utf8')
-                size = str(os.path.getsize(path_to_passport))
-                client.send(size.encode('utf8'))
-                with open(path_to_passport, mode = 'rb') as file:
-                    data = file.read(2048)
-                    while data:
-                        client.send(data)
-                        data = file.read(2048)
-                answer = client.recv(1024).decode('utf8')
-                client.close()
-                logging.info(answer)
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        logging.info(f'edit_profile: {state} {login} {firstname} {lastname} {phone} {path_to_avatar} {path_to_passport}')
+        answer = requests.post(f'{URL}/upload_user_info', data={'state': f'{state}', 'login': f'{login}', 'name': f'{firstname}', 'surname': f'{lastname}', 'phone': f'{phone}'}, files={'profile_picture': open(path_to_avatar, mode = 'rb'), 'passport': open(path_to_passport, mode = 'rb')})
+        return self.check_status(answer)
     
-    def get_profile_data(self) -> str:
+    def get_profile_data(self):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                request = f'{state} get_profile_info {login}'
-                client.send(request.encode('utf8'))
-                size = client.recv(1024).decode('utf8')
-                if size[:5] == 'error':
-                    return size
-                else:
-                    size = int(size)
-                client.send(f'debug size_is_{size}'.encode('utf8'))
-                path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
-                processed_size = 0
-                with open(path, mode='wb') as file:
-                    while processed_size < size:
-                        data = client.recv(2048)
-                        processed_size += len(data)
-                        file.write(data)
-                client.send(('debug done').encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        logging.info(f'get_profile: {state} {login}')
+        if self.get_profile_fullness() == 'false':
+            return 'Not Found'
+        path = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
+        answer = requests.get(f'{URL}/get_user_picture/profile_picture',  json={'state': f'{state}', 'login': f'{login}'})
+        if answer.status_code == 200:
+            with open(path, mode='wb') as file:
+                file.write(answer.content)
+            answer = requests.get(f'{URL}/get_user_info', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
     
     def new_object(self, object, name, price, description, adress_from, adress_to):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
-        request = f'{state} new_{object} {login} {name} {price} {description} {adress_from} {adress_to}'
         logging.info(f'new_object: {object} {name} {price} {description} {adress_from} {adress_to}')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            try:
-                client.connect((IP, PORT))
-                client.send(request.encode('utf8'))
-                answer = client.recv(1024).decode('utf8')
-                logging.info(f'Server answer: {answer}')
-            except ConnectionRefusedError:
-                logging.info('Server is down')
-                answer = 'server_error'
-        return answer
+        answer = requests.post(f'{URL}/new_{object}', json={'owner': f'{login}', 'name': f'{name}', 'cost': f'{price}', 'description': f'{description}', 'start': f'{adress_from}', 'finish': f'{adress_to}'})
+        return self.check_status(answer)
+    
+    def order_operation(self, order_id, operation): # operation = take/complete/delete
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'{operation}_order: {state} {login}')
+        if operation == 'delete':
+            answer = requests.delete(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+        else:
+            answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_archive_orders(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_archive: {state} {login}')
+        answer = requests.get(f'{URL}/get_archive_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)

@@ -1,0 +1,118 @@
+<RegisterWindow>:
+    client_switch: client
+    delivery_switch: delivery
+    login_input: login
+    password_input: password
+    password_confirm_input: password_confirm
+    password_hide_button: hide_password
+
+    Button:
+        background_color: 0, 0, 0, 0
+        text: '<'
+        size_hint_x: 0.1
+        size_y: self.width
+        pos_hint: {'center_x': 0.07, 'center_y': 0.95}
+        font_size: self.height/12
+        on_release:
+            root.login_input.text = ''
+            root.password_input.text = ''
+            root.password_confirm_input.text = ''
+            root.manager.transition.direction = 'right'
+            root.manager.current = 'auth'
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '8dp'
+        size_hint: 0.7, 0.50
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            markup: 1
+            font_size: self.width/8
+            color: 1, 1, 1, 1
+            text: '[b]Регистрация[/b]'
+
+        BoxLayout:
+            size_hint: 1, 0.8
+            ToggleButton:
+                id: client
+                font_size: self.height/2
+                text: 'Клиент'
+                state: 'down'
+                background_color: 0, 0 ,0 ,0  
+                animated_color: (120/255, 120/255, 120/255, 1)
+                canvas.before:
+                    Color:
+                        rgba: self.animated_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [40, 0, 0, 40]
+                on_release:
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'down', 'normal', (120/255, 120/255, 120/255, 1), (80/255, 80/255, 80/255, 1))
+
+            ToggleButton:
+                id: delivery
+                font_size: self.height/2
+                text: 'Курьер'
+                state: 'normal'
+                background_color: 0, 0 ,0 ,0  
+                animated_color: (80/255, 80/255, 80/255, 1)
+                canvas.before:
+                    Color:
+                        rgba: self.animated_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [0, 40, 40, 0]
+                on_release:
+                    root.change_color_state(root.client_switch, root.delivery_switch, 'normal', 'down', (80/255, 80/255, 80/255, 1), (120/255, 120/255, 120/255, 1))
+
+        TextInput:
+            id: login
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Логин'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: password
+            password: 1
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/1.8
+            hint_text: 'Пароль'
+            cursor_color: 1, 1, 1, 1
+
+        TextInput:
+            id: password_confirm
+            password: 1
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/2
+            hint_text: 'Подтвердите пароль'
+            cursor_color: 1, 1, 1, 1
+
+        ToggleButton:
+            id: hide_password
+            background_color: 1, 1, 1, 0
+            size_hint: 0.4, 0.2
+            text_size: self.size
+            font_size: self.height
+            halign: 'left'
+            text: 'Показать пароль'
+            on_release:
+                root.show_password()
+
+        FloatLayout:
+            RoundedButton:
+                text: 'Зарегистрироваться'
+                font_size: self.height/2.5
+                size_hint: 0.7, 0.9
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release:
+                    root.send_register_request()

@@ -16,16 +16,18 @@ class RegisterWindow(Screen, ColorAnimBase, ServerLogic):
             if self.password_input.text == self.password_confirm_input.text:
                 state = 'client' if self.client_switch.state == 'down' else 'delivery'
                 answer = super().auth_reg_request(state, 'register', self.login_input.text, self.password_input.text)
-                if answer == 'error login_exists':
+                if answer == 'server_error':
+                    Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+                elif answer == 'Login already in use':
                     Popup(title='Ошибка', content=Label(text='Логин существует'), size_hint=(0.8, 0.2)).open()
-                elif answer == 'done':
+                elif answer == 'true':
                     self.login_input.text = ''
                     self.password_input.text = ''
                     self.password_confirm_input.text = ''
                     self.manager.transition.direction = 'right'
                     self.manager.current = 'auth'
                 else:
-                    Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+                    Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
             else:
                 Popup(title='Ошибка', content=Label(text='Разные пароли'), size_hint=(0.8, 0.2)).open()
         else:

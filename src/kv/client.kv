@@ -3,6 +3,7 @@
     template_orders: template_orders
     client_orders_scrollview: client_orders_scrollview
     client_archive_scrollview: client_archive_scrollview
+    client_reviews_scrollview: client_reviews_scrollview
     client_main_frame: client_main_frame
     icon_chat: icon_chat
     icon_list: icon_list
@@ -31,8 +32,19 @@
     archive_person: archive_person
     archive_from: archive_from
     archive_to: archive_to
+    review_name: review_name
+    review_description: review_description
+    review_price: review_price
+    review_person: review_person
+    review_from: review_from
+    review_to: review_to
     create_order: create_order
     create_auction: create_auction
+    icon_rate_1: icon_rate_1
+    icon_rate_2: icon_rate_2
+    icon_rate_3: icon_rate_3
+    icon_rate_4: icon_rate_4
+    icon_rate_5: icon_rate_5
 
     canvas:
         Color:
@@ -166,16 +178,8 @@
                                         text_size: self.size
                                         text: '[b]Неизвестно[/b]'
                                         halign: 'left'
-                                        valign: 'bottom'
+                                        valign: 'center'
                                         markup: 1
-                                        font_size: self.height/2.5
-                                        color: 0, 0, 0, 1
-                                    
-                                    Label:
-                                        text_size: self.size
-                                        text:'Рейтинг: 5'
-                                        halign: 'left'
-                                        valign: 'top'
                                         font_size: self.height/4
                                         color: 0, 0, 0, 1
                             
@@ -185,10 +189,13 @@
                                 ProfileButton:
                                     text: 'Архив заказов'
                                     on_release:
-                                        root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
+                                        root.fill_scroll(root.client_archive_scrollview, 'archive', root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                         root.client_main_frame.current = 'client_archive'
                                 ProfileButton:
                                     text: 'Отзывы'
+                                    on_release:
+                                        root.fill_scroll(root.client_reviews_scrollview, 'review', root.client_main_frame, root.review_name, root.review_description, root.review_price, root.review_person, root.review_from, root.review_to)
+                                        root.client_main_frame.current = 'client_pending_reviews'
                                 ProfileButton:
                                     text: 'Сменить регион'
 
@@ -541,7 +548,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('client_archive')
                         
                         Label:
@@ -614,6 +620,166 @@
                                 valign: 'top'
 
             Screen:
+                name: 'client_review_details'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_pending_reviews')
+                                root.review_name.order_id = -1
+                                root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                        
+                        Label:
+                            text:'Поставте оценку'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.8, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                id: review_name
+                                order_id: -1
+                                text: ''
+                                font_size: self.height/2
+                                color: 0, 0, 0, 1
+                                markup: 1
+                                text_size: self.size
+                                halign: 'center'
+                                valign: 'center'
+                            
+                            Label:
+                                id: review_description
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: review_price
+                                text: ''
+                                font_size: self.height/3
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+
+                            Label:
+                                id: review_person
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+                            
+                            Label:
+                                id: review_from
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: review_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            BoxLayout:
+                                spacing: '2dp'
+                                size_hint: 1, 1
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 1)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_1
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 2)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_2
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 3)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_3
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 4)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_4
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png'
+                                        root.rate(root.review_name.order_id, 5)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_5
+                                            source: 'img/star_black.png'
+
+            Screen:
                 name: 'client_archive'
                 BoxLayout:
                     orientation: 'vertical'
@@ -627,7 +793,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('client_profile')
                         
                         Label:
@@ -642,6 +807,39 @@
                         size_hint: 1, 0.9
                         BoxLayout:
                             id: client_archive_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
+
+            Screen:
+                name: 'client_pending_reviews'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('15dp', '0dp', '15dp', '0dp')
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_profile')
+                        
+                        Label:
+                            text:'Оцените доставку'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        size_hint: 1, 0.9
+                        BoxLayout:
+                            id: client_reviews_scrollview
                             spacing: '10dp'
                             size_hint_y: None
                             height: 0

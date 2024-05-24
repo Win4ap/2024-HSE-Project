@@ -149,10 +149,24 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
             elif answer == 'Order not found':
                 Popup(title='Ошибка', content=Label(text='Заказ не найден'), size_hint=(0.8, 0.2)).open()
             elif answer == 'true':
-                Popup(title='Ошибка', content=Label(text=f'Успешная операция: Удалить'), size_hint=(0.8, 0.2)).open()
+                Popup(title='Инфо', content=Label(text=f'Успешная операция: Удалить'), size_hint=(0.8, 0.2)).open()
                 self.show_client_data('orders')
                 self.switch_main_to('client_orders')
             else:
                 Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+
+    def rate(self, order_id, num):
+        answer = super().rate_order(order_id, num)
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Order not found':
+            Popup(title='Ошибка', content=Label(text='Заказ не найден'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Order is already rated':
+            Popup(title='Ошибка', content=Label(text='Заказ уже оценён'), size_hint=(0.8, 0.2)).open()
+        else:
+            Popup(title='Инфо', content=Label(text=f'Спасибо за оценку!'), size_hint=(0.8, 0.2)).open()
+        self.icon_rate_1.source, self.icon_rate_2.source, self.icon_rate_3.source, self.icon_rate_4.source, self.icon_rate_5.source = 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+        self.fill_scroll(self.client_reviews_scrollview, 'review', self.client_main_frame, self.review_name, self.review_description, self.review_price, self.review_person, self.review_from, self.review_to)
+        self.client_main_frame.current = 'client_pending_reviews'

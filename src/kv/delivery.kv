@@ -9,6 +9,7 @@
     free_orders: free_orders
     user_avatar: user_avatar
     user_fullname: user_fullname
+    user_rating: user_rating
     details_name: details_name
     details_description: details_description
     details_price: details_price
@@ -162,8 +163,9 @@
                                         color: 0, 0, 0, 1
                                     
                                     Label:
+                                        id: user_rating
                                         text_size: self.size
-                                        text:'Рейтинг: 5'
+                                        text:'Нет рейтинга'
                                         halign: 'left'
                                         valign: 'top'
                                         font_size: self.height/4
@@ -175,7 +177,7 @@
                                 ProfileButton:
                                     text: 'Архив заказов'
                                     on_release:
-                                        root.fill_archive(root.delivery_archive_scrollview, root.delivery_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
+                                        root.fill_scroll(root.delivery_archive_scrollview, 'archive', root.delivery_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                         root.delivery_main_frame.current = 'delivery_archive'
                                 ProfileButton:
                                     text: 'Отзывы'
@@ -190,8 +192,6 @@
                             BoxLayout:
                                 size_hint: 1, 0.3
                                 orientation: 'vertical'
-                                ProfileButton:
-                                    text: 'Способ оплаты'
                                 ProfileButton:
                                     text: 'FAQ'
                                 ProfileButton:
@@ -228,7 +228,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.delivery_archive_scrollview, root.delivery_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('delivery_archive')
                         
                         Label:
@@ -314,7 +313,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.delivery_archive_scrollview, root.delivery_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('delivery_profile')
                         
                         Label:

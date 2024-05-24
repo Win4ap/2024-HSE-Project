@@ -17,7 +17,7 @@ class ServerLogic():
             else:
                 answer = (answer.text).replace('"', '')
             return answer
-        elif answer.status_code == 404 or answer.status_code == 423:
+        elif answer.status_code == 404 or answer.status_code == 403 or answer.status_code == 423:
             answer = answer.json()
             return answer['detail']
         else:
@@ -145,4 +145,17 @@ class ServerLogic():
         else: return 'ты че натворил'
         logging.info(f'get_archive: {state} {login}')
         answer = requests.get(f'{URL}/get_archive_orders', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def get_rating(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_rating: {state} {login}')
+        answer = requests.get(f'{URL}/get_user_rating', json={'state': f'{state}', 'login': f'{login}'})
+        return self.check_status(answer)
+    
+    def rate_order(self, order_id, num):
+        logging.info(f'rate_order: {order_id} {num}')
+        answer = requests.put(f'{URL}/rate_order/{order_id}', data={'rating': num})
         return self.check_status(answer)

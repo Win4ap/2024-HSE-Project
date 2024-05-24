@@ -39,6 +39,20 @@ class ProfileBase(ServerLogic):
     def show_profile(self):
         path_to_avatar = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'avatar.jpg')
         path_to_fullname = os.path.join(os.getcwd(), 'src', 'windows', 'profile', 'fullname')
+        if super().get_login()[0] == 'delivery':
+            answer = super().get_rating()
+            if answer == 'server_error':
+                Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+            elif answer == 'Fullness is false':
+                pass
+            elif answer == 'Login not found':
+                Popup(title='Ошибка', content=Label(text='Вашего профиля не существует'), size_hint=(0.8, 0.2)).open()
+            else:
+                answer = float(answer)
+                if answer == 6.0:
+                    self.user_rating.text = 'Нет рейтинга'
+                else:
+                    self.user_rating.text = f'Ваш рейтинг: {answer}'
         if not os.path.isfile(path_to_avatar):
             answer = super().get_profile_data()
             if answer == 'server_error':
@@ -57,9 +71,9 @@ class ProfileBase(ServerLogic):
             self.user_fullname.text = f'[b]{data[0]} {data[1]}[/b]'
             self.user_avatar.path = path_to_avatar
 
-    def fill_archive(self, archive, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
+    def fill_scroll(self, scroll, category, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
         answer = super().get_archive_orders()
-        archive.clear_widgets()
+        scroll.clear_widgets()
         data = super().get_login()
         state = data[0]
         if answer == 'server_error':
@@ -67,12 +81,12 @@ class ProfileBase(ServerLogic):
         elif answer == 'Login not found':
             Popup(title='Ошибка', content=Label(text='Вашего профиля не существует'), size_hint=(0.8, 0.2)).open()
         elif answer == [] or answer == 'Not Found' or answer == 'Fullness is false':
-            archive.height = 180
-            archive.add_widget(Label(text='Нет архивированных заказов', color=(0, 0, 0, 1), font_size=(self.height/30)))
+            scroll.height = 180
+            scroll.add_widget(Label(text='Нет архивированных заказов' if category == 'archive' else 'Отзывы не требуются', color=(0, 0, 0, 1), font_size=(self.height/30)))
         else:
-            new_height = 10 * (len(answer) - 1) + 180 * (len(answer))
-            archive.height = new_height
+            count = 0
             for order in answer:
+                order_id = order['id']
                 name = order['name']
                 price = str(order['cost'])+'₽'
                 description = order['description']
@@ -86,11 +100,23 @@ class ProfileBase(ServerLogic):
                 description = description.replace('_', ' ')
                 start = start.replace('_', ' ')
                 finish = finish.replace('_', ' ')
-                archive.add_widget(ArchiveOrder(description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to))
+                if category == 'archive':
+                    count += 1
+                    scroll.add_widget(ArchiveOrder(order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to))
+                elif category == 'review' and order['last_cost'] == None:
+                    count += 1
+                    scroll.add_widget(PendingReview(order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to))
+            if count != 0:
+                new_height = 10 * (count - 1) + 180 * (count)
+                scroll.height = new_height
+            else:
+                scroll.height = 180
+                scroll.add_widget(Label(text='Нет архивированных заказов' if category == 'archive' else 'Отзывы не требуются', color=(0, 0, 0, 1), font_size=(self.height/30)))
 
 class ArchiveOrder(ButtonBehavior, BoxLayout):
-    def __init__(self, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
+    def __init__(self, order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
         super().__init__()
+        self.order_id = order_id
         self.description = description
         self.order_name = name
         self.price = price
@@ -117,6 +143,20 @@ class ArchiveOrder(ButtonBehavior, BoxLayout):
         self.link_to.text = f'Доставить сюда: {self.finish}'
         self.link_person.text = self.person
         return super().on_release()
+    
+class PendingReview(ArchiveOrder):
+    def __init__(self, order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
+        super().__init__(order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to)
+
+    def on_release(self):
+        self.root_sm.current = 'client_review_details'
+        self.link_name.order_id = self.order_id
+        self.link_name.text = self.order_name
+        self.link_desc.text = self.description
+        self.link_price.text = self.price
+        self.link_from.text = f'Забрать отсюда: {self.start}'
+        self.link_to.text = f'Доставить сюда: {self.finish}'
+        self.link_person.text = self.person
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
     def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time):

@@ -258,7 +258,10 @@ def start_order(order_id: int) -> int:
 
 
 @server.put('/complete_order/{order_id}')
-def complete_order(order_id: int) -> int:
+def complete_order(
+    order_id: int,
+    code: Annotated[int, Form()]
+    ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT * FROM in_process_orders WHERE id = ? """
@@ -266,6 +269,8 @@ def complete_order(order_id: int) -> int:
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
+        if order_info[9] != code:
+            HTTPException(status_code=403, detail="Incorrect code")
         query = """ DELETE FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         cur_id = get_order_id('archive')

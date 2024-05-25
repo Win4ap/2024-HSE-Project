@@ -90,7 +90,7 @@
                         spacing: 30
                         ToggleButton:
                             id: active_orders
-                            text: 'Активные'
+                            text: 'Мои заказы'
                             font_size: self.height/2
                             color: 0, 0, 0, 1
                             state: 'down'
@@ -131,13 +131,45 @@
                     ScrollView:
                         do_scroll_y: True
                         do_scroll_x: False
-                        size_hint: 1, 0.8
+                        size_hint: 1, 0.7
                         BoxLayout:
                             id: client_orders_scrollview
                             spacing: '10dp'
                             size_hint_y: None
                             height: 0
                             orientation: 'vertical'
+
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        spacing: '5dp'
+                        padding: ('5dp', '5dp', '5dp', '5dp')
+                        RoundedButton:
+                            cur_color: (210/255, 210/255, 210/255, 1)
+                            text_size: self.size
+                            text: 'Создать\nзаказ'
+                            font_size: self.height/3.5
+                            color: 0, 0, 0, 1
+                            markup: 1
+                            halign: 'center'
+                            valign: 'center'
+                            on_release:
+                                root.client_main_frame.current = 'client_make_new_object'
+                                root.new_object = 'free'
+                                root.make_screen_label.text = 'Создать заказ'
+
+                        RoundedButton:
+                            cur_color: (210/255, 210/255, 210/255, 1)
+                            text_size: self.size
+                            text: 'Создать\nшаблон'
+                            font_size: self.height/3.5
+                            color: 0, 0, 0, 1
+                            markup: 1
+                            halign: 'center'
+                            valign: 'center'
+                            on_release:
+                                root.client_main_frame.current = 'client_make_new_object'
+                                root.new_object = 'template'
+                                root.make_screen_label.text = 'Создать шаблон'
             
             Screen:
                 name: 'client_profile'
@@ -203,33 +235,7 @@
                                 size_hint: 1, 0.3
                                 spacing: '20dp'
                                 padding: ('5dp', '20dp', '5dp', '20dp')
-                                RoundedButton:
-                                    cur_color: (210/255, 210/255, 210/255, 1)
-                                    text_size: self.size
-                                    text: '[b]Создать[/b]\n[b]заказ[/b]'
-                                    font_size: self.height/5
-                                    color: 0, 0, 0, 1
-                                    markup: 1
-                                    halign: 'center'
-                                    valign: 'center'
-                                    on_release:
-                                        root.client_main_frame.current = 'client_make_new_object'
-                                        root.new_object = 'free'
-                                        root.make_screen_label.text = 'Создать заказ'
-
-                                RoundedButton:
-                                    cur_color: (210/255, 210/255, 210/255, 1)
-                                    text_size: self.size
-                                    text: '[b]Создать[/b]\n[b]шаблон[/b]'
-                                    font_size: self.height/5
-                                    color: 0, 0, 0, 1
-                                    markup: 1
-                                    halign: 'center'
-                                    valign: 'center'
-                                    on_release:
-                                        root.client_main_frame.current = 'client_make_new_object'
-                                        root.new_object = 'template'
-                                        root.make_screen_label.text = 'Создать шаблон'
+                                # empty thing in profile
 
                             BoxLayout:
                                 size_hint: 1, 0.3
@@ -402,7 +408,7 @@
                                 font_size: self.height/1.8
 
                             Label:
-                                text: 'Время (не для шаблонов)'
+                                text: 'Время'
                                 color: 0, 0, 0, 1
                                 text_size: self.size
                                 font_size: self.height/2
@@ -637,7 +643,7 @@
                                 root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
                         
                         Label:
-                            text:'Поставте оценку'
+                            text:'Поставьте оценку'
                             font_size: self.height/2
                             color: 0, 0, 0, 1
                             size_hint: 0.85, 1

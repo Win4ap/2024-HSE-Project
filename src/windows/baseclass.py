@@ -8,8 +8,6 @@ from kivy.uix.label import Label
 
 from windows.server_logic.server_interaction import ServerLogic
 
-LEGIT = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
-
 class ColorAnimBase():
     def change_color(self, widget, color):
         animation = Animation(animated_color=color, duration=0.2)

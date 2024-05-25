@@ -4,8 +4,9 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from windows.baseclass import ColorAnimBase, LEGIT
+from windows.baseclass import ColorAnimBase
 from windows.server_logic.server_interaction import ServerLogic
+from windows.server_logic.constants import LEGIT
 
 class AuthWindow(Screen, ColorAnimBase, ServerLogic):
     def show_password(self):

@@ -123,7 +123,6 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     self.new_order_from.text = ''
                     self.new_order_to.text = ''
                     self.new_time.text = ''
-                    self.show_profile()
                     self.show_client_data('orders') if object != 'template' else self.show_client_data('templates')
                     self.create_order.animated_color, self.create_auction.animated_color = (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0)
                     if object == 'free' or object == 'auction':

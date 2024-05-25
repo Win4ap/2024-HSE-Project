@@ -225,3 +225,22 @@ class ClientTemplatePreview(ButtonBehavior, BoxLayout):
         self.link_from.text = self.start
         self.link_to.text = self.finish
         return super().on_release()
+    
+class PopupCodeInput(Popup):
+    def __init__(self, callback):
+        super(PopupCodeInput, self).__init__()
+        self.callback = callback
+
+    def save(self):
+        if self.code_field.text == '':
+            self.callback('empty')
+            self.dismiss()
+            return
+        for i in self.code_field.text:
+            if i not in '0123456789' or len(self.code_field.text) != 4:
+                Popup(title='Ошибка', content=Label(text='Код состоит из 4-х цифр'), size_hint=(0.8, 0.2)).open()
+                self.callback('empty')
+                self.dismiss()
+                return
+        self.callback(self.code_field.text)
+        self.dismiss()

@@ -2,7 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview
+from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, PopupCodeInput
 from windows.server_logic.server_interaction import ServerLogic
 
 class DeliveryInProcessOrderPreview(ClientOrderPreview):
@@ -110,20 +110,36 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, time, 'auction_orders', 'Аукцион' + comment, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
             self.delivery_orders_scrollview.height = new_height
 
-    def order_interaction(self, order_id, operation, type):
-        answer = super().order_operation(operation, type, order_id)
+    def check_answer(self, answer):
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
         elif answer == 'Login not found':
             Popup(title='Ошибка', content=Label(text='Вашего профиля не существует'), size_hint=(0.8, 0.2)).open()
         elif answer == 'Fullness is false':
             Popup(title='Ошибка', content=Label(text='Заполните профиль'), size_hint=(0.8, 0.2)).open()
-        elif answer == 'Fullness is false':
-            Popup(title='Ошибка', content=Label(text='Заполните профиль'), size_hint=(0.8, 0.2)).open()
         elif answer == 'Rating is too low':
-                Popup(title='Ошибка', content=Label(text='Временная блокировка из-за рейтинга'), size_hint=(0.8, 0.2)).open()
+            Popup(title='Ошибка', content=Label(text='Временная блокировка из-за рейтинга'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Incorrect code':
+            Popup(title='Ошибка', content=Label(text='Неверный код завершения'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'close':
+            pass
         else:
             Popup(title='Инфо', content=Label(text=f'Успешная операция: {self.details_button.text}'), size_hint=(0.8, 0.2)).open()
         super().change_color_state(self.active_orders, self.free_orders, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
         self.show_orders()
         self.switch_main_to('delivery_orders')
+
+    def order_interaction(self, order_id, operation, type): # костыли
+        if operation == 'complete':
+            answer = 'Incorrect code'
+            def on_callback(input):
+                if input == 'empty':
+                    self.check_answer('close')
+                else:
+                    answer = ServerLogic().order_operation(operation, type, order_id, int(input))
+                    self.check_answer(answer)
+            checker = PopupCodeInput(callback=on_callback)
+            checker.open()
+        else:
+            answer = super().order_operation(operation, type, order_id)
+            self.check_answer(answer)

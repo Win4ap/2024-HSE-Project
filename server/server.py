@@ -269,16 +269,16 @@ def complete_order(
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        if order_info[9] != code:
-            HTTPException(status_code=403, detail="Incorrect code")
+        if order_info[10] != code:
+            raise HTTPException(status_code=403, detail="Incorrect code")
         query = """ DELETE FROM in_process_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         cur_id = get_order_id('archive')
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
-        fee = order_info[-1]
+        fee = order_info[-2]
         query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:-2] + (time, fee))
+        cursor.execute(query, (cur_id,) + order_info[1:8] + (time, fee))
         database.commit()
     return cur_id
 

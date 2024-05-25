@@ -162,7 +162,7 @@ class ServerLogic():
             return 'server_error'
         return self.check_status(answer)
     
-    def order_operation(self, operation, type, order_id): # operation = take/complete/delete
+    def order_operation(self, operation, type, order_id, code=0):
         data = self.get_login()
         if data != []: state, login = data[0], data[1]
         else: return 'ты че натворил'
@@ -173,8 +173,11 @@ class ServerLogic():
                 answer = requests.delete(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
             elif operation == 'take':
                 answer = requests.put(f'{URL}/{operation}_order/{type}/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
-            else:
+            elif operation == 'start':
                 answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
+            else:
+                if code == 0: return 'Incorrect code'
+                answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'}, data={'code': f'{code}'})
         except requests.exceptions.ConnectionError:
             logging.info('Server is down')
             return 'server_error'

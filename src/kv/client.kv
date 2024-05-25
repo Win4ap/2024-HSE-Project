@@ -3,6 +3,7 @@
     template_orders: template_orders
     client_orders_scrollview: client_orders_scrollview
     client_archive_scrollview: client_archive_scrollview
+    client_reviews_scrollview: client_reviews_scrollview
     client_main_frame: client_main_frame
     icon_chat: icon_chat
     icon_list: icon_list
@@ -14,8 +15,9 @@
     new_order_price: new_order_price
     new_order_from: new_order_from
     new_order_to: new_order_to
+    new_time: new_time
     make_screen_label: make_screen_label
-    new_object: 'order'
+    new_object: 'free'
     details_name: details_name
     details_description: details_description
     details_price: details_price
@@ -23,12 +25,26 @@
     details_from: details_from
     details_to: details_to
     details_button: details_button
+    details_time: details_time
     archive_name: archive_name
     archive_description: archive_description
     archive_price: archive_price
     archive_person: archive_person
     archive_from: archive_from
     archive_to: archive_to
+    review_name: review_name
+    review_description: review_description
+    review_price: review_price
+    review_person: review_person
+    review_from: review_from
+    review_to: review_to
+    create_order: create_order
+    create_auction: create_auction
+    icon_rate_1: icon_rate_1
+    icon_rate_2: icon_rate_2
+    icon_rate_3: icon_rate_3
+    icon_rate_4: icon_rate_4
+    icon_rate_5: icon_rate_5
 
     canvas:
         Color:
@@ -74,7 +90,7 @@
                         spacing: 30
                         ToggleButton:
                             id: active_orders
-                            text: 'Активные'
+                            text: 'Мои заказы'
                             font_size: self.height/2
                             color: 0, 0, 0, 1
                             state: 'down'
@@ -115,13 +131,45 @@
                     ScrollView:
                         do_scroll_y: True
                         do_scroll_x: False
-                        size_hint: 1, 0.8
+                        size_hint: 1, 0.7
                         BoxLayout:
                             id: client_orders_scrollview
                             spacing: '10dp'
                             size_hint_y: None
                             height: 0
                             orientation: 'vertical'
+
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        spacing: '5dp'
+                        padding: ('5dp', '5dp', '5dp', '5dp')
+                        RoundedButton:
+                            cur_color: (210/255, 210/255, 210/255, 1)
+                            text_size: self.size
+                            text: 'Создать\nзаказ'
+                            font_size: self.height/3.5
+                            color: 0, 0, 0, 1
+                            markup: 1
+                            halign: 'center'
+                            valign: 'center'
+                            on_release:
+                                root.client_main_frame.current = 'client_make_new_object'
+                                root.new_object = 'free'
+                                root.make_screen_label.text = 'Создать заказ'
+
+                        RoundedButton:
+                            cur_color: (210/255, 210/255, 210/255, 1)
+                            text_size: self.size
+                            text: 'Создать\nшаблон'
+                            font_size: self.height/3.5
+                            color: 0, 0, 0, 1
+                            markup: 1
+                            halign: 'center'
+                            valign: 'center'
+                            on_release:
+                                root.client_main_frame.current = 'client_make_new_object'
+                                root.new_object = 'template'
+                                root.make_screen_label.text = 'Создать шаблон'
             
             Screen:
                 name: 'client_profile'
@@ -162,16 +210,8 @@
                                         text_size: self.size
                                         text: '[b]Неизвестно[/b]'
                                         halign: 'left'
-                                        valign: 'bottom'
+                                        valign: 'center'
                                         markup: 1
-                                        font_size: self.height/2.5
-                                        color: 0, 0, 0, 1
-                                    
-                                    Label:
-                                        text_size: self.size
-                                        text:'Рейтинг: 5'
-                                        halign: 'left'
-                                        valign: 'top'
                                         font_size: self.height/4
                                         color: 0, 0, 0, 1
                             
@@ -181,10 +221,13 @@
                                 ProfileButton:
                                     text: 'Архив заказов'
                                     on_release:
-                                        root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
+                                        root.fill_scroll(root.client_archive_scrollview, 'archive', root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                         root.client_main_frame.current = 'client_archive'
                                 ProfileButton:
                                     text: 'Отзывы'
+                                    on_release:
+                                        root.fill_scroll(root.client_reviews_scrollview, 'review', root.client_main_frame, root.review_name, root.review_description, root.review_price, root.review_person, root.review_from, root.review_to)
+                                        root.client_main_frame.current = 'client_pending_reviews'
                                 ProfileButton:
                                     text: 'Сменить регион'
 
@@ -192,33 +235,7 @@
                                 size_hint: 1, 0.3
                                 spacing: '20dp'
                                 padding: ('5dp', '20dp', '5dp', '20dp')
-                                RoundedButton:
-                                    cur_color: (210/255, 210/255, 210/255, 1)
-                                    text_size: self.size
-                                    text: '[b]Создать[/b]\n[b]заказ[/b]'
-                                    font_size: self.height/5
-                                    color: 0, 0, 0, 1
-                                    markup: 1
-                                    halign: 'center'
-                                    valign: 'center'
-                                    on_release:
-                                        root.client_main_frame.current = 'client_make_new_object'
-                                        root.new_object = 'order'
-                                        root.make_screen_label.text = 'Создать заказ'
-
-                                RoundedButton:
-                                    cur_color: (210/255, 210/255, 210/255, 1)
-                                    text_size: self.size
-                                    text: '[b]Создать[/b]\n[b]шаблон[/b]'
-                                    font_size: self.height/5
-                                    color: 0, 0, 0, 1
-                                    markup: 1
-                                    halign: 'center'
-                                    valign: 'center'
-                                    on_release:
-                                        root.client_main_frame.current = 'client_make_new_object'
-                                        root.new_object = 'template'
-                                        root.make_screen_label.text = 'Создать шаблон'
+                                # empty thing in profile
 
                             BoxLayout:
                                 size_hint: 1, 0.3
@@ -265,7 +282,8 @@
                                 root.new_order_price.text = ''
                                 root.new_order_from.text = ''
                                 root.new_order_to.text = ''
-                                root.new_object = 'order'
+                                root.new_time.text = ''
+                                root.new_object = 'free'
                                 root.show_profile()
                                 root.switch_main_to('client_profile')
                         
@@ -282,8 +300,48 @@
                         BoxLayout:
                             orientation: 'vertical'
                             spacing: '2dp'
-                            size_hint: 0.7, 0.8
+                            size_hint: 0.8, 0.95
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            BoxLayout:
+                                size_hint: 1, 1
+                                spacing: 30
+                                ToggleButton:
+                                    id: create_order
+                                    text: 'Заказ'
+                                    font_size: self.height/2
+                                    color: 0, 0, 0, 1
+                                    state: 'down'
+                                    background_color: 0, 0 ,0 ,0  
+                                    animated_color: (217/255, 217/255, 217/255, 1)
+                                    canvas.before:
+                                        Color:
+                                            rgba: self.animated_color
+                                        RoundedRectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                            radius: [20, 20, 20, 20]
+                                    on_release:
+                                        root.change_color_state(root.create_order, root.create_auction, 'down', 'normal', (217/255, 217/255, 217/255, 1), (217/255, 217/255, 217/255, 0))
+                                        root.new_object = 'free' if root.new_object != 'template' else 'template'
+
+                                ToggleButton:
+                                    id: create_auction
+                                    text: 'Аукцион'
+                                    font_size: self.height/2
+                                    color: 0, 0, 0, 1
+                                    background_color: 0, 0 ,0 ,0  
+                                    animated_color: (217/255, 217/255, 217/255, 0)
+                                    canvas.before:
+                                        Color:
+                                            rgba: self.animated_color
+                                        RoundedRectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                            radius: [20, 20, 20, 20]
+                                    on_release:
+                                        root.change_color_state(root.create_order, root.create_auction, 'normal', 'down', (217/255, 217/255, 217/255, 0), (217/255, 217/255, 217/255, 1))
+                                        root.new_object = 'auction' if root.new_object != 'template' else 'template'
+
                             Label:
                                 text: 'Название'
                                 color: 0, 0, 0, 1
@@ -349,6 +407,20 @@
                                 multiline: False
                                 font_size: self.height/1.8
 
+                            Label:
+                                text: 'Время'
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                font_size: self.height/2
+                                halign: 'left'
+                                valign: 'bottom'
+                            TextInput:
+                                id: new_time
+                                cursor_color: 0, 0, 0, 1
+                                multiline: False
+                                font_size: self.height/1.8
+                                hint_text: 'ГГГГ-ММ-ДД ЧЧ:ММ'
+
                             FloatLayout:
                                 RoundedButton:
                                     size_hint: 0.5, 0.8
@@ -358,6 +430,7 @@
                                     color: 0, 0, 0, 1
                                     on_release:
                                         root.send_new_object_request(root.new_object)
+                                        root.new_object = 'free'
 
             Screen:
                 name: 'client_order_details'
@@ -373,6 +446,7 @@
                             size_hint: 0.15, 1
                             on_release:
                                 root.details_button.order_id = -1
+                                root.details_button.type = ''
                                 root.switch_main_to('client_orders')
                         
                         Label:
@@ -443,18 +517,29 @@
                                 text_size: self.size
                                 halign: 'left'
                                 valign: 'top'
+                            
+                            Label:
+                                id: details_time
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
 
                             RoundedButton:
                                 id: details_button
                                 order_id: -1
+                                type: ''
                                 text: 'Удалить'
                                 font_size: self.height/2
                                 size_hint: 0.4, 0.6
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (178/255, 34/255, 34/255, 1)
                                 on_release:
-                                    root.delete_order(self.order_id)
+                                    root.delete_order(self.order_id, self.type)
                                     self.order_id = -1
+                                    self.type = ''
 
             Screen:
                 name: 'client_archive_details'
@@ -469,7 +554,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('client_archive')
                         
                         Label:
@@ -542,6 +626,166 @@
                                 valign: 'top'
 
             Screen:
+                name: 'client_review_details'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_pending_reviews')
+                                root.review_name.order_id = -1
+                                root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                        
+                        Label:
+                            text:'Поставьте оценку'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    FloatLayout:
+                        size_hint: 1, 0.9
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        BoxLayout:
+                            orientation: 'vertical'
+                            spacing: '2dp'
+                            size_hint: 0.8, 0.8
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            Label:
+                                id: review_name
+                                order_id: -1
+                                text: ''
+                                font_size: self.height/2
+                                color: 0, 0, 0, 1
+                                markup: 1
+                                text_size: self.size
+                                halign: 'center'
+                                valign: 'center'
+                            
+                            Label:
+                                id: review_description
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: review_price
+                                text: ''
+                                font_size: self.height/3
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+
+                            Label:
+                                id: review_person
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'center'
+                            
+                            Label:
+                                id: review_from
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            Label:
+                                id: review_to
+                                text: ''
+                                font_size: self.height/4
+                                color: 0, 0, 0, 1
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'top'
+
+                            BoxLayout:
+                                spacing: '2dp'
+                                size_hint: 1, 1
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 1)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_1
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 2)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_2
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 3)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_3
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_black.png'
+                                        root.rate(root.review_name.order_id, 4)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_4
+                                            source: 'img/star_black.png'
+
+                                Button:
+                                    background_color: 0, 0, 0, 0
+                                    on_release:
+                                        root.icon_rate_1.source, root.icon_rate_2.source, root.icon_rate_3.source, root.icon_rate_4.source, root.icon_rate_5.source = 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png', 'img/star_yellow.png'
+                                        root.rate(root.review_name.order_id, 5)
+                                    AnchorLayout:
+                                        pos: self.parent.pos
+                                        size: self.parent.size
+                                        anchor_x: 'center'
+                                        anchor_y: 'center'
+                                        Image:
+                                            id: icon_rate_5
+                                            source: 'img/star_black.png'
+
+            Screen:
                 name: 'client_archive'
                 BoxLayout:
                     orientation: 'vertical'
@@ -555,7 +799,6 @@
                             color: 0, 0, 0, 1
                             size_hint: 0.15, 1
                             on_release:
-                                root.fill_archive(root.client_archive_scrollview, root.client_main_frame, root.archive_name, root.archive_description, root.archive_price, root.archive_person, root.archive_from, root.archive_to)
                                 root.switch_main_to('client_profile')
                         
                         Label:
@@ -570,6 +813,39 @@
                         size_hint: 1, 0.9
                         BoxLayout:
                             id: client_archive_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
+
+            Screen:
+                name: 'client_pending_reviews'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: ('15dp', '0dp', '15dp', '0dp')
+                    BoxLayout:
+                        size_hint: 1, 0.1
+                        Button:
+                            background_color: 0, 0, 0, 0
+                            text: '<'
+                            font_size: self.height
+                            color: 0, 0, 0, 1
+                            size_hint: 0.15, 1
+                            on_release:
+                                root.switch_main_to('client_profile')
+                        
+                        Label:
+                            text:'Оцените доставку'
+                            font_size: self.height/2
+                            color: 0, 0, 0, 1
+                            size_hint: 0.85, 1
+                    
+                    ScrollView:
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        size_hint: 1, 0.9
+                        BoxLayout:
+                            id: client_reviews_scrollview
                             spacing: '10dp'
                             size_hint_y: None
                             height: 0
@@ -595,7 +871,8 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_time.text = ''
+                    root.new_object = 'free'
                     root.switch_main_to('client_chat')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -616,7 +893,8 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_time.text = ''
+                    root.new_object = 'free'
                     root.switch_main_to('client_orders')
                 AnchorLayout:
                     pos: self.parent.pos
@@ -636,7 +914,8 @@
                     root.new_order_price.text = ''
                     root.new_order_from.text = ''
                     root.new_order_to.text = ''
-                    root.new_object = 'order'
+                    root.new_time.text = ''
+                    root.new_object = 'free'
                     root.show_profile()
                     root.switch_main_to('client_profile')
                 AnchorLayout:

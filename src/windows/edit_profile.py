@@ -26,10 +26,13 @@ class EditProfile(Screen, ServerLogic):
     def open_native_filechooser(self, photo):
         path = filechooser.open_file(filters=["*.jpg"])
         if photo:
-            if photo == 'avatar':
-                self.avatar = path[0]
-            elif photo == 'passport':
-                self.passport = path[0]
+            try:
+                if photo == 'avatar':
+                    self.avatar = path[0]
+                elif photo == 'passport':
+                    self.passport = path[0]
+            except TypeError:
+                Popup(title='Ошибка', content=Label(text='Фотография не выбрана'), size_hint=(0.8, 0.2)).open()
 
     def send_edit_request(self):
         answer = super().get_profile_fullness()

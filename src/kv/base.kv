@@ -18,6 +18,29 @@
     halign: 'left'
     color: 0, 0, 0, 1
 
+<PopupCodeInput>:
+    code_field: code_field
+    title: 'Введите код завершения'
+    size_hint: 0.8, 0.25
+    auto_dismiss: False
+    BoxLayout:
+        orientation:'vertical'
+        spacing: '5dp'
+        TextInput:
+            id: code_field
+            size_hint: 1, 0.5
+            hint_text: 'Введите код от клиента'
+            multiline: 0
+            background_color: 80/255, 80/255, 80/255, 1
+            foreground_color: 1, 1, 1, 1
+            font_size: self.height/2.5
+            cursor_color: 1, 1, 1, 1
+        Button:
+            text: 'Проверить'
+            size_hint: 1, 0.5
+            on_release:
+                root.save()
+
 <ClientOrderPreview>:
     order_id: None
     description: ''
@@ -26,6 +49,9 @@
     start: ''
     finish: ''
     courier: ''
+    time: ''
+    type: ''
+    status: 'Подробнее'
     background_color: 0, 0 ,0 ,0
     height: 180
     padding: ('30px', '15px', '30px', '15px')
@@ -55,9 +81,10 @@
             halign: 'right'
             valign: 'top'
         Label:
+            id: order_status
             text_size: self.size
-            text: 'Подробнее'
-            font_size: self.height/2
+            text: root.status
+            font_size: self.height/3
             color: 0, 0, 0, 1
             halign: 'left'
             valign: 'bottom'

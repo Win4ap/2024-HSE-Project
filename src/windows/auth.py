@@ -6,6 +6,7 @@ from kivy.uix.popup import Popup
 
 from windows.baseclass import ColorAnimBase
 from windows.server_logic.server_interaction import ServerLogic
+from windows.server_logic.constants import LEGIT
 
 class AuthWindow(Screen, ColorAnimBase, ServerLogic):
     def show_password(self):
@@ -13,6 +14,14 @@ class AuthWindow(Screen, ColorAnimBase, ServerLogic):
         self.password_hide_button.text = 'Скрыть пароль' if self.password_hide_button.state == 'down' else 'Показать пароль'
 
     def send_login_request(self):
+        for i in self.login_input.text:
+            if i not in LEGIT:
+                Popup(title='Ошибка', content=Label(text='Спец. символы в логине'), size_hint=(0.8, 0.2)).open()
+                return
+        for i in self.password_input.text:
+            if i not in LEGIT:
+                Popup(title='Ошибка', content=Label(text='Спец. символы в пароле'), size_hint=(0.8, 0.2)).open()
+                return
         if self.login_input.text != '' and self.password_input.text != '':
             state = 'client' if self.client_switch.state == 'down' else 'delivery'
             answer = super().auth_reg_request(state, 'login', self.login_input.text, self.password_input.text)

@@ -4,6 +4,8 @@ from fastapi.logger import logger
 from typing import Annotated
 from AdditionalClasses import Order, User 
 from rsa import decrypt
+from datetime import datetime
+from random import randint
 import uvicorn
 import os
 import sqlite3
@@ -25,9 +27,76 @@ def get_orders_json(elem: list):
         'start': elem[5],
         'finish': elem[6],
         'supplier': elem[7],
+        'time': datetime.strptime(elem[8], "%Y/%m/%d %H:%M"),
+        'fee': elem[9]
     }
+    if len(elem) == 11:
+        order['last_cost'] = elem[10]
     return order
 
+
+def get_order_id(table: str) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT id FROM {table} ORDER BY id """
+        cursor.execute(query)
+        order_id = cursor.fetchall()
+        left = 0
+        right = len(order_id)
+        if right == 0 or order_id[0][0] != 0:
+            cur_id = 0
+        elif right == 0 or right == order_id[-1][0] + 1:
+            cur_id = right
+        else:
+            while right - left > 1:
+                mid = (right + left) // 2
+                if order_id[mid][0] == mid:
+                    left = mid 
+                else:
+                    right = mid 
+            cur_id = right 
+    return cur_id
+
+
+def time_to_str(time: datetime) -> str:
+    year = time.year 
+    month = f'0{time.month}'
+    if time.month >= 10:
+        month = f'{time.month}'
+    day = f'0{time.day}'
+    if time.day >= 10:
+        day = f'{time.day}'
+    hour = f'0{time.hour}'
+    if time.hour >= 10:
+        hour = f'{time.hour}'
+    minute = f'0{time.minute}'
+    if time.minute >= 10:
+        minute = f'{time.minute}'
+    return f"{year}/{month}/{day} {hour}:{minute}"
+
+
+def update_auction_orders() -> None:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        time = datetime.now() + constants.delta['UTC'] + constants.delta['DAY']
+        time = time_to_str(time)
+        query = """ SELECT * FROM auction_orders WHERE time < ? """
+        cursor.execute(query, (time,))
+        orders_info = cursor.fetchall()
+        query = """ DELETE FROM auction_orders WHERE time < ? """
+        cursor.execute(query, (time,))
+        for elem in orders_info:
+            table = 'active_orders'
+            cost = elem[-1]
+            if elem[-4] == None:
+                table = 'free_orders'
+                cost = elem[3]
+            cur_id = get_order_id(table)
+            query = f""" INSERT INTO {table} (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+            cursor.execute(query, (cur_id,) + elem[1:3] + (cost,) + elem[4:-1])
+        database.commit()
+    return None
+        
 
 @server.post('/register')
 def try_to_register(
@@ -70,9 +139,10 @@ def try_to_login(
                 return False
 
 
-@server.post('/new_order')
-def make_new_order(order: Order) -> int:
-    cur_id = -1
+@server.post('/new_order/{type_of_order}')
+def make_new_order(type_of_order: str, order: Order) -> int:
+    update_auction_orders()
+    order.id = get_order_id(f'{type_of_order}_orders')
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT fullness FROM client_data WHERE login = ? """
@@ -81,29 +151,11 @@ def make_new_order(order: Order) -> int:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT id FROM orders_list ORDER BY id """
-        cursor.execute(query)
-        order_id = cursor.fetchall()
-        left = 0
-        right = len(order_id)
-        if right == 0 or order_id[0][0] != 0:
-            cur_id = 0
-        elif right == 0 or right == order_id[-1][0] + 1:
-            cur_id = right
-        else:
-            while right - left > 1:
-                mid = (right + left) // 2
-                if order_id[mid][0] == mid:
-                    left = mid 
-                else:
-                    right = mid 
-            cur_id = right 
-        order.id = cur_id
-        query = """ INSERT INTO orders_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
-    return cur_id
+    return order.id
 
 
 @server.post('/new_template')
@@ -116,15 +168,20 @@ def make_new_template(order: Order) -> bool:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ INSERT INTO templates_list (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, order.get_tuple())
         database.commit()
     return True
 
 
-@server.put('/take_order/{order_id}')
-def take_order(order_id: int, user: User) -> bool:
+@server.put('/take_order/{type_of_order}/{order_id}')
+def take_order(type_of_order: str, order_id: int, user: User) -> int:
+    update_auction_orders()
+    if get_user_rating(user) < 3.5:
+        raise HTTPException(status_code=403, detail="Rating is too low")
+    if user.state == 'client':
+        raise HTTPException(status_code=423, detail="It is not a client case")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT fullness FROM delivery_data WHERE login = ? """
@@ -133,47 +190,129 @@ def take_order(order_id: int, user: User) -> bool:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT id FROM orders_list WHERE id = ? """
-        cursor.execute(query, (order_id,))
-        if cursor.fetchone() == None:
-            raise HTTPException(status_code=404, detail="Order not found")
-        query = """ UPDATE orders_list SET supplier = ? WHERE id = ? """
-        cursor.execute(query, (user.login, order_id))
-        database.commit()
-    return True
-
-
-@server.put('/complete_order/{order_id}')
-def complete_order(order_id: int) -> int:
-    with sqlite3.connect(path_to_database) as database:
-        cursor = database.cursor()
-        query = """ SELECT * FROM orders_list WHERE id = ? """
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ DELETE FROM orders_list WHERE id = ? """
+        query = f""" DELETE FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
-        query = """ SELECT COUNT(*) FROM archive """
-        cursor.execute(query)
-        cur_id = cursor.fetchone()[0]
-        query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:])
+        if type_of_order == 'free':
+            type_of_order = 'active'
+        cost = order_info[3]
+        last_cost = int(cost)
+        if type_of_order == 'auction':
+            cost = int(cost*(0.95))
+        cur_id = get_order_id(f'{type_of_order}_orders')
+        supplier = user.login
+        query = f""" INSERT INTO {type_of_order}_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:3] + (cost,) + order_info[4:7] + (supplier,) + order_info[8:10])
+        if type_of_order == 'auction':
+            query = f""" UPDATE {type_of_order}_orders SET last_cost = ? WHERE id = ? """
+            cursor.execute(query, (last_cost, cur_id))
         database.commit()
     return cur_id
 
 
-@server.delete('/delete_order/{order_id}')
-def delete_order(order_id: int) -> bool:
+@server.put('/edit_order/{type_of_order}/{order_id}')
+def edit_order(type_of_order: str, order_id: int, order: Order) -> int:
+    update_auction_orders()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT * FROM orders_list WHERE id = ? """
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
+        cursor.execute(query, (order.owner,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness == 0:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = f""" UPDATE {type_of_order}_orders
+                SET (owner, name, cost, description, start, finish, supplier, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE id = ? """
+        cursor.execute(query, order.get_tuple()[1:-1] + (order_id,))
+        database.commit()
+    return order.id
+
+
+@server.put('/start_order/{order_id}')
+def start_order(order_id: int) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT * FROM active_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         order_info = cursor.fetchone()
         if order_info == None:
             raise HTTPException(status_code=404, detail="Order not found")
-        query = """ DELETE FROM orders_list WHERE id = ? """
+        query = """ DELETE FROM active_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        cur_id = get_order_id('in_process_orders')
+        time = datetime.now() + constants.delta['UTC']
+        time = time_to_str(time)
+        fee = order_info[-1]
+        code = randint(1000, 9999)
+        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time, fee, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:-2] + (time, fee, code))
+        database.commit()
+    return cur_id
+
+
+@server.put('/complete_order/{order_id}')
+def complete_order(
+    order_id: int,
+    code: Annotated[int, Form()]
+    ) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT * FROM in_process_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_info = cursor.fetchone()
+        if order_info == None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order_info[10] != code:
+            raise HTTPException(status_code=403, detail="Incorrect code")
+        query = """ DELETE FROM in_process_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        cur_id = get_order_id('archive')
+        time = datetime.now() + constants.delta['UTC']
+        time = time_to_str(time)
+        fee = order_info[-2]
+        query = """ INSERT INTO archive (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:8] + (time, fee))
+        database.commit()
+    return cur_id
+
+
+@server.put('/rate_order/{order_id}')
+def rate_order(
+    order_id: int,
+    rating: Annotated[float, Form()]
+    ) -> bool:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT rating FROM archive WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_rating = cursor.fetchone()
+        if order_rating == None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order_rating[0] != None:
+            raise HTTPException(status_code=423, detail="Order is already rated")
+        query = """ UPDATE archive SET rating = ? WHERE id = ? """
+        cursor.execute(query, (rating, order_id))
+        database.commit()
+    return True
+
+
+@server.delete('/delete_order/{type_of_order}/{order_id}')
+def delete_order(type_of_order: str, order_id: int) -> bool:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE id = ? """
+        cursor.execute(query, (order_id,))
+        order_info = cursor.fetchone()
+        if order_info == None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        query = f""" DELETE FROM {type_of_order}_orders WHERE id = ? """
         cursor.execute(query, (order_id,))
         database.commit()
     return True
@@ -203,7 +342,7 @@ def get_user_info(user: User) -> dict:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == False:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT name, surname, phone FROM {user.state}_data WHERE login = ? """
         cursor.execute(query, (user.login,))
         user_info = cursor.fetchone()
@@ -212,6 +351,30 @@ def get_user_info(user: User) -> dict:
         'surname': user_info[1],
         'phone': user_info[2]
     }
+    return result
+
+
+@server.get('/get_user_rating')
+def get_user_rating(user: User) -> float:
+    result = 6.0
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == False:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
+        time = time_to_str(time)
+        query = """ SELECT COUNT(rating) FROM archive WHERE supplier = ? AND time > ? """
+        cursor.execute(query, (user.login, time))
+        cnt_of_marks = cursor.fetchone()[0]
+        if cnt_of_marks >= 5:
+            query = """ SELECT AVG(rating) FROM archive WHERE supplier = ? AND time > ? """
+            cursor.execute(query, (user.login, time))
+            result = cursor.fetchone()[0]
     return result
 
 
@@ -225,7 +388,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
     path_to_picture = os.path.join(
         os.getcwd(), 'images', f'{user.state}_{user.login}_{picture}.jpg')
     return FileResponse(path=path_to_picture)
@@ -233,6 +396,7 @@ def get_user_file(picture, user: User) -> bytes: #getting user's passport or pic
 
 @server.get('/get_active_orders')
 def get_active_orders(user: User) -> list:
+    update_auction_orders()
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -242,11 +406,54 @@ def get_active_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM orders_list WHERE supplier = ? """
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ SELECT * FROM active_orders WHERE supplier = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
+            result.append(order)
+    return result
+
+
+@server.get('/get_auction_orders')
+def get_auction_orders(user: User) -> list:
+    update_auction_orders()
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM delivery_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ SELECT * FROM auction_orders """
+        cursor.execute(query)
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            result.append(order)
+    return result
+
+
+@server.get('/get_in_process_orders')
+def get_in_process_orders(user: User) -> list:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM delivery_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ SELECT * FROM in_process_orders WHERE supplier = ? """
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            if user.state == 'client':
+                order['code'] = elem[9]
             result.append(order)
     return result
 
@@ -265,7 +472,7 @@ def get_archive_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
+            raise HTTPException(status_code=403, detail="Fullness is false")
         query = f""" SELECT * FROM archive WHERE {relation} = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
@@ -285,8 +492,8 @@ def get_free_orders(user: User) -> list:
         if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == 0:
-            raise HTTPException(status_code=423, detail="Fullness is false")
-        query = """ SELECT * FROM orders_list WHERE supplier IS NULL """
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ SELECT * FROM free_orders """
         cursor.execute(query)
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
@@ -294,16 +501,62 @@ def get_free_orders(user: User) -> list:
     return result
 
 
-@server.get('/get_user_orders') 
-def get_user_orders(user: User) -> list:
+@server.get('/get_user_orders')
+def get_user_orders(user: User) -> dict:
+    result = {}
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
+        cursor.execute(query, (user.login,))
+        fullness = cursor.fetchone()
+        if fullness == None:
+            raise HTTPException(status_code=404, detail="Login not found")
+        if fullness[0] == 0:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = """ SELECT * FROM free_orders WHERE owner = ? """
+        free_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            free_orders.append(order)
+        result['free_orders'] = free_orders
+        query = """ SELECT * FROM active_orders WHERE owner = ? """
+        active_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            active_orders.append(order)
+        result['active_orders'] = active_orders
+        query = """ SELECT * FROM auction_orders WHERE owner = ? """
+        auction_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            auction_orders.append(order)
+        result['auction_orders'] = auction_orders
+        query = """ SELECT * FROM in_process_orders WHERE owner = ? """
+        in_process_orders = []
+        cursor.execute(query, (user.login,))
+        for elem in cursor.fetchall():
+            order = get_orders_json(elem)
+            in_process_orders.append(order)
+        result['in_process_orders'] = in_process_orders
+    return result
+
+
+@server.get('/get_user_orders/{type_of_order}')
+def get_user_orders_by_type(type_of_order: str, user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = """ SELECT login FROM client_data WHERE login = ? """
+        query = """ SELECT fullness FROM client_data WHERE login = ? """
         cursor.execute(query, (user.login,))
-        if cursor.fetchone() == None:
+        fullness = cursor.fetchone()
+        if fullness == None:
             raise HTTPException(status_code=404, detail="Login not found")
-        query = f""" SELECT * FROM orders_list WHERE owner = ? """
+        if fullness[0] == 0:
+            raise HTTPException(status_code=403, detail="Fullness is false")
+        query = f""" SELECT * FROM {type_of_order}_orders WHERE owner = ? """
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
@@ -364,15 +617,21 @@ def upload_user_info(
 
 with sqlite3.connect(path_to_database) as database:
     cursor = database.cursor()
-    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS client_data ( login TEXT PRIMARY KEY, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS delivery_data ( login TEXT PRIMARY KEY, password BLOB, name TEXT, surname TEXT, phone TEXT, fullness INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS orders_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS auction_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, last_cost INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS free_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, code INTEGER ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, rating INTEGER ) """
     cursor.execute(query)
     database.commit()
 

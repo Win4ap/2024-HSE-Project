@@ -452,6 +452,8 @@ def get_in_process_orders(user: User) -> list:
         cursor.execute(query, (user.login,))
         for elem in cursor.fetchall():
             order = get_orders_json(elem)
+            if user.state == 'client':
+                order['code'] = elem[9]
             result.append(order)
     return result
 

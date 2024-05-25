@@ -95,17 +95,6 @@ def update_auction_orders() -> None:
             cursor.execute(query, (cur_id,) + elem[1:3] + (cost,) + elem[4:-1])
         database.commit()
     return None
-
-
-def update_archive() -> None: 
-    with sqlite3.connect(path_to_database) as database:
-        cursor = database.cursor()
-        time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
-        time = time_to_str(time)
-        query = """ DELETE FROM archive WHERE time < ? """
-        cursor.execute(query, (time,))
-        database.commit()
-    return None
         
 
 @server.post('/register')
@@ -268,7 +257,6 @@ def start_order(order_id: int) -> int:
 
 @server.put('/complete_order/{order_id}')
 def complete_order(order_id: int) -> int:
-    update_archive()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT * FROM in_process_orders WHERE id = ? """
@@ -293,7 +281,6 @@ def rate_order(
     order_id: int,
     rating: Annotated[float, Form()]
     ) -> bool:
-    update_archive()
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT rating FROM archive WHERE id = ? """
@@ -362,7 +349,6 @@ def get_user_info(user: User) -> dict:
 
 @server.get('/get_user_rating')
 def get_user_rating(user: User) -> float:
-    update_archive()
     result = 6.0
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -463,7 +449,6 @@ def get_in_process_orders(user: User) -> list:
 
 @server.get('/get_archive_orders')
 def get_archive_orders(user: User) -> list:
-    update_archive()
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

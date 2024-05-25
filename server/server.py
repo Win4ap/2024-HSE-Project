@@ -359,12 +359,14 @@ def get_user_rating(user: User) -> float:
             raise HTTPException(status_code=404, detail="Login not found")
         if fullness[0] == False:
             raise HTTPException(status_code=403, detail="Fullness is false")
-        query = """ SELECT COUNT(rating) FROM archive WHERE supplier = ? """
-        cursor.execute(query, (user.login,))
+        time = datetime.now() + constants.delta['UTC'] - constants.delta['MONTH']
+        time = time_to_str(time)
+        query = """ SELECT COUNT(rating) FROM archive WHERE supplier = ? AND time > ? """
+        cursor.execute(query, (user.login, time))
         cnt_of_marks = cursor.fetchone()[0]
         if cnt_of_marks >= 5:
-            query = """ SELECT AVG(rating) FROM archive WHERE supplier = ? """
-            cursor.execute(query, (user.login,))
+            query = """ SELECT AVG(rating) FROM archive WHERE supplier = ? AND time > ? """
+            cursor.execute(query, (user.login, time))
             result = cursor.fetchone()[0]
     return result
 

@@ -5,6 +5,7 @@ from typing import Annotated
 from AdditionalClasses import Order, User 
 from rsa import decrypt
 from datetime import datetime
+from random import randint
 import uvicorn
 import os
 import sqlite3
@@ -249,8 +250,9 @@ def start_order(order_id: int) -> int:
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
         fee = order_info[-1]
-        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time, fee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (cur_id,) + order_info[1:-2] + (time, fee))
+        code = randint(1000, 9999)
+        query = """ INSERT INTO in_process_orders (id, owner, name, cost, description, start, finish, supplier, time, fee, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id,) + order_info[1:-2] + (time, fee, code))
         database.commit()
     return cur_id
 
@@ -618,7 +620,7 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS active_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
+    query = """ CREATE TABLE IF NOT EXISTS in_process_orders ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, code INTEGER ) """
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)

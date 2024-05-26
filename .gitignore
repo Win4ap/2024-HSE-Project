@@ -7,3 +7,4 @@ src/windows/server_logic/state_login
 src/windows/profile/avatar.jpg
 src/windows/profile/fullname
 kivy_venv
+cache

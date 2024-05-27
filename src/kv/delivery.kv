@@ -1,3 +1,5 @@
+#:import MapView kivy_garden.mapview
+
 <DeliverySide>:
     delivery_main_frame: delivery_main_frame
     icon_chat: icon_chat
@@ -356,91 +358,119 @@
                             size_hint: 0.85, 1
                     
                     FloatLayout:
-                        size_hint: 1, 0.9
+                        size_hint: 1, 1
                         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                        BoxLayout:
-                            orientation: 'vertical'
-                            spacing: '2dp'
-                            size_hint: 0.8, 0.8
+                        ScrollView:
+                            do_scroll_y: True
+                            do_scroll_x: False
+                            size_hint: 0.85, 0.95
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                            Label:
-                                id: details_name
-                                text: ''
-                                font_size: self.height/2
-                                color: 0, 0, 0, 1
-                                markup: 1
-                                text_size: self.size
-                                halign: 'center'
-                                valign: 'center'
-                            
-                            Label:
-                                id: details_description
-                                text: ''
-                                font_size: self.height/4
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'top'
+                            GridLayout:
+                                cols: 1
+                                rows: 9
+                                size_hint: 1, None
+                                height: 1500
+                                MapView:
+                                    size_hint_y: None
+                                    height: 700
+                                    lon: 29.915380996738204
+                                    lat: 59.956112684067996
+                                    zoom: 9
 
-                            Label:
-                                id: details_price
-                                text: ''
-                                font_size: self.height/3
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'center'
+                                Label:
+                                    id: details_name
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/2
+                                    color: 0, 0, 0, 1
+                                    markup: 1
+                                    text_size: self.size
+                                    halign: 'center'
+                                    valign: 'center'
+                                
+                                Label:
+                                    id: details_description
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/4
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
 
-                            Label:
-                                id: details_courier
-                                text: ''
-                                font_size: self.height/4
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'center'
-                            
-                            Label:
-                                id: details_from
-                                text: ''
-                                font_size: self.height/4
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'top'
+                                Label:
+                                    id: details_price
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/3
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'center'
 
-                            Label:
-                                id: details_to
-                                text: ''
-                                font_size: self.height/4
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'top'
+                                Label:
+                                    id: details_courier
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/4
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'center'
+                                
+                                Label:
+                                    id: details_from
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/4
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
 
-                            Label:
-                                id: details_time
-                                text: ''
-                                font_size: self.height/4
-                                color: 0, 0, 0, 1
-                                text_size: self.size
-                                halign: 'left'
-                                valign: 'top'
+                                Label:
+                                    id: details_to
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/4
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
 
-                            RoundedButton:
-                                id: details_button
-                                order_id: -1
-                                type: ''
-                                text: 'Взять'
-                                operation: 'take'
-                                font_size: self.height/2
-                                size_hint: 0.6, 0.6
-                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                                cur_color: (120/255, 219/255, 226/255, 1)
-                                on_release:
-                                    root.order_interaction(self.order_id, self.operation, self.type)
-                                    self.order_id = -1
-                                    self.type = ''
+                                Label:
+                                    id: details_time
+                                    size_hint_y: None
+                                    height: 100
+                                    text: ''
+                                    font_size: self.height/4
+                                    color: 0, 0, 0, 1
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
+
+                                RoundedButton:
+                                    id: details_button
+                                    size_hint_y: None
+                                    height: 100
+                                    order_id: -1
+                                    type: ''
+                                    text: 'Взять'
+                                    operation: 'take'
+                                    font_size: self.height/2
+                                    size_hint: 0.6, 0.6
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                    cur_color: (120/255, 219/255, 226/255, 1)
+                                    on_release:
+                                        root.order_interaction(self.order_id, self.operation, self.type)
+                                        self.order_id = -1
+                                        self.type = ''
 
         BoxLayout:
             size_hint: 1, 0.07

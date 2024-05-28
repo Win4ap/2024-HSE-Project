@@ -5,6 +5,8 @@ from kivy.uix.button import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy_garden.mapview.clustered_marker_layer import ClusteredMarkerLayer
+from kivy_garden.mapview import MapMarker
 
 from windows.server_logic.server_interaction import ServerLogic
 
@@ -17,6 +19,22 @@ class ColorAnimBase():
         first.state, second.state = first_state, second_state
         self.change_color(first, first_color)
         self.change_color(second, second_color)
+
+class MapExtension(ServerLogic):
+    def update_map_markers(self, map_widget, adress_from, adress_to):
+        map_widget.center_on(59.956112684067996, 29.915380996738204) # Saint P.
+        #map_widget.remove_layer()
+        layer = ClusteredMarkerLayer()
+        for adress in [adress_from, adress_to]:
+            adress = adress.replace(' ', '+')
+            answer = super().YandexGeocoderAPI(adress)
+            if answer == 'request_error':
+                Popup(title='Ошибка', content=Label(text='Bad request'), size_hint=(0.8, 0.2)).open()
+                return
+            else:
+                coordinates = answer['response']['GeoObjectCollection']['featureMember'][-1]['GeoObject']['Point']['pos'].split(' ')
+                layer.add_marker(lon=float(coordinates[0]), lat=float(coordinates[1]), cls=MapMarker)
+        map_widget.add_widget(layer)
 
 class ProfileBase(ServerLogic):
     def quit(self):
@@ -158,8 +176,8 @@ class PendingReview(ArchiveOrder):
         self.link_to.text = f'Доставить сюда: {self.finish}'
         self.link_person.text = self.person
 
-class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time):
+class ClientOrderPreview(ButtonBehavior, BoxLayout, MapExtension):
+    def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time, link_map):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -180,6 +198,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.link_to = link_to
         self.link_button = link_button
         self.link_time = link_time
+        self.link_map = link_map
 
     def on_release(self):
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
@@ -198,6 +217,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
             self.link_courier.text = 'Нет активного курьера'
         else:
             self.link_courier.text = self.courier
+        super().update_map_markers(self.link_map, self.start, self.finish)
         return super().on_release()
     
 class ClientTemplatePreview(ButtonBehavior, BoxLayout):

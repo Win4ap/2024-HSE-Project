@@ -73,7 +73,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         start = start.replace('_', ' ')
                         finish = finish.replace('_', ' ')
                         time = time.replace('T', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, time, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, time, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map))
             elif info == 'templates':
                 new_height = 10 * (len(answer) - 1) + 180 * len(answer)
                 self.client_orders_scrollview.height = new_height

@@ -24,7 +24,6 @@ class MapExtension():
     cur_finish = None
 
     def update_map_markers(self, map_widget, adress_start, adress_finish):
-        map_widget.center_on(59.940789517861546, 30.319236044471424) # TODO: Saint P. -> the midpoint of the new coordinates
         if self.cur_start != None and self.cur_finish != None:
             self.cur_start.detach()
             self.cur_finish.detach()
@@ -38,6 +37,7 @@ class MapExtension():
             coordinates_finish = answer_finish['response']['GeoObjectCollection']['featureMember'][-1]['GeoObject']['Point']['pos'].split(' ')
             self.cur_start = MapMarker(lon=float(coordinates_start[0]), lat=float(coordinates_start[1]))
             self.cur_finish = MapMarker(lon=float(coordinates_finish[0]), lat=float(coordinates_finish[1]))
+            map_widget.center_on((float(coordinates_start[1])+float(coordinates_finish[1]))/2, (float(coordinates_start[0])+float(coordinates_finish[0]))/2)
             map_widget.add_marker(self.cur_start)
             map_widget.add_marker(self.cur_finish)
 

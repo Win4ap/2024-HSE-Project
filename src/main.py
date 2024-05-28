@@ -26,12 +26,14 @@ class DFSApp(App):
         Builder.load_file(path_to_kv + 'client.kv')
         Builder.load_file(path_to_kv + 'delivery.kv')
         Builder.load_file(path_to_kv + 'edit.kv')
+
         sm = ScreenManager()
         sm.add_widget(AuthWindow(name='auth'))
         sm.add_widget(RegisterWindow(name='register'))
         sm.add_widget(ClientSide(name='client'))
         sm.add_widget(DeliverySide(name='delivery'))
         sm.add_widget(EditProfile(name='edit_profile'))
+
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
         try:
             with open(path_to_login, 'r') as file:
@@ -46,6 +48,7 @@ class DFSApp(App):
                 sm.current = data[0]
             else:
                 sm.current = 'auth'
+                
         return sm
 
 

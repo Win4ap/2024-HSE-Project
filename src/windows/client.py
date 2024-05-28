@@ -2,10 +2,10 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, ClientTemplatePreview
+from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, ClientTemplatePreview, MapExtension
 from windows.server_logic.server_interaction import ServerLogic
 
-class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
+class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic, MapExtension):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.client_main_frame.current = 'client_orders'        
@@ -62,7 +62,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         else:
                             price = str(order['cost'])+'₽'
                         if type == 'in_process_orders':
-                            name += f'(Код {order['last_cost']})'
+                            name += f' (Код {order['last_cost']})'
                         description = order['description']
                         start = order['start']
                         finish = order['finish']
@@ -73,7 +73,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                         start = start.replace('_', ' ')
                         finish = finish.replace('_', ' ')
                         time = time.replace('T', ' ')
-                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, time, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time))
+                        self.client_orders_scrollview.add_widget(ClientOrderPreview(order_id, description, name, price, start, finish, courier, time, type, types[type], self.client_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map, super().update_map_markers))
             elif info == 'templates':
                 new_height = 10 * (len(answer) - 1) + 180 * len(answer)
                 self.client_orders_scrollview.height = new_height

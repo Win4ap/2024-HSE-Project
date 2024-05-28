@@ -175,6 +175,25 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
+@server.post('/new_chat') 
+def make_new_chat(
+    delivery: Annotated[str, Form()],
+    client: Annotated[str, Form()],
+    order: Annotated[str, Form()]
+) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT MAX(id) FROM chats """
+        cursor.execute(query)
+        cur_id = cursor.fetchone()[0] + 1
+        time = datetime.now() + constants.delta['UTC']
+        time = time_to_str(time)
+        query = """ INSERT INTO chats ( id, delivery, client, name, message, from, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id, delivery, client, order, 'Initial message', 'Server', time))
+        database.commit()
+    return cur_id
+
+
 @server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
@@ -633,6 +652,7 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, rating INTEGER ) """
     cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS chats ( id INTEGER, delivery TEXT, client TEXT, name TEXT, message TEXT, from TEXT, time TEXT ) """
     database.commit()
 
 uvicorn.run(server, host = constants.IP, port = constants.PORT)

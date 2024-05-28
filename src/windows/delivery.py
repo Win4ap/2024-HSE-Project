@@ -2,7 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, PopupCodeInput
+from windows.baseclass import ColorAnimBase, ProfileBase, ClientOrderPreview, PopupCodeInput, MapExtension
 from windows.server_logic.server_interaction import ServerLogic
 
 class DeliveryInProcessOrderPreview(ClientOrderPreview):
@@ -29,7 +29,7 @@ class DeliveryAuctionPreview(ClientOrderPreview):
         self.link_button.operation = 'take'
         return super().on_release()
 
-class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
+class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic, MapExtension):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.delivery_main_frame.current = 'delivery_orders'
@@ -84,9 +84,9 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     finish = finish.replace('_', ' ')
                     time = time.replace('T', ' ')
                     if cur == 'down':
-                        self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, time, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map))
+                        self.delivery_orders_scrollview.add_widget(DeliveryInProcessOrderPreview(order_id, description, name, price, start, finish, owner, time, 'in_process_orders', 'Текущий', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map, super().update_map_markers))
                     else:
-                        self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, time, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map))
+                        self.delivery_orders_scrollview.add_widget(DeliveryFreeOrderPreview(order_id, description, name, price, start, finish, owner, time, 'free_orders', 'Свободный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map, super().update_map_markers))
             if answer2 != 'Not Found':
                 new_height += 10 * (len(answer2) - 1) + 180 * len(answer2)
                 for order in answer2:
@@ -104,10 +104,10 @@ class DeliverySide(Screen, ColorAnimBase, ProfileBase, ServerLogic):
                     finish = finish.replace('_', ' ')
                     time = time.replace('T', ' ')
                     if cur == 'down':
-                        self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, time, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map))
+                        self.delivery_orders_scrollview.add_widget(DeliveryActiveOrderPreview(order_id, description, name, price, start, finish, owner, time, 'active_orders', 'Активный', self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map, super().update_map_markers))
                     else:
                         comment = f' (Ваш, {order['last_cost']}₽)' if order['supplier'] == super().get_login()[1] else ''
-                        self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, time, 'auction_orders', 'Аукцион' + comment, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map))
+                        self.delivery_orders_scrollview.add_widget(DeliveryAuctionPreview(order_id, description, name, price, start, finish, owner, time, 'auction_orders', 'Аукцион' + comment, self.delivery_main_frame, self.details_name, self.details_description, self.details_price, self.details_courier, self.details_from, self.details_to, self.details_button, self.details_time, self.details_map, super().update_map_markers))
             self.delivery_orders_scrollview.height = new_height
 
     def check_answer(self, answer):

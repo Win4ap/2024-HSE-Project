@@ -227,3 +227,18 @@ class ServerLogic():
             logging.info('Server is down')
             return 'server_error'
         return self.check_status(answer)
+    
+    def new_chat(self, second_user, order_name):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_user_chats: {state} {login}')
+        try:
+            if state == 'client':
+                answer = requests.post(f'{URL}/new_chat', json={'client': f'{login}', 'delivery': f'{second_user}', 'order': f'{order_name}'})
+            else:
+                answer = requests.post(f'{URL}/new_chat', json={'client': f'{second_user}', 'delivery': f'{login}', 'order': f'{order_name}'})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)

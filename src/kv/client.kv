@@ -549,6 +549,17 @@
                                     self.order_id = -1
                                     self.type = ''
 
+                            RoundedButton:
+                                id: details_button
+                                type: ''
+                                text: 'Создать чат с курьером'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.6
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (190/255, 190/255, 190/255, 1)
+                                on_release:
+                                    root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.client_chats_scrollview, root.client_main_frame)
+
             Screen:
                 name: 'client_archive_details'
                 BoxLayout:

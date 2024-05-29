@@ -147,6 +147,22 @@ class ProfileBase(ServerLogic):
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
+    def create_chat(self, second_user, order_name, chat_sm, root_sm):
+        if second_user == 'Нет активного курьера':
+            Popup(title='Ошибка', content=Label(text='У заказа нет курьера'), size_hint=(0.8, 0.2)).open()
+            return
+        answer = super().new_chat(second_user, order_name)
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif isinstance(answer, int):
+            if super().get_login()[0] == 'client':
+                root_sm.current = 'client_chat'
+            else:
+                root_sm.current = 'delivery_chat'
+            self.update_chat_list(chat_sm, root_sm)
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+
 class ArchiveOrder(ButtonBehavior, BoxLayout):
     def __init__(self, order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):
         super().__init__()

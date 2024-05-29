@@ -183,6 +183,11 @@ def make_new_chat(
 ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
+        query = """ SELECT DISTINCT id FROM chats WHERE delivery = ? AND client = ? AND name = ? """
+        cursor.execute(query, (delivery, client, order))
+        cur_id = cursor.fetchone()
+        if cur_id != None:
+            return cur_id[0]
         query = """ SELECT MAX(id) FROM chats """
         cursor.execute(query)
         max_id = cursor.fetchone()[0]

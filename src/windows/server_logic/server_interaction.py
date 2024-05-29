@@ -215,3 +215,15 @@ class ServerLogic():
             logging.info('Server is down')
             return 'server_error'
         return self.check_status(answer)
+    
+    def get_user_chats(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_user_chats: {state} {login}')
+        try:
+            answer = requests.get(f'{URL}/get_user_chats', json={'state': f'{state}', 'login': f'{login}'})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)

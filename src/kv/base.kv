@@ -18,6 +18,34 @@
     halign: 'left'
     color: 0, 0, 0, 1
 
+<FullChat>:
+    BoxLayout:
+        orientation:'vertical'
+
+<ChatPreview>:
+    chat_id: None
+    chat_name: ''
+    height: 180
+    BoxLayout:
+        Label:
+            size_hint: 0.5, 1
+            text: root.chat_name
+            text_size: self.size
+            font_size: self.height/3
+            color: 0, 0, 0, 1
+            halign: 'left'
+            valign: 'center'
+
+        Label:
+            size_hint: 0.5, 1
+            text: '>'
+            text_size: self.size
+            font_size: self.height/3
+            color: 0, 0, 0, 1
+            halign: 'right'
+            valign: 'center'
+
+
 <PopupCodeInput>:
     code_field: code_field
     title: 'Введите код завершения'

@@ -5,6 +5,7 @@ from kivy.uix.button import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.uix.screenmanager import Screen
 
 from windows.server_logic.server_interaction import ServerLogic
 
@@ -17,6 +18,21 @@ class ColorAnimBase():
         first.state, second.state = first_state, second_state
         self.change_color(first, first_color)
         self.change_color(second, second_color)
+
+class FullChat(Screen, ServerLogic):
+    pass
+
+class ChatPreview(ButtonBehavior, BoxLayout):
+    def __init__(self, chat_id, chat_name, root_sm):
+        self.chat_id = chat_id
+        self.chat_name = chat_name
+        self.root_sm = root_sm
+        #self.cur_chat = FullChat(name=f'chat_{chat_name}_{chat_id}')
+        #root_sm.add_widget(self.cur_chat)
+
+    def on_release(self):
+        #self.cur_chat
+        return super().on_release()
 
 class ProfileBase(ServerLogic):
     def quit(self):
@@ -112,6 +128,22 @@ class ProfileBase(ServerLogic):
             else:
                 scroll.height = 180
                 scroll.add_widget(Label(text='Нет архивированных заказов' if category == 'archive' else 'Отзывы не требуются', color=(0, 0, 0, 1), font_size=(self.height/30)))
+
+    def update_chat_list(self, chat_sm, root_sm):
+        answer = super().get_user_chats()
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif isinstance(answer, list):
+            chat_sm.clear_widgets()
+            if answer == []:
+                chat_sm.height = 180
+                chat_sm.add_widget(Label(text='Нет активных чатов', color=(0, 0, 0, 1), font_size=(self.height/30)))
+            else:
+                chat_sm.height = 10 * (len(answer) - 1) + 180 * (len(answer))
+                for item in answer:
+                    chat_sm.add_widget(ChatPreview(item['id'], item['name'].replace('_', ' '), root_sm))
+        else:
+            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
 class ArchiveOrder(ButtonBehavior, BoxLayout):
     def __init__(self, order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):

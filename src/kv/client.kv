@@ -1,6 +1,7 @@
 <ClientSide>:
     active_orders: active_orders
     template_orders: template_orders
+    client_chats_scrollview: client_chats_scrollview
     client_orders_scrollview: client_orders_scrollview
     client_archive_scrollview: client_archive_scrollview
     client_reviews_scrollview: client_reviews_scrollview
@@ -70,9 +71,16 @@
                         color: 0, 0, 0, 1
                         font_size: self.height/2
                     
-                    BoxLayout:
+                    ScrollView:
                         size_hint: 1, 0.87
-                        spacing: 30
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        BoxLayout:
+                            id: client_chats_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
 
             Screen:
                 name: 'client_orders'
@@ -874,6 +882,7 @@
                     root.new_time.text = ''
                     root.new_object = 'free'
                     root.switch_main_to('client_chat')
+                    root.update_chat_list(root.client_chats_scrollview, root.client_main_frame)
                 AnchorLayout:
                     pos: self.parent.pos
                     size: self.parent.size

@@ -33,6 +33,7 @@
     chat_id: None
     chat_name: ''
     chat_scroll: chat_scroll
+    message_input: message_input
     BoxLayout:
         orientation:'vertical'
         BoxLayout:
@@ -55,7 +56,7 @@
         ScrollView:
             do_scroll_y: True
             do_scroll_x: False
-            size_hint: 1, 0.8
+            size_hint: 1, 0.82
             BoxLayout:
                 id: chat_scroll
                 orientation: 'vertical'
@@ -64,8 +65,19 @@
                 spacing: '5dp'
 
         BoxLayout:
-            size_hint: 1, 0.1
-            Button:
+            size_hint: 1, 0.08
+            TextInput:
+                id: message_input
+                size_hint: 0.85, 1
+                cursor_color: 0, 0, 0, 1
+                multiline: False
+                font_size: self.height/1.8
+                hint_text: 'Пишите...'
+
+            RoundedButton:
+                size_hint: 0.15, 1
+                on_release:
+                    root.new_message()
 
 <ChatPreview>:
     chat_id: None

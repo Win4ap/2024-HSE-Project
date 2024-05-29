@@ -251,3 +251,15 @@ class ServerLogic():
             logging.info('Server is down')
             return 'server_error'
         return self.check_status(answer)
+    
+    def send_message(self, chat_id, message):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'send_message: {state} {login} {chat_id} {message}')
+        try:
+            answer = requests.post(f'{URL}/send_message/{chat_id}', json={'user': {'state': f'{state}', 'login': f'{login}'}, 'message': f'{message}'})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)

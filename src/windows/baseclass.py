@@ -65,6 +65,21 @@ class FullChat(Screen, ServerLogic):
                 for message in answer['content']: # TODO: message height based on amount of chars/lines/etc сделать красиво крч
                     self.chat_scroll.add_widget(Message(message['message'], 'right' if cur_user == message['owner'] else 'left', self.chat_scroll.width-40))
 
+    def new_message(self):
+        if self.message_input.text == '':
+            self.fill_chat()
+            return
+        answer = super().send_message(self.chat_id, self.message_input.text)
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'Chat not found':
+            Popup(title='Ошибка', content=Label(text='Чата не существует'), size_hint=(0.8, 0.2)).open()
+        elif answer == 'User is not a chat member':
+            Popup(title='Ошибка', content=Label(text='Как Вы тут оказались?'), size_hint=(0.8, 0.2)).open()
+        else:
+            self.message_input.text = ''
+            self.fill_chat()
+
 class ChatPreview(ButtonBehavior, BoxLayout):
     def __init__(self, chat_id, chat_name, last_message, root_sm):
         super().__init__()

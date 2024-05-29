@@ -185,10 +185,10 @@ def make_new_chat(
         cursor = database.cursor()
         query = """ SELECT MAX(id) FROM chats """
         cursor.execute(query)
-        max_id = cursor.fetchone()
+        max_id = cursor.fetchone()[0]
         cur_id = 0
         if max_id != None:
-            cur_id = max_id[0] + 1
+            cur_id = max_id + 1
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
         query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """

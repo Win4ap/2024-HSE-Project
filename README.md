@@ -16,17 +16,34 @@
 - RSA
 
 ## Использование
+### Локально
 Загрузите все пакеты из requirements.txt:
 ```sh
 pip3.12 install -r requirements.txt
+pip3.12 install python-multipart
+pip3.12 install pysqlite3
 ```
-Для запуска сервера (из директории server):
+Для запуска сервера локально (из директории server):
 ```sh
 python3.12 server.py
 ```
 Само приложение (из директории 2024-HSE-Project):
 ```sh
 python3.12 src/main.py
+```
+
+### В облаке
+Создайте докер-образ, предварительно поменяйте IP в server/constants.py на 0.0.0.0:
+```sh
+docker build -t dfs .
+```
+Запустите докер-контейнер:
+```sh
+docker run -itd -p YOUR-PUBLIC-IP:1233:1233 dfs
+```
+Проверить статус контейнера:
+```sh
+docker ps
 ```
 
 ## FAQ 

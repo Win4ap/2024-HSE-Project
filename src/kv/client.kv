@@ -476,9 +476,9 @@
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                             GridLayout:
                                 cols: 1
-                                rows: 9
+                                rows: 10
                                 size_hint: 1, None
-                                height: 1500
+                                height: 1600
                                 MapView:
                                     id: details_map
                                     size_hint_y: None
@@ -573,7 +573,6 @@
                                     type: ''
                                     text: 'Удалить'
                                     font_size: self.height/2
-                                    size_hint: 0.4, 0.6
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                     cur_color: (178/255, 34/255, 34/255, 1)
                                     on_release:
@@ -581,16 +580,17 @@
                                         self.order_id = -1
                                         self.type = ''
 
-                            RoundedButton:
-                                type: ''
-                                text: 'Создать чат с курьером'
-                                font_size: self.height/2
-                                size_hint: 0.4, 0.6
-                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                                cur_color: (190/255, 190/255, 190/255, 1)
-                                on_release:
-                                    root.switch_main_to('client_chat')
-                                    root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.client_chats_scrollview, root.client_main_frame)
+                                RoundedButton:
+                                    size_hint_y: None
+                                    height: 100
+                                    type: ''
+                                    text: 'Создать чат с курьером'
+                                    font_size: self.height/2
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                    cur_color: (190/255, 190/255, 190/255, 1)
+                                    on_release:
+                                        root.switch_main_to('client_chat')
+                                        root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.client_chats_scrollview, root.client_main_frame)
 
             Screen:
                 name: 'client_archive_details'

@@ -376,9 +376,9 @@
                             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                             GridLayout:
                                 cols: 1
-                                rows: 9
+                                rows: 10
                                 size_hint: 1, None
-                                height: 1500
+                                height: 1600
                                 MapView:
                                     id: details_map
                                     size_hint_y: None
@@ -474,7 +474,6 @@
                                     text: 'Взять'
                                     operation: 'take'
                                     font_size: self.height/2
-                                    size_hint: 0.6, 0.6
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                     cur_color: (120/255, 219/255, 226/255, 1)
                                     on_release:
@@ -482,16 +481,17 @@
                                         self.order_id = -1
                                         self.type = ''
 
-                            RoundedButton:
-                                type: ''
-                                text: 'Создать чат с клиентом'
-                                font_size: self.height/2
-                                size_hint: 0.4, 0.6
-                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                                cur_color: (190/255, 190/255, 190/255, 1)
-                                on_release:
-                                    root.switch_main_to('delivery_chat')
-                                    root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.delivery_chats_scrollview, root.delivery_main_frame)
+                                RoundedButton:
+                                    type: ''
+                                    size_hint_y: None
+                                    height: 100
+                                    text: 'Создать чат с клиентом'
+                                    font_size: self.height/2
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                    cur_color: (190/255, 190/255, 190/255, 1)
+                                    on_release:
+                                        root.switch_main_to('delivery_chat')
+                                        root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.delivery_chats_scrollview, root.delivery_main_frame)
 
 
         BoxLayout:

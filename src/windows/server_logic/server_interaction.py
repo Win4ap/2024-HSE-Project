@@ -210,7 +210,7 @@ class ServerLogic():
     def rate_order(self, order_id, num):
         logging.info(f'rate_order: {order_id} {num}')
         try:
-            answer = requests.put(f'{URL}/rate_order/{order_id}', json={'code': num})
+            answer = requests.put(f'{URL}/rate_order/{order_id}', json={'rating': num})
         except requests.exceptions.ConnectionError:
             logging.info('Server is down')
             return 'server_error'

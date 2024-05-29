@@ -3,6 +3,7 @@
     icon_chat: icon_chat
     icon_list: icon_list
     icon_user: icon_user
+    delivery_chats_scrollview: delivery_chats_scrollview
     delivery_orders_scrollview: delivery_orders_scrollview
     delivery_archive_scrollview: delivery_archive_scrollview
     active_orders: active_orders
@@ -49,9 +50,16 @@
                         color: 0, 0, 0, 1
                         font_size: self.height/2
                     
-                    BoxLayout:
+                    ScrollView:
                         size_hint: 1, 0.87
-                        spacing: 30
+                        do_scroll_y: True
+                        do_scroll_x: False
+                        BoxLayout:
+                            id: delivery_chats_scrollview
+                            spacing: '10dp'
+                            size_hint_y: None
+                            height: 0
+                            orientation: 'vertical'
 
             Screen:
                 name: 'delivery_orders'
@@ -442,6 +450,18 @@
                                     self.order_id = -1
                                     self.type = ''
 
+                            RoundedButton:
+                                type: ''
+                                text: 'Создать чат с клиентом'
+                                font_size: self.height/2
+                                size_hint: 0.4, 0.6
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                                cur_color: (190/255, 190/255, 190/255, 1)
+                                on_release:
+                                    root.switch_main_to('delivery_chat')
+                                    root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.delivery_chats_scrollview, root.delivery_main_frame)
+
+
         BoxLayout:
             size_hint: 1, 0.07
             spacing: 50
@@ -457,6 +477,7 @@
                 background_color: 0, 0, 0, 0
                 on_release:
                     root.switch_main_to('delivery_chat')
+                    root.update_chat_list(root.delivery_chats_scrollview, root.delivery_main_frame)
                 AnchorLayout:
                     pos: self.parent.pos
                     size: self.parent.size

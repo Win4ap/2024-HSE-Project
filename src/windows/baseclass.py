@@ -1,4 +1,5 @@
 import os
+import kivy
 
 from kivy.animation import Animation
 from kivy.uix.button import ButtonBehavior
@@ -206,8 +207,10 @@ class ProfileBase(ServerLogic):
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
     def create_chat(self, second_user, order_name, chat_sm, root_sm):
-        if second_user == 'Нет активного курьера':
-            Popup(title='Ошибка', content=Label(text='У заказа нет курьера'), size_hint=(0.8, 0.2)).open()
+        if order_name[-1] == ')':
+            order_name = order_name[:-10]
+        if self.details_button.type == 'free_orders':
+            Popup(title='Ошибка', content=Label(text='Это свободный заказ'), size_hint=(0.8, 0.2)).open()
             return
         answer = super().new_chat(second_user, order_name)
         if answer == 'server_error':

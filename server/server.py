@@ -337,6 +337,21 @@ def delete_order(type_of_order: str, order_id: int) -> bool:
     return True
 
 
+@server.get('/get_user_chats')
+def get_user_chats(user: User) -> list:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT DISTINCT id, name FROM chats WHERE {user.state} = ? """
+        cursor.execute(query, (user.login,))
+        for chat_info in cursor.fetchall():
+            result.append({
+                'id': chat_info[0],
+                'name': chat_info[1]
+            })
+    return result
+
+
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
     result = True

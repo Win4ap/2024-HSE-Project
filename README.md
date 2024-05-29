@@ -32,7 +32,7 @@ python3.12 server.py
 python3.12 src/main.py
 ```
 
-### В облаке
+### В облаке (на примере Ubuntu 22.04)
 Создайте докер-образ, предварительно поменяйте IP в server/constants.py на 0.0.0.0:
 ```sh
 docker build -t dfs .
@@ -44,6 +44,37 @@ docker run -itd -p YOUR-PUBLIC-IP:1233:1233 dfs
 Проверить статус контейнера:
 ```sh
 docker ps
+```
+
+Автоматизация перезапуска контейнера:
+```sh
+nano /etc/systemd/system/dfs.service
+```
+В файл запишите следующие строки, не забудьте поменять CONTAINER-ID, можете его найти там же, где проверяли статус контейнера:
+```
+[Unit]
+Description=SOMETHING
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a CONTAINER-ID
+ExecStop=/usr/bin/docker stop CONTAINER-ID
+TimeoutSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+Перезапустите демон и включите автозагрузку следующими командами:
+```sh
+systemctl daemon-reload
+systemctl start dfs.service
+systemctl enable dfs.service
+```
+Проверить состояние скрипта и логи сервера можете командой:
+```sh
+systemctl status dfs.service
 ```
 
 ## FAQ 

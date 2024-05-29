@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form, File
+from fastapi import FastAPI, HTTPException, UploadFile, Form, File, Body
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
 from typing import Annotated
@@ -175,6 +175,59 @@ def make_new_template(order: Order) -> bool:
     return True
 
 
+@server.post('/new_chat') 
+def make_new_chat(
+    delivery: Annotated[str, Body()],
+    client: Annotated[str, Body()],
+    order: Annotated[str, Body()]
+) -> int:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT DISTINCT id FROM chats WHERE delivery = ? AND client = ? AND name = ? """
+        cursor.execute(query, (delivery, client, order))
+        cur_id = cursor.fetchone()
+        if cur_id != None:
+            return cur_id[0]
+        query = """ SELECT MAX(id) FROM chats """
+        cursor.execute(query)
+        max_id = cursor.fetchone()[0]
+        cur_id = 0
+        if max_id != None:
+            cur_id = max_id + 1
+        time = datetime.now() + constants.delta['UTC']
+        time = time_to_str(time)
+        query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (cur_id, delivery, client, order, 'Initial message', 'Server', time))
+        database.commit()
+    return cur_id
+
+
+@server.post('/send_message/{chat_id}')
+def send_message(
+    chat_id: int,
+    user: User,
+    message: Annotated[str, Body()]
+) -> bool:
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT {user.state} FROM chats WHERE id = ? """
+        cursor.execute(query, (chat_id,))
+        member = cursor.fetchone()
+        if member == None:
+            raise HTTPException(status_code=404, detail='Chat not found')
+        if member[0] != user.login:
+            raise HTTPException(states_code=403, detail='User is not a chat member')
+        query = """ SELECT delivery, client, name FROM chats WHERE id = ? """
+        cursor.execute(query, (chat_id,))
+        chat_info = cursor.fetchone()
+        time = datetime.now() + constants.delta['UTC']
+        time = time_to_str(time)
+        query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        cursor.execute(query, (chat_id,) + chat_info + (message, user.login, time))
+        database.commit()
+    return True
+
+
 @server.put('/take_order/{type_of_order}/{order_id}')
 def take_order(type_of_order: str, order_id: int, user: User) -> int:
     update_auction_orders()
@@ -260,7 +313,7 @@ def start_order(order_id: int) -> int:
 @server.put('/complete_order/{order_id}')
 def complete_order(
     order_id: int,
-    code: Annotated[int, Form()]
+    code: Annotated[int, Body(embed=True)]
     ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -286,7 +339,7 @@ def complete_order(
 @server.put('/rate_order/{order_id}')
 def rate_order(
     order_id: int,
-    rating: Annotated[float, Form()]
+    rating: Annotated[int, Body(embed=True)]
     ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -316,6 +369,55 @@ def delete_order(type_of_order: str, order_id: int) -> bool:
         cursor.execute(query, (order_id,))
         database.commit()
     return True
+
+
+@server.get('/get_user_chats')
+def get_user_chats(user: User) -> list:
+    result = []
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = f""" SELECT DISTINCT id, name FROM chats WHERE {user.state} = ? """
+        cursor.execute(query, (user.login,))
+        chats_info = cursor.fetchall()
+        for chat_info in chats_info:
+            query = f""" SELECT message FROM chats WHERE id = ? ORDER BY time DESC """
+            cursor.execute(query, (chat_info[0],))
+            result.append({
+                'id': chat_info[0],
+                'name': chat_info[1],
+                'last message': cursor.fetchone()[0]
+            })
+    return result
+
+
+@server.get('/get_chat_content/{chat_id}')
+def get_chat_content(
+    chat_id: int
+) -> dict:
+    result = {}
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT name, client, delivery FROM chats WHERE id = ? """
+        cursor.execute(query, (chat_id,))
+        chat_info = cursor.fetchone()
+        if chat_info == None:
+            raise HTTPException(status_code=404, detail='Chat not found')
+        result['info'] = {
+            'name': chat_info[0],
+            'client': chat_info[1],
+            'delivery': chat_info[2]
+        }
+        query = """ SELECT message, owner, time FROM chats WHERE id = ? AND owner NOT IN ('Server') ORDER BY time """
+        cursor.execute(query, (chat_id,))
+        chat_content = []
+        for content in cursor.fetchall():
+            chat_content.append({
+                'message': content[0],
+                'owner': content[1],
+                'time': content[2]
+            })
+        result['content'] = chat_content 
+    return result
 
 
 @server.get('/get_profile_fullness')
@@ -379,7 +481,7 @@ def get_user_rating(user: User) -> float:
 
 
 @server.get('/get_user_picture/{picture}')
-def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
+def get_user_file(picture: str, user: User) -> bytes: #getting user's passport or picture
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """
@@ -595,7 +697,7 @@ def upload_user_info(
         raise HTTPException(status_code=422, detail="Need more information!")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = f""" SELECT login from {state}_data WHERE login = ? """
+        query = f""" SELECT login FROM {state}_data WHERE login = ? """
         cursor.execute(query, (login,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Login not found")
@@ -632,6 +734,8 @@ with sqlite3.connect(path_to_database) as database:
     query = """ CREATE TABLE IF NOT EXISTS templates_list ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER ) """
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, rating INTEGER ) """
+    cursor.execute(query)
+    query = """ CREATE TABLE IF NOT EXISTS chats ( id INTEGER, delivery TEXT, client TEXT, name TEXT, message TEXT, owner TEXT, time TEXT ) """
     cursor.execute(query)
     database.commit()
 

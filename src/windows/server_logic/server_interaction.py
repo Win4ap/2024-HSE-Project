@@ -177,7 +177,7 @@ class ServerLogic():
                 answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'})
             else:
                 if code == 0: return 'Incorrect code'
-                answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'state': f'{state}', 'login': f'{login}'}, data={'code': f'{code}'})
+                answer = requests.put(f'{URL}/{operation}_order/{order_id}', json={'code': code})
         except requests.exceptions.ConnectionError:
             logging.info('Server is down')
             return 'server_error'
@@ -210,7 +210,55 @@ class ServerLogic():
     def rate_order(self, order_id, num):
         logging.info(f'rate_order: {order_id} {num}')
         try:
-            answer = requests.put(f'{URL}/rate_order/{order_id}', data={'rating': num})
+            answer = requests.put(f'{URL}/rate_order/{order_id}', json={'code': num})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)
+    
+    def get_user_chats(self):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_user_chats: {state} {login}')
+        try:
+            answer = requests.get(f'{URL}/get_user_chats', json={'state': f'{state}', 'login': f'{login}'})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)
+    
+    def new_chat(self, second_user, order_name):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'get_user_chats: {state} {login}')
+        try:
+            if state == 'client':
+                answer = requests.post(f'{URL}/new_chat', json={'client': f'{login}', 'delivery': f'{second_user}', 'order': f'{order_name}'})
+            else:
+                answer = requests.post(f'{URL}/new_chat', json={'client': f'{second_user}', 'delivery': f'{login}', 'order': f'{order_name}'})
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)
+    
+    def get_messages(self, chat_id):
+        logging.info(f'get_chat_content: {chat_id}')
+        try:
+            answer = requests.get(f'{URL}/get_chat_content/{chat_id}')
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)
+    
+    def send_message(self, chat_id, message):
+        data = self.get_login()
+        if data != []: state, login = data[0], data[1]
+        else: return 'ты че натворил'
+        logging.info(f'send_message: {state} {login} {chat_id} {message}')
+        try:
+            answer = requests.post(f'{URL}/send_message/{chat_id}', json={'user': {'state': f'{state}', 'login': f'{login}'}, 'message': f'{message}'})
         except requests.exceptions.ConnectionError:
             logging.info('Server is down')
             return 'server_error'

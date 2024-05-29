@@ -62,7 +62,7 @@ class ClientSide(Screen, ColorAnimBase, ProfileBase, ServerLogic, MapExtension):
                         else:
                             price = str(order['cost'])+'₽'
                         if type == 'in_process_orders':
-                            name += f' (Код {order['last_cost']})'
+                            name += f'(Код {order['last_cost']})'
                         description = order['description']
                         start = order['start']
                         finish = order['finish']

@@ -24,6 +24,7 @@ class FullChat(Screen, ServerLogic):
 
 class ChatPreview(ButtonBehavior, BoxLayout):
     def __init__(self, chat_id, chat_name, root_sm):
+        super().__init__()
         self.chat_id = chat_id
         self.chat_name = chat_name
         self.root_sm = root_sm
@@ -32,7 +33,8 @@ class ChatPreview(ButtonBehavior, BoxLayout):
 
     def on_release(self):
         #self.cur_chat
-        return super().on_release()
+        #return super().on_release()
+        pass
 
 class ProfileBase(ServerLogic):
     def quit(self):

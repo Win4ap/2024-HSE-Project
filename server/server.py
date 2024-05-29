@@ -334,7 +334,7 @@ def complete_order(
 @server.put('/rate_order/{order_id}')
 def rate_order(
     order_id: int,
-    rating: Annotated[float, Body()]
+    rating: Annotated[int, Body()]
     ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -381,11 +381,11 @@ def get_user_chats(user: User) -> list:
     return result
 
 
-@server.get('/get_chat_content')
+@server.get('/get_chat_content/{chat_id}')
 def get_chat_content(
-    chat_id = Annotated[int, Body()]
+    chat_id: int
 ) -> dict:
-    result: dict
+    result = {}
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = """ SELECT name, client, delivery FROM chats WHERE id = ? """
@@ -396,9 +396,9 @@ def get_chat_content(
             'client': chat_info[1],
             'delivery': chat_info[2]
         }
-        query = """ SELECT message, owner, time FROM chats WHERE id = ?, owner NOT IN (Server,) ORDER BY time """
+        query = """ SELECT message, owner, time FROM chats WHERE id = ? AND owner NOT IN ('Server') ORDER BY time """
         cursor.execute(query, (chat_id,))
-        chat_content: list
+        chat_content = []
         for content in cursor.fetchall():
             chat_content.append({
                 'message': content[0],

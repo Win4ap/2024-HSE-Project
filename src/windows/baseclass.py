@@ -7,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+from kivy_garden.mapview import MapMarker
 
 from windows.server_logic.server_interaction import ServerLogic
 
@@ -94,6 +95,28 @@ class ChatPreview(ButtonBehavior, BoxLayout):
     def on_release(self):
         self.root_sm.current = f'chat_{self.chat_name}_{self.chat_id}'
         return super().on_release()
+
+class MapExtension():
+    cur_start = None
+    cur_finish = None
+
+    def update_map_markers(self, map_widget, adress_start, adress_finish):
+        if self.cur_start != None and self.cur_finish != None:
+            self.cur_start.detach()
+            self.cur_finish.detach()
+        adress_start, adress_finish = adress_start.replace(' ', '+'), adress_finish.replace(' ', '+')
+        answer_start, answer_finish = ServerLogic().YandexGeocoderAPI(adress_start), ServerLogic().YandexGeocoderAPI(adress_finish)
+        if answer_start == 'request_error' or answer_finish == 'request_error':
+            Popup(title='Ошибка', content=Label(text='Bad request'), size_hint=(0.8, 0.2)).open()
+            return
+        else:
+            coordinates_start = answer_start['response']['GeoObjectCollection']['featureMember'][-1]['GeoObject']['Point']['pos'].split(' ')
+            coordinates_finish = answer_finish['response']['GeoObjectCollection']['featureMember'][-1]['GeoObject']['Point']['pos'].split(' ')
+            self.cur_start = MapMarker(lon=float(coordinates_start[0]), lat=float(coordinates_start[1]))
+            self.cur_finish = MapMarker(lon=float(coordinates_finish[0]), lat=float(coordinates_finish[1]))
+            map_widget.center_on((float(coordinates_start[1])+float(coordinates_finish[1]))/2, (float(coordinates_start[0])+float(coordinates_finish[0]))/2)
+            map_widget.add_marker(self.cur_start)
+            map_widget.add_marker(self.cur_finish)
 
 class ProfileBase(ServerLogic):
     def quit(self):
@@ -265,7 +288,7 @@ class PendingReview(ArchiveOrder):
         self.link_person.text = self.person
 
 class ClientOrderPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time):
+    def __init__(self, order_id, description, name, price, start, finish, courier, time, type, status, root_sm, link_name, link_desc, link_price, link_courier, link_from, link_to, link_button, link_time, link_map, update_map):
         super().__init__()
         self.order_id = order_id
         self.description = description
@@ -286,6 +309,8 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
         self.link_to = link_to
         self.link_button = link_button
         self.link_time = link_time
+        self.link_map = link_map
+        self.update_map = update_map
 
     def on_release(self):
         path_to_login = os.path.join(os.getcwd(), 'src', 'windows', 'server_logic', 'state_login')
@@ -304,6 +329,7 @@ class ClientOrderPreview(ButtonBehavior, BoxLayout):
             self.link_courier.text = 'Нет активного курьера'
         else:
             self.link_courier.text = self.courier
+        self.update_map(self.link_map, self.start, self.finish)
         return super().on_release()
     
 class ClientTemplatePreview(ButtonBehavior, BoxLayout):

@@ -3,7 +3,7 @@ import os
 import logging
 from rsa import encrypt
 
-from windows.server_logic.constants import IP, PORT, pubkey
+from windows.server_logic.constants import IP, PORT, pubkey, geocoderAPI
 
 URL = f'http://{IP}:{PORT}'
 
@@ -263,3 +263,12 @@ class ServerLogic():
             logging.info('Server is down')
             return 'server_error'
         return self.check_status(answer)
+    
+    def YandexGeocoderAPI(self, adress):
+        answer = requests.get(f'https://geocode-maps.yandex.ru/1.x/?apikey={geocoderAPI}&geocode={adress}&lang=ru_RU&format=json')
+        logging.info(f'GeoCoder: {adress}')
+        logging.info(f'Server answer: {answer.json()}')
+        if answer.status_code == 200:
+            return answer.json()
+        elif answer.status_code == 400 or answer.status_code == 403 or answer.status_code == 429:
+            return 'request_error'

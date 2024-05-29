@@ -395,6 +395,8 @@ def get_chat_content(
         query = """ SELECT name, client, delivery FROM chats WHERE id = ? """
         cursor.execute(query, (chat_id,))
         chat_info = cursor.fetchone()
+        if chat_info == None:
+            raise HTTPException(status_code=404, detail='Chat not found')
         result['info'] = {
             'name': chat_info[0],
             'client': chat_info[1],

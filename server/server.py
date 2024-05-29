@@ -187,7 +187,7 @@ def make_new_chat(
         cursor.execute(query)
         max_id = cursor.fetchone()
         cur_id = 0
-        if max_id != None
+        if max_id != None:
             cur_id = max_id[0] + 1
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)

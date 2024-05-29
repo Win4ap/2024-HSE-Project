@@ -371,13 +371,16 @@ def get_user_chats(user: User) -> list:
     result = []
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = f""" SELECT DISTINCT id, name, message FROM chats WHERE {user.state} = ? ORDER BY time DESC """
+        query = f""" SELECT DISTINCT id, name FROM chats WHERE {user.state} = ? """
         cursor.execute(query, (user.login,))
-        for chat_info in cursor.fetchall():
+        chats_info = cursor.fetchall()
+        for chat_info in chats_info:
+            query = f""" SELECT message FROM chats WHERE id = ? ORDER BY time DESC """
+            cursor.execute(query, (chat_info[0],))
             result.append({
                 'id': chat_info[0],
                 'name': chat_info[1],
-                'last message': chat_info[2]
+                'last message': cursor.fetchone()[0]
             })
     return result
 

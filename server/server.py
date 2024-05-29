@@ -196,7 +196,7 @@ def make_new_chat(
 
 @server.post('/send_message/{chat_id}')
 def send_message(
-    chat_id: int
+    chat_id: int,
     user: Annotated[User, Form()],
     message: Annotated[str, From()]
 ) -> bool:

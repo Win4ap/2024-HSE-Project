@@ -313,7 +313,7 @@ def start_order(order_id: int) -> int:
 @server.put('/complete_order/{order_id}')
 def complete_order(
     order_id: int,
-    code: Annotated[int, Body()]
+    code: Annotated[int, Body(embed=True)]
     ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -339,7 +339,7 @@ def complete_order(
 @server.put('/rate_order/{order_id}')
 def rate_order(
     order_id: int,
-    rating: Annotated[int, Body()]
+    rating: Annotated[int, Body(embed=True)]
     ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

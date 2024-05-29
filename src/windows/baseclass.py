@@ -19,11 +19,30 @@ class ColorAnimBase():
         self.change_color(first, first_color)
         self.change_color(second, second_color)
 
+class Message(Label):
+    def __init__(self, message, text_pos, width):
+        super().__init__()
+        self.width = width
+        self.height = 95
+        self.text = message
+        self.text_size = self.size
+        self.font_size = self.height/2
+        self.valign = 'center'
+        self.halign = text_pos
+        self.color = (0, 0, 0, 1)
+        if text_pos == 'right':
+            self.cur_color = (170/255, 170/255, 170/255, 1)
+
+
 class FullChat(Screen, ServerLogic):
     def __init__(self, chat_name, chat_id):
         super().__init__(name=f'chat_{chat_name}_{chat_id}')
+        print(f'chat_{chat_name}_{chat_id}')
         self.chat_name = chat_name
         self.chat_id = chat_id
+
+    def on_enter(self):
+        self.fill_chat()
 
     def go_back(self):
         if super().get_login()[0] == 'client':
@@ -31,19 +50,34 @@ class FullChat(Screen, ServerLogic):
         else:
             self.parent.current = 'delivery_chat'
 
+    def fill_chat(self):
+        answer = super().get_messages(self.chat_id)
+        if answer == 'server_error':
+            Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
+        else:
+            self.chat_scroll.clear_widgets()
+            if answer['content'] == []:
+                self.chat_scroll.height = 180
+                self.chat_scroll.add_widget(Label(text='В чате нет сообщений', color=(0, 0, 0, 1), font_size=(self.height/30)))
+            else:
+                self.chat_scroll.height = 5 * (len(answer['content']) - 1) + 95 * (len(answer['content']))
+                cur_user = super().get_login()[1]
+                for message in answer['content']: # TODO: message height based on amount of chars/lines/etc сделать красиво крч
+                    self.chat_scroll.add_widget(Message(message['message'], 'right' if cur_user == message['owner'] else 'left', self.chat_scroll.width-40))
+
 class ChatPreview(ButtonBehavior, BoxLayout):
-    def __init__(self, chat_id, chat_name, root_sm):
+    def __init__(self, chat_id, chat_name, last_message, root_sm):
         super().__init__()
         self.chat_id = chat_id
         self.chat_name = chat_name
+        self.last_message = last_message
         self.root_sm = root_sm
-        #self.cur_chat = FullChat(chat_name, chat_id)
-        #root_sm.add_widget(self.cur_chat)
+        self.cur_chat = FullChat(chat_name, chat_id)
+        root_sm.add_widget(self.cur_chat)
 
     def on_release(self):
-        #self.cur_chat
-        #return super().on_release()
-        pass
+        self.root_sm.current = f'chat_{self.chat_name}_{self.chat_id}'
+        return super().on_release()
 
 class ProfileBase(ServerLogic):
     def quit(self):
@@ -152,7 +186,7 @@ class ProfileBase(ServerLogic):
             else:
                 chat_sm.height = 10 * (len(answer) - 1) + 180 * (len(answer))
                 for item in answer:
-                    chat_sm.add_widget(ChatPreview(item['id'], item['name'].replace('_', ' '), root_sm))
+                    chat_sm.add_widget(ChatPreview(item['id'], item['name'].replace('_', ' '), item['last message'], root_sm))
         else:
             Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
 
@@ -163,14 +197,9 @@ class ProfileBase(ServerLogic):
         answer = super().new_chat(second_user, order_name)
         if answer == 'server_error':
             Popup(title='Ошибка', content=Label(text='Сервер не работает'), size_hint=(0.8, 0.2)).open()
-        elif isinstance(answer, int):
-            if super().get_login()[0] == 'client':
-                root_sm.current = 'client_chat'
-            else:
-                root_sm.current = 'delivery_chat'
-            self.update_chat_list(chat_sm, root_sm)
         else:
-            Popup(title='Ошибка', content=Label(text='FATAL'), size_hint=(0.8, 0.2)).open()
+            self.update_chat_list(chat_sm, root_sm)
+            root_sm.current = f'chat_{order_name}_{answer}'
 
 class ArchiveOrder(ButtonBehavior, BoxLayout):
     def __init__(self, order_id, description, name, price, start, finish, person, root_sm, link_name, link_desc, link_price, link_person, link_from, link_to):

@@ -18,14 +18,60 @@
     halign: 'left'
     color: 0, 0, 0, 1
 
+<Message>:
+    background_color: 0, 0 ,0 ,0
+    cur_color: (200/255, 200/255, 200/255, 1)
+    canvas.before:
+        Color:
+            rgba: self.cur_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [40,]
+
 <FullChat>:
+    chat_id: None
+    chat_name: ''
+    chat_scroll: chat_scroll
     BoxLayout:
         orientation:'vertical'
+        BoxLayout:
+            size_hint: 1, 0.1
+            Button:
+                background_color: 0, 0, 0, 0
+                text: '<'
+                font_size: self.height
+                color: 0, 0, 0, 1
+                size_hint: 0.15, 1
+                on_release:
+                    root.go_back()
+
+            Label:
+                text: root.chat_name
+                font_size: self.height/2
+                color: 0, 0, 0, 1
+                size_hint: 0.85, 1
+
+        ScrollView:
+            do_scroll_y: True
+            do_scroll_x: False
+            size_hint: 1, 0.8
+            BoxLayout:
+                id: chat_scroll
+                orientation: 'vertical'
+                size_hint_y: None
+                height: 0
+                spacing: '5dp'
+
+        BoxLayout:
+            size_hint: 1, 0.1
+            Button:
 
 <ChatPreview>:
     chat_id: None
     chat_name: ''
     height: 180
+
     BoxLayout:
         Label:
             size_hint: 0.5, 1

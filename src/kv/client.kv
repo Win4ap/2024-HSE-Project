@@ -558,6 +558,7 @@
                                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                                 cur_color: (190/255, 190/255, 190/255, 1)
                                 on_release:
+                                    root.switch_main_to('client_chat')
                                     root.create_chat(root.details_courier.text, root.details_name.text.replace(' ', '_'), root.client_chats_scrollview, root.client_main_frame)
 
             Screen:

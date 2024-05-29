@@ -242,3 +242,12 @@ class ServerLogic():
             logging.info('Server is down')
             return 'server_error'
         return self.check_status(answer)
+    
+    def get_messages(self, chat_id):
+        logging.info(f'get_chat_content: {chat_id}')
+        try:
+            answer = requests.get(f'{URL}/get_chat_content/{chat_id}')
+        except requests.exceptions.ConnectionError:
+            logging.info('Server is down')
+            return 'server_error'
+        return self.check_status(answer)

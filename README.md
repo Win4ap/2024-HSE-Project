@@ -16,6 +16,13 @@
 - RSA
 
 ## Использование
+После клонирования:
+```sh
+cd 2024-HSE-Project/server
+mkdir database
+mkdir images
+```
+
 ### Локально
 Загрузите все пакеты из requirements.txt:
 ```sh

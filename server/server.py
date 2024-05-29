@@ -198,7 +198,7 @@ def make_new_chat(
 def send_message(
     chat_id: int,
     user: Annotated[User, Form()],
-    message: Annotated[str, From()]
+    message: Annotated[str, Form()]
 ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()

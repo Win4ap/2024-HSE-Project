@@ -188,7 +188,7 @@ def make_new_chat(
         cur_id = cursor.fetchone()[0] + 1
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
-        query = """ INSERT INTO chats ( id, delivery, client, name, message, from, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (cur_id, delivery, client, order, 'Initial message', 'Server', time))
         database.commit()
     return cur_id
@@ -214,7 +214,7 @@ def send_message(
         chat_info = cursor.fetchone()
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
-        query = """ INSERT INTO chats ( id, delivery, client, name, message, from, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
+        query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
         cursor.execute(query, (chat_id,) + chat_info + (message, user.login, time))
         database.commit()
     return True
@@ -393,13 +393,13 @@ def get_chat_content(
             'client': chat_info[1],
             'delivery': chat_info[2]
         }
-        query = """ SELECT message, from, time FROM chats WHERE id = ?, from NOT IN (Server,) ORDER BY time """
+        query = """ SELECT message, owner, time FROM chats WHERE id = ?, owner NOT IN (Server,) ORDER BY time """
         cursor.execute(query, (chat_id,))
         chat_content: list
         for content in cursor.fetchall():
             chat_content.append({
                 'message': content[0],
-                'from': content[1],
+                'owner': content[1],
                 'time': content[2]
             })
         result['content'] = chat_content 
@@ -683,7 +683,7 @@ def upload_user_info(
         raise HTTPException(status_code=422, detail="Need more information!")
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
-        query = f""" SELECT login from {state}_data WHERE login = ? """
+        query = f""" SELECT login FROM {state}_data WHERE login = ? """
         cursor.execute(query, (login,))
         if cursor.fetchone() == None:
             raise HTTPException(status_code=404, detail="Login not found")
@@ -721,7 +721,8 @@ with sqlite3.connect(path_to_database) as database:
     cursor.execute(query)
     query = """ CREATE TABLE IF NOT EXISTS archive ( id INTEGER PRIMARY KEY, owner TEXT, name TEXT, cost INTEGER, description TEXT, start TEXT, finish TEXT, supplier TEXT, time TEXT, fee INTEGER, rating INTEGER ) """
     cursor.execute(query)
-    query = """ CREATE TABLE IF NOT EXISTS chats ( id INTEGER, delivery TEXT, client TEXT, name TEXT, message TEXT, from TEXT, time TEXT ) """
+    query = """ CREATE TABLE IF NOT EXISTS chats ( id INTEGER, delivery TEXT, client TEXT, name TEXT, message TEXT, owner TEXT, time TEXT ) """
+    cursor.execute(query)
     database.commit()
 
 uvicorn.run(server, host = constants.IP, port = constants.PORT)

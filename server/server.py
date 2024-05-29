@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form, File
+from fastapi import FastAPI, HTTPException, UploadFile, Form, File, Body
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
 from typing import Annotated
@@ -177,9 +177,9 @@ def make_new_template(order: Order) -> bool:
 
 @server.post('/new_chat') 
 def make_new_chat(
-    delivery: Annotated[str, Form()],
-    client: Annotated[str, Form()],
-    order: Annotated[str, Form()]
+    delivery: Annotated[str, Body()],
+    client: Annotated[str, Body()],
+    order: Annotated[str, Body()]
 ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -200,8 +200,8 @@ def make_new_chat(
 @server.post('/send_message/{chat_id}')
 def send_message(
     chat_id: int,
-    user: Annotated[User, Form()],
-    message: Annotated[str, Form()]
+    user: User,
+    message: Annotated[str, Body()]
 ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -308,7 +308,7 @@ def start_order(order_id: int) -> int:
 @server.put('/complete_order/{order_id}')
 def complete_order(
     order_id: int,
-    code: Annotated[int, Form()]
+    code: Annotated[int, Body()]
     ) -> int:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -334,7 +334,7 @@ def complete_order(
 @server.put('/rate_order/{order_id}')
 def rate_order(
     order_id: int,
-    rating: Annotated[float, Form()]
+    rating: Annotated[float, Body()]
     ) -> bool:
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
@@ -383,7 +383,7 @@ def get_user_chats(user: User) -> list:
 
 @server.get('/get_chat_content')
 def get_chat_content(
-    chat_id = Annotated[int, Form()]
+    chat_id = Annotated[int, Body()]
 ) -> dict:
     result: dict
     with sqlite3.connect(path_to_database) as database:
@@ -470,7 +470,7 @@ def get_user_rating(user: User) -> float:
 
 
 @server.get('/get_user_picture/{picture}')
-def get_user_file(picture, user: User) -> bytes: #getting user's passport or picture
+def get_user_file(picture: str, user: User) -> bytes: #getting user's passport or picture
     with sqlite3.connect(path_to_database) as database:
         cursor = database.cursor()
         query = f""" SELECT fullness FROM {user.state}_data WHERE login = ? """

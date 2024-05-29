@@ -20,7 +20,16 @@ class ColorAnimBase():
         self.change_color(second, second_color)
 
 class FullChat(Screen, ServerLogic):
-    pass
+    def __init__(self, chat_name, chat_id):
+        super().__init__(name=f'chat_{chat_name}_{chat_id}')
+        self.chat_name = chat_name
+        self.chat_id = chat_id
+
+    def go_back(self):
+        if super().get_login()[0] == 'client':
+            self.parent.current = 'client_chat'
+        else:
+            self.parent.current = 'delivery_chat'
 
 class ChatPreview(ButtonBehavior, BoxLayout):
     def __init__(self, chat_id, chat_name, root_sm):
@@ -28,7 +37,7 @@ class ChatPreview(ButtonBehavior, BoxLayout):
         self.chat_id = chat_id
         self.chat_name = chat_name
         self.root_sm = root_sm
-        #self.cur_chat = FullChat(name=f'chat_{chat_name}_{chat_id}')
+        #self.cur_chat = FullChat(chat_name, chat_id)
         #root_sm.add_widget(self.cur_chat)
 
     def on_release(self):

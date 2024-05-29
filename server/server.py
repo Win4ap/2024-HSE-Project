@@ -378,6 +378,34 @@ def get_user_chats(user: User) -> list:
     return result
 
 
+@server.get('/get_chat_content')
+def get_chat_content(
+    chat_id = Annotated[int, Form()]
+) -> dict:
+    result: dict
+    with sqlite3.connect(path_to_database) as database:
+        cursor = database.cursor()
+        query = """ SELECT name, client, delivery FROM chats WHERE id = ? """
+        cursor.execute(query, (chat_id,))
+        chat_info = cursor.fetchone()
+        result['info'] = {
+            'name': chat_info[0],
+            'client': chat_info[1],
+            'delivery': chat_info[2]
+        }
+        query = """ SELECT message, from, time FROM chats WHERE id = ?, from NOT IN (Server,) ORDER BY time """
+        cursor.execute(query, (chat_id,))
+        chat_content: list
+        for content in cursor.fetchall():
+            chat_content.append({
+                'message': content[0],
+                'from': content[1],
+                'time': content[2]
+            })
+        result['content'] = chat_content 
+    return result
+
+
 @server.get('/get_profile_fullness')
 def get_profile_fullness(user: User) -> bool:
     result = True

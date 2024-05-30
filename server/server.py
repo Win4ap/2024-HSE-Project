@@ -223,7 +223,7 @@ def send_message(
         time = datetime.now() + constants.delta['UTC']
         time = time_to_str(time)
         query = """ INSERT INTO chats ( id, delivery, client, name, message, owner, time ) VALUES (?, ?, ?, ?, ?, ?, ?) """
-        cursor.execute(query, (chat_id,) + chat_info + (message, user.login, time))
+        cursor.execute(query, (chat_id,) + chat_info + (message, user.state, time))
         database.commit()
     return True
 

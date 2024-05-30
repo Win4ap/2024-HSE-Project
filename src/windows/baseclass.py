@@ -63,7 +63,7 @@ class FullChat(Screen, ServerLogic):
                 self.chat_scroll.add_widget(Label(text='В чате нет сообщений', color=(0, 0, 0, 1), font_size=(self.height/30)))
             else:
                 self.chat_scroll.height = 5 * (len(answer['content']) - 1) + 95 * (len(answer['content']))
-                cur_user = super().get_login()[1]
+                cur_user = super().get_login()[0]
                 for message in answer['content']: # TODO: message height based on amount of chars/lines/etc сделать красиво крч
                     self.chat_scroll.add_widget(Message(message['message'], 'right' if cur_user == message['owner'] else 'left', self.chat_scroll.width-40))
 

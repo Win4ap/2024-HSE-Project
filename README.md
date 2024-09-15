@@ -92,7 +92,7 @@ systemctl status dfs.service
 Понятная документация или требование кого-то из кураторов/менторов/комиссии.
 
 ## To do
-- Cделать нормальный дизайн
+- Cделать нормальный дизайн ([кликабельный прототип](https://www.figma.com/proto/v2SzqBOFpov3b7N1D44A2c/%D0%94%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0?page-id=1%3A2&node-id=422-1742&viewport=-6175%2C-349%2C0.19&t=bRvyFfg3I5E2tpoi-1&scaling=scale-down&starting-point-node-id=422%3A1742&show-proto-sidebar=1))
 - Отрефакторить код, хочется больше readability
 
 ## Команда проекта
